@@ -7805,4 +7805,17 @@ run(function()
 		end
 	})
 end)
+
+				game:GetService('StarterGui'):SetCore('SendNotification', {
+				Title = 'Novaware',
+				Text = ('Novaware has offically loaded.'),
+				Duration =15,
+			})
+
+					game:GetService('StarterGui'):SetCore('SendNotification', {
+				Title = 'Join the discord',
+				Text = ('https://discord.gg/6kyHUhUXVC'),
+				Duration = 15,
+			})
+	
 	
