@@ -4859,6 +4859,445 @@ run(function()
 		Tooltip = 'Disables Snap Traps'
 	})
 end)
+
+																																																																							run(function()
+	local PlayerLevelSet = {}
+	local PlayerLevel = {Value = 100}
+	PlayerLevelSet = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'SetPlayerLevel',
+		HoverText = 'Sets your player level to 100 (client sided)',
+		Function = function(calling)
+			if calling then 
+				warningNotification("SetPlayerLevel", "This is client sided (only u will see the new level)", 3)
+				game.Players.LocalPlayer:SetAttribute("PlayerLevel", PlayerLevel.Value)
+			end
+		end
+	})
+	PlayerLevel = PlayerLevelSet.CreateSlider({
+		Name = 'Sets your desired player level',
+		Function = function() game.Players.LocalPlayer:SetAttribute("PlayerLevel", PlayerLevel.Value) end,
+		Min = 1,
+		Max = 100,
+		Default = 100
+	})
+end)
+
+local GetAllTargets = function() return {} end
+GetAllTargets = function(distance, sort)
+	local targets = {}
+	for i,v in playersService:GetPlayers() do 
+		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
+			--if not RenderFunctions:GetPlayerType(2) then 
+				--continue
+			--end--]]
+			if not ({whitelist:get(v)})[2] then 
+				continue
+			end
+			if not entityLibrary.isPlayerTargetable(v) then 
+				continue
+			end
+			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+			if playerdistance <= (distance or math.huge) then 
+				table.insert(targets, {Human = true, RootPart = v.Character.PrimaryPart, Humanoid = v.Character.Humanoid, Player = v})
+			end
+		end
+	end
+	if sort then 
+		table.sort(targets, sort)
+	end
+	return targets
+end
+
+local dumptable = function() return {} end
+dumptable = function(tab, tabtype, sortfunction)
+	local data = {}
+	for i,v in next, tab do
+		local tabtype = tabtype and tabtype == 1 and i or v
+		table.insert(data, tabtype)
+	end
+	if sortfunction then
+		table.sort(data, sortfunction)
+	end
+	return data
+end
+
+local tweenInProgress = function() end
+tweenInProgress = function()
+	if store.autowinning then 
+		return true 
+	end
+	for i,v in next, ({'BedTP', 'PlayerTP', 'EmeraldTP', 'DiamondTP'}) do 
+		if isEnabled(v) then 
+			return true
+		end
+	end
+	return false
+end
+
+function VoidwareFunctions:LoadTime()
+	if shared.VapeFullyLoaded then
+		return (tick() - VoidwareStore.TimeLoaded)
+	else
+		return 0
+	end
+end
+run(function()
+	local middletween
+	local MiddleTP = {Enabled = false}
+	MiddleTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+		Name = "MiddleTP",
+		NoSave = true,
+		HoverText = "Tween/Teleport to the middle position.",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					if VoidwareFunctions:LoadTime() <= 0.1 or isEnabled("InfiniteFly") then
+						MiddleTP.ToggleButton(false)
+						return
+					end
+					pcall(function()
+						middletween = workspace:FindFirstChild("RespawnView")
+						vapeAssert(middletween, "MiddleTP", "Middle not Found.", 7, true, true, "MiddleTP")
+						if store.queueType:find("skywars") and getItem("telepearl") and isAlive() then
+							local pearl = getItem("telepearl")
+							local projectileexploit = false
+							if isEnabled("ProjectileExploit") then GuiLibrary.ObjectsThatCanBeSaved.ProjectileExploitOptionsButton.Api.ToggleButton(false) projectileexploit = true end
+							local raycast = workspace:Raycast(middletween.Position, Vector3.new(0, -2000, 0), store.blockRaycast)
+							raycast = raycast and raycast.Position or middletween.Position
+							switchItem(pearl.tool)
+							local fired = bedwars.Client:Get(bedwars.ProjectileRemote):CallServerAsync(pearl.tool, "telepearl", "telepearl", raycast + Vector3.new(0, 3, 0), raycast + Vector3.new(0, 3, 0), Vector3.new(0, -1, 0), httpService:GenerateGUID(), {drawDurationSeconds = 3}, workspace:GetServerTimeNow() - 0.045)
+							if MiddleTP.Enabled then
+								MiddleTP.ToggleButton(false)
+							end
+							if not isEnabled("ProjectileExploit") and projectileexploit then GuiLibrary.ObjectsThatCanBeSaved.ProjectileExploitOptionsButton.Api.ToggleButton(false) end
+							if fired then InfoNotification("MiddleTP", "Teleported!") end
+						else
+							vapeAssert(FindTeamBed(), "MiddleTP", store.queueType:find("skywars") and "Telepearl not Found." or "Team Bed not Found.", 7, true, true, "MiddleTP")
+							if isAlive(lplr, true) then
+								lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+								lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+							end
+							table.insert(MiddleTP.Connections, lplr.CharacterAdded:Connect(function()
+								if not isAlive() then repeat task.wait() until isAlive() end
+								if not MiddleTP.Enabled then return end
+								task.wait(0.2)
+								local raycast = workspace:Raycast(middletween.Position, Vector3.new(0, -2000, 0), store.blockRaycast)
+								raycast = raycast and raycast.Position or middletween.Position
+								middletween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.65, Enum.EasingStyle.Linear), {CFrame = CFrame.new(raycast) + Vector3.new(0, 5, 0)})
+								middletween:Play()
+								middletween.Completed:Wait()
+								if MiddleTP.Enabled then
+									MiddleTP.ToggleButton(false)
+								end
+								InfoNotification("MiddleTP", "Teleported!")
+							end))
+						end
+					end)
+				end)
+			end
+		end,
+		HoverText = "Teleport to the middle."
+	})
+end)
+
+run(function()
+	local GetEnumItems = function() return {} end
+	GetEnumItems = function(enum)
+		local fonts = {}
+		for i,v in next, Enum[enum]:GetEnumItems() do 
+			table.insert(fonts, v.Name) 
+		end
+		return fonts
+	end
+	local canRespawn = function() end
+	canRespawn = function()
+		local success, response = pcall(function() 
+			return lplr.leaderstats.Bed.Value == '✅' 
+		end)
+		return success and response 
+	end
+	local PlayerTP = {}
+	local PlayerTPTeleport = {Value = 'Respawn'}
+	local PlayerTPSort = {Value = 'Distance'}
+	local PlayerTPMethod = {Value = 'Linear'}
+	local PlayerTPAutoSpeed = {}
+	local PlayerTPSpeed = {Value = 200}
+	local PlayerTPTarget = {Value = ''}
+	local playertween
+	local oldmovefunc
+	local bypassmethods = {
+		Respawn = function() 
+			if isEnabled('InfiniteFly') then 
+				return 
+			end
+			if not canRespawn() then 
+				return 
+			end
+			for i = 1, 30 do 
+				if isAlive(lplr, true) and lplr.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+					lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+					lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+				end
+			end
+			lplr.CharacterAdded:Wait()
+			repeat task.wait() until isAlive(lplr, true) 
+			task.wait(0.1)
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil or not PlayerTP.Enabled then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (PlayerTPAutoSpeed.Enabled and ((target.RootPart.Position - localposition).Magnitude / 470) + 0.001 * 2 or (PlayerTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (PlayerTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[PlayerTPMethod.Value])
+			playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = target.RootPart.CFrame}) 
+			playertween:Play() 
+			playertween.Completed:Wait()
+		end,
+		Instant = function() 
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil then 
+				return PlayerTP.ToggleButton()
+			end
+			lplr.Character.HumanoidRootPart.CFrame = (target.RootPart.CFrame + Vector3.new(0, 5, 0)) 
+			PlayerTP.ToggleButton()
+		end,
+		Recall = function()
+			if not isAlive(lplr, true) or lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air then 
+				errorNotification('PlayerTP', 'Recall ability not available.', 7)
+				return 
+			end
+			if not bedwars.AbilityController:canUseAbility('recall') then 
+				errorNotification('PlayerTP', 'Recall ability not available.', 7)
+				return
+			end
+			pcall(function()
+				oldmovefunc = require(lplr.PlayerScripts.PlayerModule).controls.moveFunction 
+				require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = function() end
+			end)
+			bedwars.AbilityController:useAbility('recall')
+			local teleported
+			table.insert(PlayerTP.Connections, lplr:GetAttributeChangedSignal('LastTeleported'):Connect(function() teleported = true end))
+			repeat task.wait() until teleported or not PlayerTP.Enabled or not isAlive(lplr, true) 
+			task.wait()
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil or not isAlive(lplr, true) or not PlayerTP.Enabled then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (PlayerTPAutoSpeed.Enabled and ((target.RootPart.Position - localposition).Magnitude / 1000) + 0.001 or (PlayerTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (PlayerTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[PlayerTPMethod.Value])
+			playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = target.RootPart.CFrame}) 
+			playertween:Play() 
+			playertween.Completed:Wait()
+		end
+	}
+	PlayerTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+		Name = 'PlayerTP',
+		HoverText = 'Tweens you to a nearby target.',
+		Function = function(calling)
+			if calling then 
+				if isEnabled('FullDisabler') and isAlive(lplr, true) then 
+					return bypassmethods.Instant()
+				end
+				if isEnabled('FullDisabler') then 
+					return PlayerTP.ToggleButton()
+				end
+				if GetTarget(nil, PlayerTPSort.Value == 'Health', true).RootPart and shared.VapeFullyLoaded then 
+					bypassmethods[isAlive() and PlayerTPTeleport.Value or 'Respawn']() 
+				end
+				if PlayerTP.Enabled then 
+					PlayerTP.ToggleButton()
+				end
+			else
+				pcall(function() playertween:Disconnect() end)
+				if oldmovefunc then 
+					pcall(function() require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = oldmovefunc end)
+				end
+				oldmovefunc = nil
+			end
+		end
+	})
+	PlayerTPTeleport = PlayerTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = {'Respawn', 'Recall'},
+		Function = function() end
+	})
+	PlayerTPAutoSpeed = PlayerTP.CreateToggle({
+		Name = 'Auto Speed',
+		HoverText = 'Automatically uses a "good" tween speed.',
+		Default = true,
+		Function = function(calling) 
+			if calling then 
+				pcall(function() PlayerTPSpeed.Object.Visible = false end) 
+			else 
+				pcall(function() PlayerTPSpeed.Object.Visible = true end) 
+			end
+		end
+	})
+	PlayerTPSpeed = PlayerTP.CreateSlider({
+		Name = 'Tween Speed',
+		Min = 20, 
+		Max = 350,
+		Default = 200,
+		Function = function() end
+	})
+	PlayerTPMethod = PlayerTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = GetEnumItems('EasingStyle'),
+		Function = function() end
+	})
+	PlayerTPSpeed.Object.Visible = false
+	local Credits
+	Credits = PlayerTP.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+local function GetClanTag(plr)
+	local atr, res = pcall(function()
+		return plr:GetAttribute("ClanTag")
+	end)
+	return atr and res ~= nil and res
+end
+
+run(function()
+	local ClanDetector = {Enabled = false}
+	local alreadyclanchecked = {}
+	local blacklistedclans = {}
+	local function detectblacklistedclan(plr)
+		if not plr:GetAttribute("LobbyConnected") then repeat task.wait() until plr:GetAttribute("LobbyConnected") end
+		for i2, v2 in pairs(blacklistedclans.ObjectList) do
+			if GetClanTag(plr) == v2 and alreadyclanchecked[plr] == nil then
+				warningNotification("ClanDetector", plr.DisplayName.. " is in the "..v2.." clan!", 15)
+				alreadyclanchecked[plr] = true
+			end
+		end
+	end
+	ClanDetector = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = "ClanDetector",
+		Approved = true,
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+				for i,v in pairs(playersService:GetPlayers()) do
+					task.spawn(function()
+					 if v ~= lplr then
+						 task.spawn(detectblacklistedclan, v)
+					 end
+					end)
+				end
+				table.insert(ClanDetector.Connections, playersService.PlayerAdded:Connect(function(v)
+					task.spawn(detectblacklistedclan, v)
+				end))
+			end)
+			end
+		end,
+		HoverText = "detect players in certain clans (customizable)"
+	})
+	blacklistedclans = ClanDetector.CreateTextList({
+		Name = "Clans",
+		TempText = "clans to detect",
+		AddFunction = function() 
+		if ClanDetector.Enabled then
+			ClanDetector.ToggleButton(false)
+			ClanDetector.ToggleButton(false)
+		end
+		end
+	})
+end)
+
+run(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
+	local SetEmote = {}
+	local SetEmoteList = {Value = ''}
+	local oldemote
+	local emo2 = {}
+	local credits
+	SetEmote = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'SetEmote',
+		HoverText = "Sets your emote",
+		Function = function(calling)
+			if calling then
+				oldemote = lplr:GetAttribute('EmoteTypeSlot1')
+				lplr:SetAttribute('EmoteTypeSlot1', emo2[SetEmoteList.Value])
+			else
+				if oldemote then 
+					lplr:GetAttribute('EmoteTypeSlot1', oldemote)
+					oldemote = nil 
+				end
+			end
+		end
+	})
+	local emo = {}
+	for i,v in pairs(bedwars.EmoteMeta) do 
+		table.insert(emo, v.name)
+		emo2[v.name] = i
+	end
+	table.sort(emo, function(a, b) return a:lower() < b:lower() end)
+	credits = SetEmote.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        ButtonText = 'Show Credits',
+        Credits = 'Render'
+    })
+	SetEmoteList = SetEmote.CreateDropdown({
+		Name = 'Emote',
+		List = emo,
+		Function = function(emote)
+			if SetEmote.Enabled then 
+				lplr:SetAttribute('EmoteTypeSlot1', emo2[emote])
+			end
+		end
+	})
+end)
+
+run(function()
+	local NoEmoteWheel = {}
+	local emoting
+	local credits
+	NoEmoteWheel = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'NoEmoteWheel',
+		HoverText = 'Removes the old emote wheel and uses the first\nemote in your emote slot.',
+		Function = function(calling)
+			if calling then 
+				table.insert(NoEmoteWheel.Connections, lplr.PlayerGui.ChildAdded:Connect(function(v)
+					local anim
+					if tostring(v) == 'RoactTree' and isAlive(lplr, true) and not emoting then 
+						v:WaitForChild('1'):WaitForChild('1')
+						if not v['1']:IsA('ImageButton') then 
+							return 
+						end
+						v['1'].Visible = false
+						emoting = true
+						bedwars.Client:Get('Emote'):CallServer({emoteType = lplr:GetAttribute('EmoteTypeSlot1')})
+						local oldpos = lplr.Character.HumanoidRootPart.Position 
+						if tostring(lplr:GetAttribute('EmoteTypeSlot1')):lower():find('nightmare') then 
+							anim = Instance.new('Animation')
+							anim.AnimationId = 'rbxassetid://9191822700'
+							anim = lplr.Character.Humanoid.Animator:LoadAnimation(anim)
+							task.spawn(function()
+								repeat 
+									anim:Play()
+									anim.Completed:Wait()
+								until not anim
+							end)
+						end
+						repeat task.wait() until ((lplr.Character.HumanoidRootPart.Position - oldpos).Magnitude >= 0.3 or not isAlive(lplr, true))
+						pcall(function() anim:Stop() end)
+						anim = nil
+						emoting = false
+						bedwars.Client:Get('EmoteCancelled'):CallServer({emoteType = lplr:GetAttribute('EmoteTypeSlot1')})
+					end
+				end))
+			end
+		end
+	})
+	credits = NoEmoteWheel.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        ButtonText = 'Show Credits',
+        Credits = 'Vape+ Booster'
+    })
+end)
+
 	
 run(function()
 	vape.Categories.World:CreateModule({
@@ -7822,3 +8261,4 @@ end)
 
 vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
 vape:CreateNotification("Daddyware", "Join our discord server at https://discord.gg/6kyHUhUXVC", 15, "alert")
+RenderFunctions:CreatePlayerTag
