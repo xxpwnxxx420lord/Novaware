@@ -7806,16 +7806,5 @@ run(function()
 	})
 end)
 
-				game:GetService('StarterGui'):SetCore('SendNotification', {
-				Title = 'Novaware',
-				Text = ('Novaware has offically loaded.'),
-				Duration =15,
-			})
-
-					game:GetService('StarterGui'):SetCore('SendNotification', {
-				Title = 'Join the discord',
-				Text = ('https://discord.gg/6kyHUhUXVC'),
-				Duration = 15,
-			})
-	
-	
+vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
+vape:CreateNotification("Daddyware", "Join our discord server at https://discord.gg/6kyHUhUXVC", 15, "alert")
