@@ -22,6 +22,7 @@ local collectionService = cloneref(game:GetService('CollectionService'))
 local contextActionService = cloneref(game:GetService('ContextActionService'))
 local coreGui = cloneref(game:GetService('CoreGui'))
 local starterGui = cloneref(game:GetService('StarterGui'))
+local vapeGithubRequest = shared.vapeGithubRequest
 local RenderFunctions = loadstring(vapeGithubRequest("Libraries/Novawarefunctions.lua"))() -- <3 voidware
 
 local isnetworkowner = identifyexecutor and table.find({'AWP', 'Nihon'}, ({identifyexecutor()})[1]) and isnetworkowner or function()
