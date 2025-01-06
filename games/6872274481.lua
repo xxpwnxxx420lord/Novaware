@@ -3170,6 +3170,20 @@ run(function()
 		Tooltip = 'Render Beds through walls'
 	})
 end)
+
+																																			run(function()
+	local GameFixer = {Enabled = false}
+	local GameFixerHit = {Enabled = false}
+	GameFixer = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = "GameFixer",
+		Function = function(callback)
+			debug.setconstant(bedwars.SwordController.swingSwordAtMouse, 23, callback and 'raycast' or 'Raycast')
+        	debug.setupvalue(bedwars.SwordController.swingSwordAtMouse, 4, callback and bedwars.QueryUtil or workspace)
+		end,
+		HoverText = "Fixes game bugs"
+	})
+end)
+
 	
 run(function()
 	local Health
