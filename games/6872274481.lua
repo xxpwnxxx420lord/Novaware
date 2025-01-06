@@ -22,8 +22,6 @@ local collectionService = cloneref(game:GetService('CollectionService'))
 local contextActionService = cloneref(game:GetService('ContextActionService'))
 local coreGui = cloneref(game:GetService('CoreGui'))
 local starterGui = cloneref(game:GetService('StarterGui'))
-local vapeGithubRequest = shared.vapeGithubRequest
-local RenderFunctions = loadstring(vapeGithubRequest("Libraries/Novawarefunctions.lua"))() -- <3 voidware
 
 local isnetworkowner = identifyexecutor and table.find({'AWP', 'Nihon'}, ({identifyexecutor()})[1]) and isnetworkowner or function()
 	return true
@@ -8263,4 +8261,3 @@ end)
 
 vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
 vape:CreateNotification("Daddyware", "Join our discord server at https://discord.gg/6kyHUhUXVC", 15, "alert")
-RenderFunctions:CreatePlayerTag(game.Players.LocalPlayer, "NOVAWARE USER", 0xff, 0x90, 0xbf)
