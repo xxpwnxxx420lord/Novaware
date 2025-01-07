@@ -1,3 +1,4 @@
+local loadtime = tick()
 local run = function(func)
 	func()
 end
@@ -7830,82 +7831,85 @@ run(function()
     })
 end)
 
-runFunction(function()
-	local Snowflakes = false
-	local SnowflakesSpread = 35
-	local SnowflakesRate = 28
-	Snowflakes = vape.Categories.Novaware:CreateModule({
-		Name = "Snowflakes",
-        HoverText = "Makes it snow",
+run(function()
+	LoadingTime = vape.Categories.Novaware:CreateModule({
+		Name = "LoadingTime",
+        HoverText = "Notifies you on how long the loading time took",
 		Function = function(callback)
 			if callback then
-				task.spawn(function()
-					-- vape code yes ik, i jst made it separate
-					local snowpart = Instance.new("Part")
-					snowpart.Size = Vector3.new(240, 0.5, 240)
-					snowpart.Name = "SnowParticle"
-					snowpart.Transparency = 1
-					snowpart.CanCollide = false
-					snowpart.Position = Vector3.new(0, 120, 286)
-					snowpart.Anchored = true
-					snowpart.Parent = workspace
-					local snow = Instance.new("ParticleEmitter")
-					snow.RotSpeed = NumberRange.new(300)
-					snow.VelocitySpread = SnowflakesSpread.Value
-					snow.Rate = SnowflakesRate.Value
-					snow.Texture = "rbxassetid://8158344433"
-					snow.Rotation = NumberRange.new(110)
-					snow.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.16939899325371,0),NumberSequenceKeypoint.new(0.23365999758244,0.62841498851776,0.37158501148224),NumberSequenceKeypoint.new(0.56209099292755,0.38797798752785,0.2771390080452),NumberSequenceKeypoint.new(0.90577298402786,0.51912599802017,0),NumberSequenceKeypoint.new(1,1,0)})
-					snow.Lifetime = NumberRange.new(8,14)
-					snow.Speed = NumberRange.new(8,18)
-					snow.EmissionDirection = Enum.NormalId.Bottom
-					snow.SpreadAngle = Vector2.new(35,35)
-					snow.Size = NumberSequence.new({NumberSequenceKeypoint.new(0,0,0),NumberSequenceKeypoint.new(0.039760299026966,1.3114800453186,0.32786899805069),NumberSequenceKeypoint.new(0.7554469704628,0.98360699415207,0.44038599729538),NumberSequenceKeypoint.new(1,0,0)})
-					snow.Parent = snowpart
-					local windsnow = Instance.new("ParticleEmitter")
-					windsnow.Acceleration = Vector3.new(0,0,1)
-					windsnow.RotSpeed = NumberRange.new(100)
-					windsnow.VelocitySpread = SnowflakesSpread.Value
-					windsnow.Rate = SnowflakesRate.Value
-					windsnow.Texture = "rbxassetid://8158344433"
-					windsnow.EmissionDirection = Enum.NormalId.Bottom
-					windsnow.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.16939899325371,0),NumberSequenceKeypoint.new(0.23365999758244,0.62841498851776,0.37158501148224),NumberSequenceKeypoint.new(0.56209099292755,0.38797798752785,0.2771390080452),NumberSequenceKeypoint.new(0.90577298402786,0.51912599802017,0),NumberSequenceKeypoint.new(1,1,0)})
-					windsnow.Lifetime = NumberRange.new(8,14)
-					windsnow.Speed = NumberRange.new(8,18)
-					windsnow.Rotation = NumberRange.new(110)
-					windsnow.SpreadAngle = Vector2.new(35,35)
-					windsnow.Size = NumberSequence.new({NumberSequenceKeypoint.new(0,0,0),NumberSequenceKeypoint.new(0.039760299026966,1.3114800453186,0.32786899805069),NumberSequenceKeypoint.new(0.7554469704628,0.98360699415207,0.44038599729538),NumberSequenceKeypoint.new(1,0,0)})
-					windsnow.Parent = snowpart
-					repeat
-						task.wait()
-						if entityLibrary.isAlive then 
-							snowpart.Position = entityLibrary.character.HumanoidRootPart.Position + Vector3.new(0, 100, 0)
-						end
-					until not vapeInjected
-				end)
-			else
-				for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
-					if v.Name == "SnowParticle" then
-						v:Remove()
-					end
-				end
+				vape:CreateNotification("Novaware","Loaded in " .. tick() - loadtime .. " seconds.",15)
+				return
 			end
 		end
 	})
-	SnowflakesSpread = Snowflakes.CreateSlider({
-		Name = "Spread",
+	LoadingTimeNotification = LoadingTime.CreateSlider({
+		Name = "Notification",
 		Min = 1,
-		Max = 100,
+		Max = 20,
 		Function = function() end,
-		Default = 35
+		Default = 5
 	})
-	SnowflakesRate = Snowflakes.CreateSlider({
-		Name = "Rate",
-		Min = 1,
-		Max = 100,
-		Function = function() end,
-		Default = 28
-	})
+end)
+
+run(function()
+	local txtpackloader = game:GetObjects("rbxassetid://14027120450")
+	txtpack = unpack(txtpackloader)
+	txtpack.Parent = ReplicatedStorage
+	local hi
+	texturepack = vape.Categories.Novaware:CreateModule({
+        Name = "TexturePack",
+        HoverText = "renderer + pack made by @iraqicat",
+        Function = function(callback)
+            if callback then
+				hi = workspace.Camera.Viewmodel.DescendantAdded:Connect(function(descendant)
+					for i,v in pairs(txtpack:GetChildren()) do
+						if v.Name == descendant.Name then
+							-- first person viewmodel check
+							for i1,v1 in pairs(descendant:GetDescendants()) do
+								if v1:IsA("Part") or v1:IsA("MeshPart") then
+									v1.Transparency = 1
+								end
+							end
+							-- third person viewmodel check
+							for i1,v1 in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+								if v1.Name == v.Name then
+									for i2,v2 in pairs(v1:GetDescendants()) do
+										if v2.Name ~= descendant.Name then
+											if v2:IsA("Part") or v2:IsA("MeshPart") then
+												v2.Transparency = 1
+											end
+										end
+									end
+								end
+							end
+							-- first person txtpack renderer
+							local vmmodel = v:Clone()
+							vmmodel.CFrame = descendant.Handle.CFrame * CFrame.Angles(math.rad(90),math.rad(-130),math.rad(0))
+							if descendant.Name == "rageblade" then vmmodel.CFrame = CFrame.Angles(math.rad(-80),math.rad(230),math.rad(10)) end
+							vmmodel.Parent = descendant
+							local vmmodelweld = Instance.new("WeldConstraint",vmmodel)
+							vmmodelweld.Part0 = vmmodelweld.Parent
+							vmmodelweld.Part1 = descendant.Handle
+							-- third person txtpack renderer
+							local charmodel = v:Clone()
+							charmodel.CFrame = game.Players.LocalPlayer.Character[descendant.Name]:FindFirstChild("Handle").CFrame * CFrame.Angles(math.rad(90),math.rad(-130),math.rad(0))
+							if descendant.Name == "rageblade" then charmodel.CFrame = CFrame.Angles(math.rad(-80),math.rad(230),math.rad(10)) end
+							charmodel.Anchored = false
+							charmodel.CanCollide = false
+							charmodel.Parent = game.Players.LocalPlayer.Character[descendant.Name]
+							local charmodelweld = Instance.new("WeldConstraint",charmodel)
+							charmodelweld.Part0 = charmodelweld.Parent
+							charmodelweld.Part1 = game.Players.LocalPlayer.Character[descendant.Name].Handle
+						end
+					end
+				end)
+            else
+                if hi then
+                    hi:Disconnect()
+                end
+            end
+        end
+    })
 end)
 
 																																																																																																																																																																																																																																																																																									vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
