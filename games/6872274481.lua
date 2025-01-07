@@ -7805,6 +7805,30 @@ run(function()
 		end
 	})
 end)
+
+run(function()
+    AntiBan = vape.Novaware:CreateModule({
+        Name = "AntiBan",
+        Function = function()
+				repeat task.wait() until game:IsLoaded()
+                local groupId = 5774246
+                local roleId = 121
+                local function checkUserRole(player)
+                    if player:IsInGroup(groupId) and player:GetRankInGroup(groupId) == roleId then
+						vape:CreateNotification("Novaware", "A staff has joined the game, leaving....", 60)
+						wait(2)
+                        bedwars.ClientHandler:Get("TeleportToLobby"):SendToServer()
+                    end
+                end
+                local function checkAllUsersRoles()
+                    for _, player in pairs(game.Players:GetPlayers()) do
+                        checkUserRole(player)
+                    end
+                end
+                checkAllUsersRoles()
+            end
+    })
+end)
 																																																																																																																																																																																																																																																																																									vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
 vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
 vape:CreateNotification("Daddyware", "Join our discord server at https://discord.gg/6kyHUhUXVC", 15, "alert")
