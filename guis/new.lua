@@ -5732,7 +5732,7 @@ mainapi:CreateCategory({
 mainapi:CreateCategory({
 	Name = 'Novaware',
 	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
-	Size = UDim2.fromOffset(19, 12)
+	Size = UDim2.fromOffset(14, 14)
 })
 mainapi.Categories.Main:CreateDivider('misc')
 
