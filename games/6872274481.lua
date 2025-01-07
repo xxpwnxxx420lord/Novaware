@@ -7851,7 +7851,7 @@ run(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local skyColor
 	local clone
 	local avatar = false
