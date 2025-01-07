@@ -1,6947 +1,7810 @@
-local mainapi = {
-	Categories = {},
-	GUIColor = {
-		Hue = 0.46,
-		Sat = 0.96,
-		Value = 0.52
-	},
-	HeldKeybinds = {},
-	Keybind = {'RightShift'},
-	Loaded = false,
-	Libraries = {},
-	Modules = {},
-	Place = game.PlaceId,
-	Profile = 'default',
-	Profiles = {},
-	RainbowSpeed = {Value = 1},
-	RainbowUpdateSpeed = {Value = 60},
-	RainbowTable = {},
-	Scale = {Value = 1},
-	ThreadFix = setthreadidentity and true or false,
-	ToggleNotifications = {},
-	Version = '4.18',
-	Windows = {}
-}
-
+local run = function(func)
+	func()
+end
 local cloneref = cloneref or function(obj)
 	return obj
 end
-local tweenService = cloneref(game:GetService('TweenService'))
-local inputService = cloneref(game:GetService('UserInputService'))
-local textService = cloneref(game:GetService('TextService'))
-local guiService = cloneref(game:GetService('GuiService'))
-local runService = cloneref(game:GetService('RunService'))
-local httpService = cloneref(game:GetService('HttpService'))
-
-local fontsize = Instance.new('GetTextBoundsParams')
-fontsize.Width = math.huge
-local notifications
-local assetfunction = getcustomasset
-local getcustomasset
-local clickgui
-local scaledgui
-local toolblur
-local tooltip
-local scale
-local gui
-
-local color = {}
-local tween = {
-	tweens = {},
-	tweenstwo = {}
-}
-local uipallet = {
-	Main = Color3.fromRGB(26, 25, 26),
-	Text = Color3.fromRGB(200, 200, 200),
-	Font = Font.fromEnum(Enum.Font.Arial),
-	FontSemiBold = Font.fromEnum(Enum.Font.Arial, Enum.FontWeight.SemiBold),
-	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear)
-}
-
-local getcustomassets = {
-	['newvape/assets/new/add.png'] = 'rbxassetid://14368300605',
-	['newvape/assets/new/alert.png'] = 'rbxassetid://14368301329',
-	['newvape/assets/new/allowedicon.png'] = 'rbxassetid://14368302000',
-	['newvape/assets/new/allowedtab.png'] = 'rbxassetid://14368302875',
-	['newvape/assets/new/arrowmodule.png'] = 'rbxassetid://14473354880',
-	['newvape/assets/new/back.png'] = 'rbxassetid://14368303894',
-	['newvape/assets/new/bind.png'] = 'rbxassetid://14368304734',
-	['newvape/assets/new/bindbkg.png'] = 'rbxassetid://14368305655',
-	['newvape/assets/new/blatanticon.png'] = 'rbxassetid://14368306745',
-	['newvape/assets/new/blockedicon.png'] = 'rbxassetid://14385669108',
-	['newvape/assets/new/blockedtab.png'] = 'rbxassetid://14385672881',
-	['newvape/assets/new/blur.png'] = 'rbxassetid://14898786664',
-	['newvape/assets/new/blurnotif.png'] = 'rbxassetid://16738720137',
-	['newvape/assets/new/close.png'] = 'rbxassetid://14368309446',
-	['newvape/assets/new/closemini.png'] = 'rbxassetid://14368310467',
-	['newvape/assets/new/colorpreview.png'] = 'rbxassetid://14368311578',
-	['newvape/assets/new/combaticon.png'] = 'rbxassetid://14368312652',
-	['newvape/assets/new/customsettings.png'] = 'rbxassetid://14403726449',
-	['newvape/assets/new/dots.png'] = 'rbxassetid://14368314459',
-	['newvape/assets/new/edit.png'] = 'rbxassetid://14368315443',
-	['newvape/assets/new/expandright.png'] = 'rbxassetid://14368316544',
-	['newvape/assets/new/expandup.png'] = 'rbxassetid://14368317595',
-	['newvape/assets/new/friendstab.png'] = 'rbxassetid://14397462778',
-	['newvape/assets/new/guisettings.png'] = 'rbxassetid://14368318994',
-	['newvape/assets/new/guislider.png'] = 'rbxassetid://14368320020',
-	['newvape/assets/new/guisliderrain.png'] = 'rbxassetid://14368321228',
-	['newvape/assets/new/guiv4.png'] = 'rbxassetid://14368322199',
-	['newvape/assets/new/guivape.png'] = 'rbxassetid://14657521312',
-	['newvape/assets/new/info.png'] = 'rbxassetid://14368324807',
-	['newvape/assets/new/inventoryicon.png'] = 'rbxassetid://14928011633',
-	['newvape/assets/new/legit.png'] = 'rbxassetid://14425650534',
-	['newvape/assets/new/legittab.png'] = 'rbxassetid://14426740825',
-	['newvape/assets/new/miniicon.png'] = 'rbxassetid://14368326029',
-	['newvape/assets/new/notification.png'] = 'rbxassetid://16738721069',
-	['newvape/assets/new/overlaysicon.png'] = 'rbxassetid://14368339581',
-	['newvape/assets/new/overlaystab.png'] = 'rbxassetid://14397380433',
-	['newvape/assets/new/pin.png'] = 'rbxassetid://14368342301',
-	['newvape/assets/new/profilesicon.png'] = 'rbxassetid://14397465323',
-	['newvape/assets/new/radaricon.png'] = 'rbxassetid://14368343291',
-	['newvape/assets/new/rainbow_1.png'] = 'rbxassetid://14368344374',
-	['newvape/assets/new/rainbow_2.png'] = 'rbxassetid://14368345149',
-	['newvape/assets/new/rainbow_3.png'] = 'rbxassetid://14368345840',
-	['newvape/assets/new/rainbow_4.png'] = 'rbxassetid://14368346696',
-	['newvape/assets/new/range.png'] = 'rbxassetid://14368347435',
-	['newvape/assets/new/rangearrow.png'] = 'rbxassetid://14368348640',
-	['newvape/assets/new/rendericon.png'] = 'rbxassetid://14368350193',
-	['newvape/assets/new/rendertab.png'] = 'rbxassetid://14397373458',
-	['newvape/assets/new/search.png'] = 'rbxassetid://14425646684',
-	['newvape/assets/new/expandicon.png'] = 'rbxassetid://14368353032',
-	['newvape/assets/new/targetinfoicon.png'] = 'rbxassetid://14368354234',
-	['newvape/assets/new/targetnpc1.png'] = 'rbxassetid://14497400332',
-	['newvape/assets/new/targetnpc2.png'] = 'rbxassetid://14497402744',
-	['newvape/assets/new/targetplayers1.png'] = 'rbxassetid://14497396015',
-	['newvape/assets/new/targetplayers2.png'] = 'rbxassetid://14497397862',
-	['newvape/assets/new/targetstab.png'] = 'rbxassetid://14497393895',
-	['newvape/assets/new/textguiicon.png'] = 'rbxassetid://14368355456',
-	['newvape/assets/new/textv4.png'] = 'rbxassetid://14368357095',
-	['newvape/assets/new/textvape.png'] = 'rbxassetid://14368358200',
-	['newvape/assets/new/utilityicon.png'] = 'rbxassetid://14368359107',
-	['newvape/assets/new/vape.png'] = 'rbxassetid://14373395239',
-	['newvape/assets/new/warning.png'] = 'rbxassetid://14368361552',
-	['newvape/assets/new/worldicon.png'] = 'rbxassetid://14368362492'
-}
-
-local isfile = isfile or function(file)
-	local suc, res = pcall(function()
-		return readfile(file)
-	end)
-	return suc and res ~= nil and res ~= ''
-end
-
-local getfontsize = function(text, size, font)
-	fontsize.Text = text
-	fontsize.Size = size
-	if typeof(font) == 'Font' then
-		fontsize.Font = font
+local vapeEvents = setmetatable({}, {
+	__index = function(self, index)
+		self[index] = Instance.new('BindableEvent')
+		return self[index]
 	end
-	return textService:GetTextBoundsAsync(fontsize)
-end
+})
 
-local function addBlur(parent, notif)
+local playersService = cloneref(game:GetService('Players'))
+local replicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+local runService = cloneref(game:GetService('RunService'))
+local inputService = cloneref(game:GetService('UserInputService'))
+local tweenService = cloneref(game:GetService('TweenService'))
+local httpService = cloneref(game:GetService('HttpService'))
+local textChatService = cloneref(game:GetService('TextChatService'))
+local collectionService = cloneref(game:GetService('CollectionService'))
+local contextActionService = cloneref(game:GetService('ContextActionService'))
+local coreGui = cloneref(game:GetService('CoreGui'))
+local starterGui = cloneref(game:GetService('StarterGui'))
+
+local isnetworkowner = identifyexecutor and table.find({'AWP', 'Nihon'}, ({identifyexecutor()})[1]) and isnetworkowner or function()
+	return true
+end
+local gameCamera = workspace.CurrentCamera
+local lplr = playersService.LocalPlayer
+local assetfunction = getcustomasset
+
+local vape = shared.vape
+local entitylib = vape.Libraries.entity
+local targetinfo = vape.Libraries.targetinfo
+local sessioninfo = vape.Libraries.sessioninfo
+local uipallet = vape.Libraries.uipallet
+local tween = vape.Libraries.tween
+local color = vape.Libraries.color
+local whitelist = vape.Libraries.whitelist
+local prediction = vape.Libraries.prediction
+local getfontsize = vape.Libraries.getfontsize
+local getcustomasset = vape.Libraries.getcustomasset
+
+local store = {
+	attackReach = 0,
+	attackReachUpdate = tick(),
+	damage = {},
+	damageBlockFail = tick(),
+	hand = {},
+	inventory = {
+		inventory = {
+			items = {},
+			armor = {}
+		},
+		hotbar = {}
+	},
+	inventories = {},
+	matchState = 0,
+	queueType = 'bedwars_test',
+	tools = {}
+}
+local Reach = {}
+local HitBoxes = {}
+local InfiniteFly
+local StoreDamage
+local TrapDisabler
+local AntiFallPart
+local bedwars, remotes, sides, oldinvrender = {}, {}, {}
+
+local function addBlur(parent)
 	local blur = Instance.new('ImageLabel')
 	blur.Name = 'Blur'
 	blur.Size = UDim2.new(1, 89, 1, 52)
 	blur.Position = UDim2.fromOffset(-48, -31)
 	blur.BackgroundTransparency = 1
-	blur.Image = getcustomasset('newvape/assets/new/'..(notif and 'blurnotif' or 'blur')..'.png')
+	blur.Image = getcustomasset('newvape/assets/new/blur.png')
 	blur.ScaleType = Enum.ScaleType.Slice
 	blur.SliceCenter = Rect.new(52, 31, 261, 502)
 	blur.Parent = parent
-
 	return blur
 end
 
-local function addCorner(parent, radius)
-	local corner = Instance.new('UICorner')
-	corner.CornerRadius = radius or UDim.new(0, 5)
-	corner.Parent = parent
+local function collection(tags, module, customadd, customremove)
+	tags = typeof(tags) ~= 'table' and {tags} or tags
+	local objs, connections = {}, {}
 
-	return corner
+	for _, tag in tags do
+		table.insert(connections, collectionService:GetInstanceAddedSignal(tag):Connect(function(v)
+			if customadd then
+				customadd(objs, v, tag)
+				return
+			end
+			table.insert(objs, v)
+		end))
+		table.insert(connections, collectionService:GetInstanceRemovedSignal(tag):Connect(function(v)
+			if customremove then
+				customremove(objs, v, tag)
+				return
+			end
+			v = table.find(objs, v)
+			if v then
+				table.remove(objs, v)
+			end
+		end))
+
+		for _, v in collectionService:GetTagged(tag) do
+			if customadd then
+				customadd(objs, v, tag)
+				continue
+			end
+			table.insert(objs, v)
+		end
+	end
+
+	local cleanFunc = function(self)
+		for _, v in connections do
+			v:Disconnect()
+		end
+		table.clear(connections)
+		table.clear(objs)
+		table.clear(self)
+	end
+	if module then
+		module:Clean(cleanFunc)
+	end
+	return objs, cleanFunc
 end
 
-local function addCloseButton(parent, offset)
-	local close = Instance.new('ImageButton')
-	close.Name = 'Close'
-	close.Size = UDim2.fromOffset(24, 24)
-	close.Position = UDim2.new(1, -35, 0, offset or 9)
-	close.BackgroundColor3 = Color3.new(1, 1, 1)
-	close.BackgroundTransparency = 1
-	close.AutoButtonColor = false
-	close.Image = getcustomasset('newvape/assets/new/close.png')
-	close.ImageColor3 = color.Light(uipallet.Text, 0.2)
-	close.ImageTransparency = 0.5
-	close.Parent = parent
-	addCorner(close, UDim.new(1, 0))
-
-	close.MouseEnter:Connect(function()
-		close.ImageTransparency = 0.3
-		tween:Tween(close, uipallet.Tween, {
-			BackgroundTransparency = 0.6
-		})
-	end)
-	close.MouseLeave:Connect(function()
-		close.ImageTransparency = 0.5
-		tween:Tween(close, uipallet.Tween, {
-			BackgroundTransparency = 1
-		})
-	end)
-
-	return close
+local function getBow()
+	local bestBow, bestBowSlot, bestBowDamage = nil, nil, 0
+	for slot, item in store.inventory.inventory.items do
+		local bowMeta = bedwars.ItemMeta[item.itemType].projectileSource
+		if bowMeta and table.find(bowMeta.ammoItemTypes, 'arrow') then
+			local bowDamage = bedwars.ProjectileMeta[bowMeta.projectileType('arrow')].combat.damage or 0
+			if bowDamage > bestBowDamage then
+				bestBow, bestBowSlot, bestBowDamage = item, slot, bowDamage
+			end
+		end
+	end
+	return bestBow, bestBowSlot
 end
 
-local function addMaid(object)
-	object.Connections = {}
-	function object:Clean(callback)
-		if typeof(callback) == 'Instance' then
-			table.insert(self.Connections, {
-				Disconnect = function()
-					callback:ClearAllChildren()
-					callback:Destroy()
-				end
-			})
-		elseif type(callback) == 'function' then
-			table.insert(self.Connections, {
-				Disconnect = callback
-			})
-		else
-			table.insert(self.Connections, callback)
+local function getItem(itemName, inv)
+	for slot, item in (inv or store.inventory.inventory.items) do
+		if item.itemType == itemName then
+			return item, slot
+		end
+	end
+	return nil
+end
+
+local function getSword()
+	local bestSword, bestSwordSlot, bestSwordDamage = nil, nil, 0
+	for slot, item in store.inventory.inventory.items do
+		local swordMeta = bedwars.ItemMeta[item.itemType].sword
+		if swordMeta then
+			local swordDamage = swordMeta.damage or 0
+			if swordDamage > bestSwordDamage then
+				bestSword, bestSwordSlot, bestSwordDamage = item, slot, swordDamage
+			end
+		end
+	end
+	return bestSword, bestSwordSlot
+end
+
+local function getTool(breakType)
+	local bestTool, bestToolSlot, bestToolDamage = nil, nil, 0
+	for slot, item in store.inventory.inventory.items do
+		local toolMeta = bedwars.ItemMeta[item.itemType].breakBlock
+		if toolMeta then
+			local toolDamage = toolMeta[breakType] or 0
+			if toolDamage > bestToolDamage then
+				bestTool, bestToolSlot, bestToolDamage = item, slot, toolDamage
+			end
+		end
+	end
+	return bestTool, bestToolSlot
+end
+
+local function getWool()
+	for _, wool in (inv or store.inventory.inventory.items) do
+		if wool.itemType:find('wool') then
+			return wool and wool.itemType, wool and wool.amount
 		end
 	end
 end
 
-local function addTooltip(gui, text)
-	if not text then return end
-
-	local function tooltipMoved(x, y)
-		local right = x + 16 + tooltip.Size.X.Offset > (scale.Scale * 1920)
-		tooltip.Position = UDim2.fromOffset(
-			(right and x - (tooltip.Size.X.Offset * scale.Scale) - 16 or x + 16) / scale.Scale,
-			((y + 11) - (tooltip.Size.Y.Offset / 2)) / scale.Scale
-		)
-		tooltip.Visible = toolblur.Visible
+local function getStrength(plr)
+	if not plr.Player then
+		return 0
 	end
-
-	gui.MouseEnter:Connect(function(x, y)
-		local tooltipSize = getfontsize(text, tooltip.TextSize, uipallet.Font)
-		tooltip.Size = UDim2.fromOffset(tooltipSize.X + 10, tooltipSize.Y + 10)
-		tooltip.Text = text
-		tooltipMoved(x, y)
-	end)
-	gui.MouseMoved:Connect(tooltipMoved)
-	gui.MouseLeave:Connect(function()
-		tooltip.Visible = false
-	end)
+	local strength = 0
+	for _, v in (store.inventories[plr.Player] or {items = {}}).items do
+		local itemmeta = bedwars.ItemMeta[v.itemType]
+		if itemmeta and itemmeta.sword and itemmeta.sword.damage > strength then
+			strength = itemmeta.sword.damage
+		end
+	end
+	return strength
 end
 
-local function checkKeybinds(compare, target, key)
-	if type(target) == 'table' then
-		if table.find(target, key) then
-			for i, v in target do
-				if not table.find(compare, v) then
-					return false
+local function getPlacedBlock(pos)
+	if not pos then
+		return
+	end
+	local roundedPosition = bedwars.BlockController:getBlockPosition(pos)
+	return bedwars.BlockController:getStore():getBlockAt(roundedPosition), roundedPosition
+end
+
+local function getBlocksInPoints(s, e)
+	local blocks, list = bedwars.BlockController:getStore(), {}
+	for x = s.X, e.X do
+		for y = s.Y, e.Y do
+			for z = s.Z, e.Z do
+				local vec = Vector3.new(x, y, z)
+				if blocks:getBlockAt(vec) then
+					table.insert(list, vec * 3)
 				end
 			end
-			return true
+		end
+	end
+	return list
+end
+
+local function getShieldAttribute(char)
+	local returned = 0
+	for name, val in char:GetAttributes() do
+		if name:find('Shield') and type(val) == 'number' and val > 0 then
+			returned += val
+		end
+	end
+	return returned
+end
+
+local function getSpeed()
+	local multi, increase, modifiers = 0, true, bedwars.SprintController:getMovementStatusModifier():getModifiers()
+
+	for v in modifiers do
+		local val = v.constantSpeedMultiplier and v.constantSpeedMultiplier or 0
+		if val and val > math.max(multi, 1) then
+			increase = false
+			multi = val - (0.06 * math.round(val))
 		end
 	end
 
-	return false
-end
-
-local function createDownloader(text)
-	if mainapi.Loaded ~= true then
-		local downloader = mainapi.Downloader
-		if not downloader then
-			downloader = Instance.new('TextLabel')
-			downloader.Size = UDim2.new(1, 0, 0, 40)
-			downloader.BackgroundTransparency = 1
-			downloader.TextStrokeTransparency = 0
-			downloader.TextSize = 20
-			downloader.TextColor3 = Color3.new(1, 1, 1)
-			downloader.FontFace = uipallet.Font
-			downloader.Parent = mainapi.gui
-			mainapi.Downloader = downloader
-		end
-		downloader.Text = 'Downloading '..text
+	for v in modifiers do
+		multi += math.max((v.moveSpeedMultiplier or 0) - 1, 0)
 	end
-end
 
-local function createMobileButton(buttonapi, position)
-	local heldbutton = false
-	local button = Instance.new('TextButton')
-	button.Size = UDim2.fromOffset(40, 40)
-	button.Position = UDim2.fromOffset(position.X, position.Y)
-	button.AnchorPoint = Vector2.new(0.5, 0.5)
-	button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
-	button.BackgroundTransparency = 0.5
-	button.Text = buttonapi.Name
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.TextScaled = true
-	button.Font = Enum.Font.Gotham
-	button.Parent = mainapi.gui
-	local buttonconstraint = Instance.new('UITextSizeConstraint')
-	buttonconstraint.MaxTextSize = 16
-	buttonconstraint.Parent = button
-	addCorner(button, UDim.new(1, 0))
-
-	button.MouseButton1Down:Connect(function()
-		heldbutton = true
-		local holdtime, holdpos = tick(), inputService:GetMouseLocation()
-		repeat
-			heldbutton = (inputService:GetMouseLocation() - holdpos).Magnitude < 6
-			task.wait()
-		until (tick() - holdtime) > 1 or not heldbutton
-		if heldbutton then
-			buttonapi.Bind = {}
-			button:Destroy()
-		end
-	end)
-	button.MouseButton1Up:Connect(function()
-		heldbutton = false
-	end)
-	button.MouseButton1Click:Connect(function()
-		buttonapi:Toggle()
-		button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
-	end)
-
-	buttonapi.Bind = {Button = button}
-end
-
-local function downloadFile(path, func)
-	if not isfile(path) then
-		createDownloader(path)
-		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/xxpwnxxx420lord/Novaware/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
-		end)
-		if not suc or res == '404: Not Found' then
-			error(res)
-		end
-		if path:find('.lua') then
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
-		end
-		writefile(path, res)
+	if multi > 0 and increase then
+		multi += 0.16 + (0.02 * math.round(multi))
 	end
-	return (func or readfile)(path)
-end
 
-getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
-	return downloadFile(path, assetfunction)
-end or function(path)
-	return getcustomassets[path] or ''
+	return 20 * (multi + 1)
 end
 
 local function getTableSize(tab)
 	local ind = 0
-	for _ in tab do ind += 1 end
+	for _ in tab do
+		ind += 1
+	end
 	return ind
 end
 
-local function loopClean(tab)
-	for i, v in tab do
-		if type(v) == 'table' then
-			loopClean(v)
-		end
-		tab[i] = nil
+local function hotbarSwitch(slot)
+	if slot and store.inventory.hotbarSlot ~= slot then
+		bedwars.Store:dispatch({
+			type = 'InventorySelectHotbarSlot',
+			slot = slot
+		})
+		vapeEvents.InventoryChanged.Event:Wait()
+		return true
 	end
+	return false
 end
 
-local function loadJson(path)
-	local suc, res = pcall(function()
-		return httpService:JSONDecode(readfile(path))
-	end)
-	return suc and type(res) == 'table' and res or nil
-end
-
-local function makeDraggable(gui, window)
-	gui.InputBegan:Connect(function(inputObj)
-		if window and not window.Visible then return end
-		if
-			(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-			and (inputObj.Position.Y - gui.AbsolutePosition.Y < 40 or window)
-		then
-			local dragPosition = Vector2.new(
-				gui.AbsolutePosition.X - inputObj.Position.X,
-				gui.AbsolutePosition.Y - inputObj.Position.Y + guiService:GetGuiInset().Y
-			) / scale.Scale
-
-			local changed = inputService.InputChanged:Connect(function(input)
-				if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-					local position = input.Position
-					if inputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-						dragPosition = (dragPosition // 3) * 3
-						position = (position // 3) * 3
-					end
-					gui.Position = UDim2.fromOffset((position.X / scale.Scale) + dragPosition.X, (position.Y / scale.Scale) + dragPosition.Y)
-				end
-			end)
-
-			local ended
-			ended = inputObj.Changed:Connect(function()
-				if inputObj.UserInputState == Enum.UserInputState.End then
-					if changed then
-						changed:Disconnect()
-					end
-					if ended then
-						ended:Disconnect()
-					end
-				end
-			end)
+local function isFriend(plr, recolor)
+	if vape.Categories.Friends.Options['Use friends'].Enabled then
+		local friend = table.find(vape.Categories.Friends.ListEnabled, plr.Name) and true
+		if recolor then
+			friend = friend and vape.Categories.Friends.Options['Recolor visuals'].Enabled
 		end
-	end)
+		return friend
+	end
+	return nil
 end
 
-local function randomString()
-	local array = {}
-	for i = 1, math.random(10, 100) do
-		array[i] = string.char(math.random(32, 126))
-	end
-	return table.concat(array)
+local function isTarget(plr)
+	return table.find(vape.Categories.Targets.ListEnabled, plr.Name) and true
+end
+
+local function notif(...) return
+	vape:CreateNotification(...)
 end
 
 local function removeTags(str)
 	str = str:gsub('<br%s*/>', '\n')
-	return str:gsub('<[^<>]->', '')
+	return (str:gsub('<[^<>]->', ''))
 end
 
-do
-	local res = isfile('newvape/profiles/color.txt') and loadJson('newvape/profiles/color.txt')
-	if res then
-		uipallet.Main = res.Main and Color3.fromRGB(unpack(res.Main)) or uipallet.Main
-		uipallet.Text = res.Text and Color3.fromRGB(unpack(res.Text)) or uipallet.Text
-		uipallet.Font = res.Font and Font.new(
-			res.Font:find('rbxasset') and res.Font
-			or string.format('rbxasset://fonts/families/%s.json', res.Font)
-		) or uipallet.Font
-		uipallet.FontSemiBold = Font.new(uipallet.Font.Family, Enum.FontWeight.SemiBold)
-	end
-	fontsize.Font = uipallet.Font
+local function roundPos(vec)
+	return Vector3.new(math.round(vec.X / 3) * 3, math.round(vec.Y / 3) * 3, math.round(vec.Z / 3) * 3)
 end
 
-do
-	function color.Dark(col, num)
-		local h, s, v = col:ToHSV()
-		return Color3.fromHSV(h, s, math.clamp(select(3, uipallet.Main:ToHSV()) > 0.5 and v + num or v - num, 0, 1))
-	end
-
-	function color.Light(col, num)
-		local h, s, v = col:ToHSV()
-		return Color3.fromHSV(h, s, math.clamp(select(3, uipallet.Main:ToHSV()) > 0.5 and v - num or v + num, 0, 1))
-	end
-
-	function mainapi:Color(h)
-		local s = 0.75 + (0.15 * math.min(h / 0.03, 1))
-		if h > 0.57 then
-			s = 0.9 - (0.4 * math.min((h - 0.57) / 0.09, 1))
+local function switchItem(tool, delayTime)
+	delayTime = delayTime or 0.05
+	local check = lplr.Character and lplr.Character:FindFirstChild('HandInvItem') or nil
+	if check and check.Value ~= tool and tool.Parent ~= nil then
+		task.spawn(function()
+			bedwars.Client:Get(remotes.EquipItem):CallServerAsync({hand = tool})
+		end)
+		check.Value = tool
+		if delayTime > 0 then
+			task.wait(delayTime)
 		end
-		if h > 0.66 then
-			s = 0.5 + (0.4 * math.min((h - 0.66) / 0.16, 1))
-		end
-		if h > 0.87 then
-			s = 0.9 - (0.15 * math.min((h - 0.87) / 0.13, 1))
-		end
-		return h, s, 1
-	end
-
-	function mainapi:TextColor(h, s, v)
-		if v >= 0.7 and (s < 0.6 or h > 0.04 and h < 0.56) then
-			return Color3.new(0.19, 0.19, 0.19)
-		end
-		return Color3.new(1, 1, 1)
+		return true
 	end
 end
 
-do
-	function tween:Tween(obj, tweeninfo, goal, tab)
-		tab = tab or self.tweens
-		if tab[obj] then
-			tab[obj]:Cancel()
-		end
-
-		if obj.Parent and obj.Visible then
-			tab[obj] = tweenService:Create(obj, tweeninfo, goal)
-			tab[obj].Completed:Once(function()
-				if tab then
-					tab[obj] = nil
-					tab = nil
-				end
-			end)
-			tab[obj]:Play()
-		else
-			for i, v in goal do
-				obj[i] = v
-			end
-		end
-	end
-
-	function tween:Cancel(obj)
-		if self.tweens[obj] then
-			self.tweens[obj]:Cancel()
-			self.tweens[obj] = nil
-		end
-	end
-end
-
-mainapi.Libraries = {
-	color = color,
-	getcustomasset = getcustomasset,
-	getfontsize = getfontsize,
-	tween = tween,
-	uipallet = uipallet,
-}
-
-local components
-components = {
-	Button = function(optionsettings, children, api)
-		local button = Instance.new('TextButton')
-		button.Name = optionsettings.Name..'Button'
-		button.Size = UDim2.new(1, 0, 0, 31)
-		button.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		button.BorderSizePixel = 0
-		button.AutoButtonColor = false
-		button.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		button.Text = ''
-		button.Parent = children
-		addTooltip(button, optionsettings.Tooltip)
-		local bkg = Instance.new('Frame')
-		bkg.Size = UDim2.fromOffset(200, 27)
-		bkg.Position = UDim2.fromOffset(10, 2)
-		bkg.BackgroundColor3 = color.Light(uipallet.Main, 0.05)
-		bkg.Parent = button
-		addCorner(bkg)
-		local label = Instance.new('TextLabel')
-		label.Size = UDim2.new(1, -4, 1, -4)
-		label.Position = UDim2.fromOffset(2, 2)
-		label.BackgroundColor3 = uipallet.Main
-		label.Text = optionsettings.Name
-		label.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		label.TextSize = 14
-		label.FontFace = uipallet.Font
-		label.Parent = bkg
-		addCorner(label, UDim.new(0, 4))
-		optionsettings.Function = optionsettings.Function or function() end
-		
-		button.MouseEnter:Connect(function()
-			tween:Tween(bkg, uipallet.Tween, {
-				BackgroundColor3 = color.Light(uipallet.Main, 0.0875)
-			})
-		end)
-		button.MouseLeave:Connect(function()
-			tween:Tween(bkg, uipallet.Tween, {
-				BackgroundColor3 = color.Light(uipallet.Main, 0.05)
-			})
-		end)
-		button.MouseButton1Click:Connect(optionsettings.Function)
-	end,
-	ColorSlider = function(optionsettings, children, api)
-		local optionapi = {
-			Type = 'ColorSlider',
-			Hue = optionsettings.DefaultHue or 0.44,
-			Sat = optionsettings.DefaultSat or 1,
-			Value = optionsettings.DefaultValue or 1,
-			Opacity = optionsettings.DefaultOpacity or 1,
-			Rainbow = false,
-			Index = 0
-		}
-		
-		local function createSlider(name, gradientColor)
-			local slider = Instance.new('TextButton')
-			slider.Name = optionsettings.Name..'Slider'..name
-			slider.Size = UDim2.new(1, 0, 0, 50)
-			slider.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-			slider.BorderSizePixel = 0
-			slider.AutoButtonColor = false
-			slider.Visible = false
-			slider.Text = ''
-			slider.Parent = children
-			local title = Instance.new('TextLabel')
-			title.Name = 'Title'
-			title.Size = UDim2.fromOffset(60, 30)
-			title.Position = UDim2.fromOffset(10, 2)
-			title.BackgroundTransparency = 1
-			title.Text = name
-			title.TextXAlignment = Enum.TextXAlignment.Left
-			title.TextColor3 = color.Dark(uipallet.Text, 0.16)
-			title.TextSize = 11
-			title.FontFace = uipallet.Font
-			title.Parent = slider
-			local bkg = Instance.new('Frame')
-			bkg.Name = 'Slider'
-			bkg.Size = UDim2.new(1, -20, 0, 2)
-			bkg.Position = UDim2.fromOffset(10, 37)
-			bkg.BackgroundColor3 = Color3.new(1, 1, 1)
-			bkg.BorderSizePixel = 0
-			bkg.Parent = slider
-			local gradient = Instance.new('UIGradient')
-			gradient.Color = gradientColor
-			gradient.Parent = bkg
-			local fill = bkg:Clone()
-			fill.Name = 'Fill'
-			fill.Size = UDim2.fromScale(math.clamp(name == 'Saturation' and optionapi.Sat or name == 'Vibrance' and optionapi.Value or optionapi.Opacity, 0.04, 0.96), 1)
-			fill.Position = UDim2.new()
-			fill.BackgroundTransparency = 1
-			fill.Parent = bkg
-			local knobholder = Instance.new('Frame')
-			knobholder.Name = 'Knob'
-			knobholder.Size = UDim2.fromOffset(24, 4)
-			knobholder.Position = UDim2.fromScale(1, 0.5)
-			knobholder.AnchorPoint = Vector2.new(0.5, 0.5)
-			knobholder.BackgroundColor3 = slider.BackgroundColor3
-			knobholder.BorderSizePixel = 0
-			knobholder.Parent = fill
-			local knob = Instance.new('Frame')
-			knob.Name = 'Knob'
-			knob.Size = UDim2.fromOffset(14, 14)
-			knob.Position = UDim2.fromScale(0.5, 0.5)
-			knob.AnchorPoint = Vector2.new(0.5, 0.5)
-			knob.BackgroundColor3 = uipallet.Text
-			knob.Parent = knobholder
-			addCorner(knob, UDim.new(1, 0))
-		
-			slider.InputBegan:Connect(function(inputObj)
-				if
-					(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-					and (inputObj.Position.Y - slider.AbsolutePosition.Y) > (20 * scale.Scale)
-				then
-					local changed = inputService.InputChanged:Connect(function(input)
-						if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-							optionapi:SetValue(nil, name == 'Saturation' and math.clamp((input.Position.X - bkg.AbsolutePosition.X) / bkg.AbsoluteSize.X, 0, 1) or nil, name == 'Vibrance' and math.clamp((input.Position.X - bkg.AbsolutePosition.X) / bkg.AbsoluteSize.X, 0, 1) or nil, name == 'Opacity' and math.clamp((input.Position.X - bkg.AbsolutePosition.X) / bkg.AbsoluteSize.X, 0, 1) or nil)
-						end
-					end)
-		
-					local ended
-					ended = inputObj.Changed:Connect(function()
-						if inputObj.UserInputState == Enum.UserInputState.End then
-							if changed then changed:Disconnect() end
-							if ended then ended:Disconnect() end
-						end
-					end)
-				end
-			end)
-			slider.MouseEnter:Connect(function()
-				tween:Tween(knob, uipallet.Tween, {
-					Size = UDim2.fromOffset(16, 16)
-				})
-			end)
-			slider.MouseLeave:Connect(function()
-				tween:Tween(knob, uipallet.Tween, {
-					Size = UDim2.fromOffset(14, 14)
-				})
-			end)
-		
-			return slider
-		end
-		
-		local slider = Instance.new('TextButton')
-		slider.Name = optionsettings.Name..'Slider'
-		slider.Size = UDim2.new(1, 0, 0, 50)
-		slider.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		slider.BorderSizePixel = 0
-		slider.AutoButtonColor = false
-		slider.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		slider.Text = ''
-		slider.Parent = children
-		addTooltip(slider, optionsettings.Tooltip)
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.fromOffset(60, 30)
-		title.Position = UDim2.fromOffset(10, 2)
-		title.BackgroundTransparency = 1
-		title.Text = optionsettings.Name
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		title.TextSize = 11
-		title.FontFace = uipallet.Font
-		title.Parent = slider
-		local valuebox = Instance.new('TextBox')
-		valuebox.Name = 'Box'
-		valuebox.Size = UDim2.fromOffset(60, 15)
-		valuebox.Position = UDim2.new(1, -69, 0, 9)
-		valuebox.BackgroundTransparency = 1
-		valuebox.Visible = false
-		valuebox.Text = ''
-		valuebox.TextXAlignment = Enum.TextXAlignment.Right
-		valuebox.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		valuebox.TextSize = 11
-		valuebox.FontFace = uipallet.Font
-		valuebox.ClearTextOnFocus = true
-		valuebox.Parent = slider
-		local bkg = Instance.new('Frame')
-		bkg.Name = 'Slider'
-		bkg.Size = UDim2.new(1, -20, 0, 2)
-		bkg.Position = UDim2.fromOffset(10, 39)
-		bkg.BackgroundColor3 = Color3.new(1, 1, 1)
-		bkg.BorderSizePixel = 0
-		bkg.Parent = slider
-		local rainbowTable = {}
-		for i = 0, 1, 0.1 do
-			table.insert(rainbowTable, ColorSequenceKeypoint.new(i, Color3.fromHSV(i, 1, 1)))
-		end
-		local gradient = Instance.new('UIGradient')
-		gradient.Color = ColorSequence.new(rainbowTable)
-		gradient.Parent = bkg
-		local fill = bkg:Clone()
-		fill.Name = 'Fill'
-		fill.Size = UDim2.fromScale(math.clamp(optionapi.Hue, 0.04, 0.96), 1)
-		fill.Position = UDim2.new()
-		fill.BackgroundTransparency = 1
-		fill.Parent = bkg
-		local preview = Instance.new('ImageButton')
-		preview.Name = 'Preview'
-		preview.Size = UDim2.fromOffset(12, 12)
-		preview.Position = UDim2.new(1, -22, 0, 10)
-		preview.BackgroundTransparency = 1
-		preview.Image = getcustomasset('newvape/assets/new/colorpreview.png')
-		preview.ImageColor3 = Color3.fromHSV(optionapi.Hue, optionapi.Sat, optionapi.Value)
-		preview.ImageTransparency = 1 - optionapi.Opacity
-		preview.Parent = slider
-		local expandbutton = Instance.new('TextButton')
-		expandbutton.Name = 'Expand'
-		expandbutton.Size = UDim2.fromOffset(17, 13)
-		expandbutton.Position = UDim2.new(0, textService:GetTextSize(title.Text, title.TextSize, title.Font, Vector2.new(1000, 1000)).X + 11, 0, 7)
-		expandbutton.BackgroundTransparency = 1
-		expandbutton.Text = ''
-		expandbutton.Parent = slider
-		local expand = Instance.new('ImageLabel')
-		expand.Name = 'Expand'
-		expand.Size = UDim2.fromOffset(9, 5)
-		expand.Position = UDim2.fromOffset(4, 4)
-		expand.BackgroundTransparency = 1
-		expand.Image = getcustomasset('newvape/assets/new/expandicon.png')
-		expand.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-		expand.Parent = expandbutton
-		local rainbow = Instance.new('TextButton')
-		rainbow.Name = 'Rainbow'
-		rainbow.Size = UDim2.fromOffset(12, 12)
-		rainbow.Position = UDim2.new(1, -42, 0, 10)
-		rainbow.BackgroundTransparency = 1
-		rainbow.Text = ''
-		rainbow.Parent = slider
-		local rainbow1 = Instance.new('ImageLabel')
-		rainbow1.Size = UDim2.fromOffset(12, 12)
-		rainbow1.BackgroundTransparency = 1
-		rainbow1.Image = getcustomasset('newvape/assets/new/rainbow_1.png')
-		rainbow1.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		rainbow1.Parent = rainbow
-		local rainbow2 = rainbow1:Clone()
-		rainbow2.Image = getcustomasset('newvape/assets/new/rainbow_2.png')
-		rainbow2.Parent = rainbow
-		local rainbow3 = rainbow1:Clone()
-		rainbow3.Image = getcustomasset('newvape/assets/new/rainbow_3.png')
-		rainbow3.Parent = rainbow
-		local rainbow4 = rainbow1:Clone()
-		rainbow4.Image = getcustomasset('newvape/assets/new/rainbow_4.png')
-		rainbow4.Parent = rainbow
-		local knobholder = Instance.new('Frame')
-		knobholder.Name = 'Knob'
-		knobholder.Size = UDim2.fromOffset(24, 4)
-		knobholder.Position = UDim2.fromScale(1, 0.5)
-		knobholder.AnchorPoint = Vector2.new(0.5, 0.5)
-		knobholder.BackgroundColor3 = slider.BackgroundColor3
-		knobholder.BorderSizePixel = 0
-		knobholder.Parent = fill
-		local knob = Instance.new('Frame')
-		knob.Name = 'Knob'
-		knob.Size = UDim2.fromOffset(14, 14)
-		knob.Position = UDim2.fromScale(0.5, 0.5)
-		knob.AnchorPoint = Vector2.new(0.5, 0.5)
-		knob.BackgroundColor3 = uipallet.Text
-		knob.Parent = knobholder
-		addCorner(knob, UDim.new(1, 0))
-		optionsettings.Function = optionsettings.Function or function() end
-		local satSlider = createSlider('Saturation', ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 0, optionapi.Value)),
-			ColorSequenceKeypoint.new(1, Color3.fromHSV(optionapi.Hue, 1, optionapi.Value))
-		}))
-		local vibSlider = createSlider('Vibrance', ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 0, 0)),
-			ColorSequenceKeypoint.new(1, Color3.fromHSV(optionapi.Hue, optionapi.Sat, 1))
-		}))
-		local opSlider = createSlider('Opacity', ColorSequence.new({
-			ColorSequenceKeypoint.new(0, color.Dark(uipallet.Main, 0.02)),
-			ColorSequenceKeypoint.new(1, Color3.fromHSV(optionapi.Hue, optionapi.Sat, optionapi.Value))
-		}))
-		
-		function optionapi:Save(tab)
-			tab[optionsettings.Name] = {
-				Hue = self.Hue,
-				Sat = self.Sat,
-				Value = self.Value,
-				Opacity = self.Opacity,
-				Rainbow = self.Rainbow
-			}
-		end
-		
-		function optionapi:Load(tab)
-			if tab.Rainbow ~= self.Rainbow then
-				self:Toggle()
-			end
-			if self.Hue ~= tab.Hue or self.Sat ~= tab.Sat or self.Value ~= tab.Value or self.Opacity ~= tab.Opacity then
-				self:SetValue(tab.Hue, tab.Sat, tab.Value, tab.Opacity)
-			end
-		end
-		
-		function optionapi:SetValue(h, s, v, o)
-			self.Hue = h or self.Hue
-			self.Sat = s or self.Sat
-			self.Value = v or self.Value
-			self.Opacity = o or self.Opacity
-			preview.ImageColor3 = Color3.fromHSV(self.Hue, self.Sat, self.Value)
-			preview.ImageTransparency = 1 - self.Opacity
-			satSlider.Slider.UIGradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 0, self.Value)),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(self.Hue, 1, self.Value))
-			})
-			vibSlider.Slider.UIGradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 0, 0)),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(self.Hue, self.Sat, 1))
-			})
-			opSlider.Slider.UIGradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, color.Dark(uipallet.Main, 0.02)),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(self.Hue, self.Sat, self.Value))
-			})
-		
-			if self.Rainbow then
-				fill.Size = UDim2.fromScale(math.clamp(self.Hue, 0.04, 0.96), 1)
-			else
-				tween:Tween(fill, uipallet.Tween, {
-					Size = UDim2.fromScale(math.clamp(self.Hue, 0.04, 0.96), 1)
-				})
-			end
-		
-			if s then
-				tween:Tween(satSlider.Slider.Fill, uipallet.Tween, {
-					Size = UDim2.fromScale(math.clamp(self.Sat, 0.04, 0.96), 1)
-				})
-			end
-			if v then
-				tween:Tween(vibSlider.Slider.Fill, uipallet.Tween, {
-					Size = UDim2.fromScale(math.clamp(self.Value, 0.04, 0.96), 1)
-				})
-			end
-			if o then
-				tween:Tween(opSlider.Slider.Fill, uipallet.Tween, {
-					Size = UDim2.fromScale(math.clamp(self.Opacity, 0.04, 0.96), 1)
-				})
-			end
-		
-			optionsettings.Function(self.Hue, self.Sat, self.Value, self.Opacity)
-		end
-		
-		function optionapi:Toggle()
-			self.Rainbow = not self.Rainbow
-			if self.Rainbow then
-				table.insert(mainapi.RainbowTable, self)
-				rainbow1.ImageColor3 = Color3.fromRGB(5, 127, 100)
-				task.delay(0.1, function()
-					if not self.Rainbow then return end
-					rainbow2.ImageColor3 = Color3.fromRGB(228, 125, 43)
-					task.delay(0.1, function()
-						if not self.Rainbow then return end
-						rainbow3.ImageColor3 = Color3.fromRGB(225, 46, 52)
-					end)
-				end)
-			else
-				local ind = table.find(mainapi.RainbowTable, self)
-				if ind then
-					table.remove(mainapi.RainbowTable, ind)
-				end
-				rainbow3.ImageColor3 = color.Light(uipallet.Main, 0.37)
-				task.delay(0.1, function()
-					if self.Rainbow then return end
-					rainbow2.ImageColor3 = color.Light(uipallet.Main, 0.37)
-					task.delay(0.1, function()
-						if self.Rainbow then return end
-						rainbow1.ImageColor3 = color.Light(uipallet.Main, 0.37)
-					end)
-				end)
-			end
-		end
-		
-		local doubleClick = tick()
-		preview.MouseButton1Click:Connect(function()
-			preview.Visible = false
-			valuebox.Visible = true
-			valuebox:CaptureFocus()
-			local text = Color3.fromHSV(optionapi.Hue, optionapi.Sat, optionapi.Value)
-			valuebox.Text = math.round(text.R * 255)..', '..math.round(text.G * 255)..', '..math.round(text.B * 255)
-		end)
-		slider.InputBegan:Connect(function(inputObj)
-			if
-				(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-				and (inputObj.Position.Y - slider.AbsolutePosition.Y) > (20 * scale.Scale)
-			then
-				if doubleClick > tick() then
-					optionapi:Toggle()
-				end
-				doubleClick = tick() + 0.3
-				local changed = inputService.InputChanged:Connect(function(input)
-					if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-						optionapi:SetValue(math.clamp((input.Position.X - bkg.AbsolutePosition.X) / bkg.AbsoluteSize.X, 0, 1))
-					end
-				end)
-		
-				local ended
-				ended = inputObj.Changed:Connect(function()
-					if inputObj.UserInputState == Enum.UserInputState.End then
-						if changed then
-							changed:Disconnect()
-						end
-						if ended then
-							ended:Disconnect()
-						end
-					end
-				end)
-			end
-		end)
-		slider.MouseEnter:Connect(function()
-			tween:Tween(knob, uipallet.Tween, {
-				Size = UDim2.fromOffset(16, 16)
-			})
-		end)
-		slider.MouseLeave:Connect(function()
-			tween:Tween(knob, uipallet.Tween, {
-				Size = UDim2.fromOffset(14, 14)
-			})
-		end)
-		slider:GetPropertyChangedSignal('Visible'):Connect(function()
-			satSlider.Visible = expand.Rotation == 180 and slider.Visible
-			vibSlider.Visible = satSlider.Visible
-			opSlider.Visible = satSlider.Visible
-		end)
-		expandbutton.MouseEnter:Connect(function()
-			expand.ImageColor3 = color.Dark(uipallet.Text, 0.16)
-		end)
-		expandbutton.MouseLeave:Connect(function()
-			expand.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-		end)
-		expandbutton.MouseButton1Click:Connect(function()
-			satSlider.Visible = not satSlider.Visible
-			vibSlider.Visible = satSlider.Visible
-			opSlider.Visible = satSlider.Visible
-			expand.Rotation = satSlider.Visible and 180 or 0
-		end)
-		rainbow.MouseButton1Click:Connect(function()
-			optionapi:Toggle()
-		end)
-		valuebox.FocusLost:Connect(function(enter)
-			preview.Visible = true
-			valuebox.Visible = false
-			if enter then
-				local commas = valuebox.Text:split(',')
-				local suc, res = pcall(function()
-					return tonumber(commas[1]) and Color3.fromRGB(tonumber(commas[1]), tonumber(commas[2]), tonumber(commas[3])) or Color3.fromHex(valuebox.Text)
-				end)
-				if suc then
-					if optionapi.Rainbow then
-						optionapi:Toggle()
-					end
-					optionapi:SetValue(res:ToHSV())
-				end
-			end
-		end)
-		
-		optionapi.Object = slider
-		api.Options[optionsettings.Name] = optionapi
-		
-		return optionapi
-	end,
-	Dropdown = function(optionsettings, children, api)
-		local optionapi = {
-			Type = 'Dropdown',
-			Value = optionsettings.List[1] or 'None',
-			Index = 0
-		}
-		
-		local dropdown = Instance.new('TextButton')
-		dropdown.Name = optionsettings.Name..'Dropdown'
-		dropdown.Size = UDim2.new(1, 0, 0, 40)
-		dropdown.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		dropdown.BorderSizePixel = 0
-		dropdown.AutoButtonColor = false
-		dropdown.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		dropdown.Text = ''
-		dropdown.Parent = children
-		addTooltip(dropdown, optionsettings.Tooltip or optionsettings.Name)
-		local bkg = Instance.new('Frame')
-		bkg.Name = 'BKG'
-		bkg.Size = UDim2.new(1, -20, 1, -9)
-		bkg.Position = UDim2.fromOffset(10, 4)
-		bkg.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
-		bkg.Parent = dropdown
-		addCorner(bkg, UDim.new(0, 6))
-		local button = Instance.new('TextButton')
-		button.Name = 'Dropdown'
-		button.Size = UDim2.new(1, -2, 1, -2)
-		button.Position = UDim2.fromOffset(1, 1)
-		button.BackgroundColor3 = uipallet.Main
-		button.AutoButtonColor = false
-		button.Text = ''
-		button.Parent = bkg
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.new(1, 0, 0, 29)
-		title.BackgroundTransparency = 1
-		title.Text = '         '..optionsettings.Name..' - '..optionapi.Value
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		title.TextSize = 13
-		title.TextTruncate = Enum.TextTruncate.AtEnd
-		title.FontFace = uipallet.Font
-		title.Parent = button
-		addCorner(button, UDim.new(0, 6))
-		local arrow = Instance.new('ImageLabel')
-		arrow.Name = 'Arrow'
-		arrow.Size = UDim2.fromOffset(4, 8)
-		arrow.Position = UDim2.new(1, -17, 0, 11)
-		arrow.BackgroundTransparency = 1
-		arrow.Image = getcustomasset('newvape/assets/new/expandright.png')
-		arrow.ImageColor3 = Color3.fromRGB(140, 140, 140)
-		arrow.Rotation = 90
-		arrow.Parent = button
-		optionsettings.Function = optionsettings.Function or function() end
-		local dropdownchildren
-		
-		function optionapi:Save(tab)
-			tab[optionsettings.Name] = {Value = self.Value}
-		end
-		
-		function optionapi:Load(tab)
-			if self.Value ~= tab.Value then
-				self:SetValue(tab.Value)
-			end
-		end
-		
-		function optionapi:Change(list)
-			optionsettings.List = list or {}
-			if not table.find(optionsettings.List, self.Value) then
-				self:SetValue(self.Value)
-			end
-		end
-		
-		function optionapi:SetValue(val, mouse)
-			self.Value = table.find(optionsettings.List, val) and val or optionsettings.List[1] or 'None'
-			title.Text = '         '..optionsettings.Name..' - '..self.Value
-			if dropdownchildren then
-				arrow.Rotation = 90
-				dropdownchildren:Destroy()
-				dropdownchildren = nil
-				dropdown.Size = UDim2.new(1, 0, 0, 40)
-			end
-			optionsettings.Function(self.Value, mouse)
-		end
-		
-		button.MouseButton1Click:Connect(function()
-			if not dropdownchildren then
-				arrow.Rotation = 270
-				dropdown.Size = UDim2.new(1, 0, 0, 40 + (#optionsettings.List - 1) * 26)
-				dropdownchildren = Instance.new('Frame')
-				dropdownchildren.Name = 'Children'
-				dropdownchildren.Size = UDim2.new(1, 0, 0, (#optionsettings.List - 1) * 26)
-				dropdownchildren.Position = UDim2.fromOffset(0, 27)
-				dropdownchildren.BackgroundTransparency = 1
-				dropdownchildren.Parent = button
-				local ind = 0
-				for _, v in optionsettings.List do
-					if v == optionapi.Value then continue end
-					local dropdownoption = Instance.new('TextButton')
-					dropdownoption.Name = v..'Option'
-					dropdownoption.Size = UDim2.new(1, 0, 0, 26)
-					dropdownoption.Position = UDim2.fromOffset(0, ind * 26)
-					dropdownoption.BackgroundColor3 = uipallet.Main
-					dropdownoption.BorderSizePixel = 0
-					dropdownoption.AutoButtonColor = false
-					dropdownoption.Text = '         '..v
-					dropdownoption.TextXAlignment = Enum.TextXAlignment.Left
-					dropdownoption.TextColor3 = color.Dark(uipallet.Text, 0.16)
-					dropdownoption.TextSize = 13
-					dropdownoption.TextTruncate = Enum.TextTruncate.AtEnd
-					dropdownoption.FontFace = uipallet.Font
-					dropdownoption.Parent = dropdownchildren
-					dropdownoption.MouseEnter:Connect(function()
-						tween:Tween(dropdownoption, uipallet.Tween, {
-							BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-						})
-					end)
-					dropdownoption.MouseLeave:Connect(function()
-						tween:Tween(dropdownoption, uipallet.Tween, {
-							BackgroundColor3 = uipallet.Main
-						})
-					end)
-					dropdownoption.MouseButton1Click:Connect(function()
-						optionapi:SetValue(v, true)
-					end)
-					ind += 1
-				end
-			else
-				optionapi:SetValue(optionapi.Value, true)
-			end
-		end)
-		dropdown.MouseEnter:Connect(function()
-			tween:Tween(bkg, uipallet.Tween, {
-				BackgroundColor3 = color.Light(uipallet.Main, 0.0875)
-			})
-		end)
-		dropdown.MouseLeave:Connect(function()
-			tween:Tween(bkg, uipallet.Tween, {
-				BackgroundColor3 = color.Light(uipallet.Main, 0.034)
-			})
-		end)
-		
-		optionapi.Object = dropdown
-		api.Options[optionsettings.Name] = optionapi
-		
-		return optionapi
-	end,
-	Font = function(optionsettings, children, api)
-		local fonts = {
-			optionsettings.Blacklist,
-			'Custom'
-		}
-		for _, v in Enum.Font:GetEnumItems() do
-			if not table.find(fonts, v.Name) then
-				table.insert(fonts, v.Name)
-			end
-		end
-		
-		local optionapi = {Value = Font.fromEnum(Enum.Font[fonts[1]])}
-		local fontdropdown
-		local fontbox
-		optionsettings.Function = optionsettings.Function or function() end
-		
-		fontdropdown = components.Dropdown({
-			Name = optionsettings.Name,
-			List = fonts,
-			Function = function(val)
-				fontbox.Object.Visible = val == 'Custom' and fontdropdown.Object.Visible
-				if val ~= 'Custom' then
-					optionapi.Value = Font.fromEnum(Enum.Font[val])
-					optionsettings.Function(optionapi.Value)
-				else
-					pcall(function()
-						optionapi.Value = Font.fromId(tonumber(fontbox.Value))
-					end)
-					optionsettings.Function(optionapi.Value)
-				end
-			end,
-			Darker = optionsettings.Darker,
-			Visible = optionsettings.Visible
-		}, children, api)
-		optionapi.Object = fontdropdown.Object
-		fontbox = components.TextBox({
-			Name = optionsettings.Name..' Asset',
-			Placeholder = 'font (rbxasset)',
-			Function = function()
-				if fontdropdown.Value == 'Custom' then
-					pcall(function()
-						optionapi.Value = Font.fromId(tonumber(fontbox.Value))
-					end)
-					optionsettings.Function(optionapi.Value)
-				end
-			end,
-			Visible = false,
-			Darker = true
-		}, children, api)
-		
-		fontdropdown.Object:GetPropertyChangedSignal('Visible'):Connect(function()
-			fontbox.Object.Visible = fontdropdown.Object.Visible and fontdropdown.Value == 'Custom'
-		end)
-		
-		return optionapi
-	end,
-	Slider = function(optionsettings, children, api)
-		local optionapi = {
-			Type = 'Slider',
-			Value = optionsettings.Default or optionsettings.Min,
-			Max = optionsettings.Max,
-			Index = getTableSize(api.Options)
-		}
-		
-		local slider = Instance.new('TextButton')
-		slider.Name = optionsettings.Name..'Slider'
-		slider.Size = UDim2.new(1, 0, 0, 50)
-		slider.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		slider.BorderSizePixel = 0
-		slider.AutoButtonColor = false
-		slider.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		slider.Text = ''
-		slider.Parent = children
-		addTooltip(slider, optionsettings.Tooltip)
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.fromOffset(60, 30)
-		title.Position = UDim2.fromOffset(10, 2)
-		title.BackgroundTransparency = 1
-		title.Text = optionsettings.Name
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		title.TextSize = 11
-		title.FontFace = uipallet.Font
-		title.Parent = slider
-		local valuebutton = Instance.new('TextButton')
-		valuebutton.Name = 'Value'
-		valuebutton.Size = UDim2.fromOffset(60, 15)
-		valuebutton.Position = UDim2.new(1, -69, 0, 9)
-		valuebutton.BackgroundTransparency = 1
-		valuebutton.Text = optionapi.Value..(optionsettings.Suffix and ' '..(type(optionsettings.Suffix) == 'function' and optionsettings.Suffix(optionapi.Value) or optionsettings.Suffix) or '')
-		valuebutton.TextXAlignment = Enum.TextXAlignment.Right
-		valuebutton.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		valuebutton.TextSize = 11
-		valuebutton.FontFace = uipallet.Font
-		valuebutton.Parent = slider
-		local valuebox = Instance.new('TextBox')
-		valuebox.Name = 'Box'
-		valuebox.Size = valuebutton.Size
-		valuebox.Position = valuebutton.Position
-		valuebox.BackgroundTransparency = 1
-		valuebox.Visible = false
-		valuebox.Text = optionapi.Value
-		valuebox.TextXAlignment = Enum.TextXAlignment.Right
-		valuebox.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		valuebox.TextSize = 11
-		valuebox.FontFace = uipallet.Font
-		valuebox.ClearTextOnFocus = false
-		valuebox.Parent = slider
-		local bkg = Instance.new('Frame')
-		bkg.Name = 'Slider'
-		bkg.Size = UDim2.new(1, -20, 0, 2)
-		bkg.Position = UDim2.fromOffset(10, 37)
-		bkg.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
-		bkg.BorderSizePixel = 0
-		bkg.Parent = slider
-		local fill = bkg:Clone()
-		fill.Name = 'Fill'
-		fill.Size = UDim2.fromScale(math.clamp((optionapi.Value - optionsettings.Min) / optionsettings.Max, 0.04, 0.96), 1)
-		fill.Position = UDim2.new()
-		fill.BackgroundColor3 = Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)
-		fill.Parent = bkg
-		local knobholder = Instance.new('Frame')
-		knobholder.Name = 'Knob'
-		knobholder.Size = UDim2.fromOffset(24, 4)
-		knobholder.Position = UDim2.fromScale(1, 0.5)
-		knobholder.AnchorPoint = Vector2.new(0.5, 0.5)
-		knobholder.BackgroundColor3 = slider.BackgroundColor3
-		knobholder.BorderSizePixel = 0
-		knobholder.Parent = fill
-		local knob = Instance.new('Frame')
-		knob.Name = 'Knob'
-		knob.Size = UDim2.fromOffset(14, 14)
-		knob.Position = UDim2.fromScale(0.5, 0.5)
-		knob.AnchorPoint = Vector2.new(0.5, 0.5)
-		knob.BackgroundColor3 = Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)
-		knob.Parent = knobholder
-		addCorner(knob, UDim.new(1, 0))
-		optionsettings.Function = optionsettings.Function or function() end
-		optionsettings.Decimal = optionsettings.Decimal or 1
-		
-		function optionapi:Save(tab)
-			tab[optionsettings.Name] = {
-				Value = self.Value,
-				Max = self.Max
-			}
-		end
-		
-		function optionapi:Load(tab)
-			local newval = tab.Value == tab.Max and tab.Max ~= self.Max and self.Max or tab.Value
-			if self.Value ~= newval then
-				self:SetValue(newval, nil, true)
-			end
-		end
-		
-		function optionapi:Color(hue, sat, val, rainbowcheck)
-			fill.BackgroundColor3 = rainbowcheck and Color3.fromHSV(mainapi:Color((hue - (self.Index * 0.075)) % 1)) or Color3.fromHSV(hue, sat, val)
-			knob.BackgroundColor3 = fill.BackgroundColor3
-		end
-		
-		function optionapi:SetValue(value, pos, final)
-			if tonumber(value) == math.huge or value ~= value then return end
-			local check = self.Value ~= value
-			self.Value = value
-			tween:Tween(fill, uipallet.Tween, {
-				Size = UDim2.fromScale(math.clamp(pos or math.clamp(value / optionsettings.Max, 0, 1), 0.04, 0.96), 1)
-			})
-			valuebutton.Text = self.Value..(optionsettings.Suffix and ' '..(type(optionsettings.Suffix) == 'function' and optionsettings.Suffix(self.Value) or optionsettings.Suffix) or '')
-			if check or final then
-				optionsettings.Function(value, final)
-			end
-		end
-		
-		slider.InputBegan:Connect(function(inputObj)
-			if
-				(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-				and (inputObj.Position.Y - slider.AbsolutePosition.Y) > (20 * scale.Scale)
-			then
-				local newPosition = math.clamp((inputObj.Position.X - bkg.AbsolutePosition.X) / bkg.AbsoluteSize.X, 0, 1)
-				optionapi:SetValue(math.floor((optionsettings.Min + (optionsettings.Max - optionsettings.Min) * newPosition) * optionsettings.Decimal) / optionsettings.Decimal, newPosition)
-				local lastValue = optionapi.Value
-				local lastPosition = newPosition
-		
-				local changed = inputService.InputChanged:Connect(function(input)
-					if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-						local newPosition = math.clamp((input.Position.X - bkg.AbsolutePosition.X) / bkg.AbsoluteSize.X, 0, 1)
-						optionapi:SetValue(math.floor((optionsettings.Min + (optionsettings.Max - optionsettings.Min) * newPosition) * optionsettings.Decimal) / optionsettings.Decimal, newPosition)
-						lastValue = optionapi.Value
-						lastPosition = newPosition
-					end
-				end)
-		
-				local ended
-				ended = inputObj.Changed:Connect(function()
-					if inputObj.UserInputState == Enum.UserInputState.End then
-						if changed then
-							changed:Disconnect()
-						end
-						if ended then
-							ended:Disconnect()
-						end
-						optionapi:SetValue(lastValue, lastPosition, true)
-					end
-				end)
-		
-			end
-		end)
-		slider.MouseEnter:Connect(function()
-			tween:Tween(knob, uipallet.Tween, {
-				Size = UDim2.fromOffset(16, 16)
-			})
-		end)
-		slider.MouseLeave:Connect(function()
-			tween:Tween(knob, uipallet.Tween, {
-				Size = UDim2.fromOffset(14, 14)
-			})
-		end)
-		valuebutton.MouseButton1Click:Connect(function()
-			valuebutton.Visible = false
-			valuebox.Visible = true
-			valuebox.Text = optionapi.Value
-			valuebox:CaptureFocus()
-		end)
-		valuebox.FocusLost:Connect(function(enter)
-			valuebutton.Visible = true
-			valuebox.Visible = false
-			if enter and tonumber(valuebox.Text) then
-				optionapi:SetValue(tonumber(valuebox.Text), nil, true)
-			end
-		end)
-		
-		optionapi.Object = slider
-		api.Options[optionsettings.Name] = optionapi
-		
-		return optionapi
-	end,
-	Targets = function(optionsettings, children, api)
-		local optionapi = {
-			Type = 'Targets',
-			Index = getTableSize(api.Options)
-		}
-		
-		local textlist = Instance.new('TextButton')
-		textlist.Name = 'Targets'
-		textlist.Size = UDim2.new(1, 0, 0, 50)
-		textlist.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		textlist.BorderSizePixel = 0
-		textlist.AutoButtonColor = false
-		textlist.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		textlist.Text = ''
-		textlist.Parent = children
-		addTooltip(textlist, optionsettings.Tooltip)
-		local bkg = Instance.new('Frame')
-		bkg.Name = 'BKG'
-		bkg.Size = UDim2.new(1, -20, 1, -9)
-		bkg.Position = UDim2.fromOffset(10, 4)
-		bkg.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
-		bkg.Parent = textlist
-		addCorner(bkg, UDim.new(0, 4))
-		local button = Instance.new('TextButton')
-		button.Name = 'TextList'
-		button.Size = UDim2.new(1, -2, 1, -2)
-		button.Position = UDim2.fromOffset(1, 1)
-		button.BackgroundColor3 = uipallet.Main
-		button.AutoButtonColor = false
-		button.Text = ''
-		button.Parent = bkg
-		local buttontitle = Instance.new('TextLabel')
-		buttontitle.Name = 'Title'
-		buttontitle.Size = UDim2.new(1, -5, 0, 15)
-		buttontitle.Position = UDim2.fromOffset(5, 6)
-		buttontitle.BackgroundTransparency = 1
-		buttontitle.Text = 'Target:'
-		buttontitle.TextXAlignment = Enum.TextXAlignment.Left
-		buttontitle.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		buttontitle.TextSize = 15
-		buttontitle.TextTruncate = Enum.TextTruncate.AtEnd
-		buttontitle.FontFace = uipallet.Font
-		buttontitle.Parent = button
-		local items = buttontitle:Clone()
-		items.Name = 'Items'
-		items.Position = UDim2.fromOffset(5, 21)
-		items.Text = 'Ignore none'
-		items.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		items.TextSize = 11
-		items.Parent = button
-		addCorner(button, UDim.new(0, 4))
-		local tool = Instance.new('Frame')
-		tool.Size = UDim2.fromOffset(65, 12)
-		tool.Position = UDim2.fromOffset(52, 8)
-		tool.BackgroundTransparency = 1
-		tool.Parent = button
-		local toollist = Instance.new('UIListLayout')
-		toollist.FillDirection = Enum.FillDirection.Horizontal
-		toollist.Padding = UDim.new(0, 6)
-		toollist.Parent = tool
-		local window = Instance.new('TextButton')
-		window.Name = 'TargetsTextWindow'
-		window.Size = UDim2.fromOffset(220, 145)
-		window.BackgroundColor3 = uipallet.Main
-		window.BorderSizePixel = 0
-		window.AutoButtonColor = false
-		window.Visible = false
-		window.Text = ''
-		window.Parent = clickgui
-		optionapi.Window = window
-		addBlur(window)
-		addCorner(window)
-		local icon = Instance.new('ImageLabel')
-		icon.Name = 'Icon'
-		icon.Size = UDim2.fromOffset(18, 12)
-		icon.Position = UDim2.fromOffset(10, 15)
-		icon.BackgroundTransparency = 1
-		icon.Image = getcustomasset('newvape/assets/new/targetstab.png')
-		icon.Parent = window
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.new(1, -36, 0, 20)
-		title.Position = UDim2.fromOffset(math.abs(title.Size.X.Offset), 11)
-		title.BackgroundTransparency = 1
-		title.Text = 'Target settings'
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = uipallet.Text
-		title.TextSize = 13
-		title.FontFace = uipallet.Font
-		title.Parent = window
-		local close = addCloseButton(window)
-		optionsettings.Function = optionsettings.Function or function() end
-		
-		function optionapi:Save(tab)
-			tab.Targets = {
-				Players = self.Players.Enabled,
-				NPCs = self.NPCs.Enabled,
-				Invisible = self.Invisible.Enabled,
-				Walls = self.Walls.Enabled
-			}
-		end
-		
-		function optionapi:Load(tab)
-			if self.Players.Enabled ~= tab.Players then
-				self.Players:Toggle()
-			end
-			if self.NPCs.Enabled ~= tab.NPCs then
-				self.NPCs:Toggle()
-			end
-			if self.Invisible.Enabled ~= tab.Invisible then
-				self.Invisible:Toggle()
-			end
-			if self.Walls.Enabled ~= tab.Walls then
-				self.Walls:Toggle()
-			end
-		end
-		
-		function optionapi:Color(hue, sat, val, rainbowcheck)
-			bkg.BackgroundColor3 = rainbowcheck and Color3.fromHSV(mainapi:Color((hue - (self.Index * 0.075)) % 1)) or Color3.fromHSV(hue, sat, val)
-			if self.Players.Enabled then
-				tween:Cancel(self.Players.Object.Frame)
-				self.Players.Object.Frame.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			end
-			if self.NPCs.Enabled then
-				tween:Cancel(self.NPCs.Object.Frame)
-				self.NPCs.Object.Frame.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			end
-			if self.Invisible.Enabled then
-				tween:Cancel(self.Invisible.Object.Knob)
-				self.Invisible.Object.Knob.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			end
-			if self.Walls.Enabled then
-				tween:Cancel(self.Walls.Object.Knob)
-				self.Walls.Object.Knob.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			end
-		end
-		
-		optionapi.Players = components.TargetsButton({
-			Position = UDim2.fromOffset(11, 45),
-			Icon = getcustomasset('newvape/assets/new/targetplayers1.png'),
-			IconSize = UDim2.fromOffset(15, 16),
-			IconParent = tool,
-			ToolIcon = getcustomasset('newvape/assets/new/targetplayers2.png'),
-			ToolSize = UDim2.fromOffset(11, 12),
-			Tooltip = 'Players',
-			Function = optionsettings.Function
-		}, window, tool)
-		optionapi.NPCs = components.TargetsButton({
-			Position = UDim2.fromOffset(112, 45),
-			Icon = getcustomasset('newvape/assets/new/targetnpc1.png'),
-			IconSize = UDim2.fromOffset(12, 16),
-			IconParent = tool,
-			ToolIcon = getcustomasset('newvape/assets/new/targetnpc2.png'),
-			ToolSize = UDim2.fromOffset(9, 12),
-			Tooltip = 'NPCs',
-			Function = optionsettings.Function
-		}, window, tool)
-		optionapi.Invisible = components.Toggle({
-			Name = 'Ignore invisible',
-			Function = function()
-				local text = 'none'
-				if optionapi.Invisible.Enabled then
-					text = 'invisible'
-				end
-				if optionapi.Walls.Enabled then
-					text = text == 'none' and 'behind walls' or text..', behind walls'
-				end
-				items.Text = 'Ignore '..text
-				optionsettings.Function()
-			end
-		}, window, {Options = {}})
-		optionapi.Invisible.Object.Position = UDim2.fromOffset(0, 81)
-		optionapi.Walls = components.Toggle({
-			Name = 'Ignore behind walls',
-			Function = function()
-				local text = 'none'
-				if optionapi.Invisible.Enabled then
-					text = 'invisible'
-				end
-				if optionapi.Walls.Enabled then
-					text = text == 'none' and 'behind walls' or text..', behind walls'
-				end
-				items.Text = 'Ignore '..text
-				optionsettings.Function()
-			end
-		}, window, {Options = {}})
-		optionapi.Walls.Object.Position = UDim2.fromOffset(0, 111)
-		if optionsettings.Players then
-			optionapi.Players:Toggle()
-		end
-		if optionsettings.NPCs then
-			optionapi.NPCs:Toggle()
-		end
-		if optionsettings.Invisible then
-			optionapi.Invisible:Toggle()
-		end
-		if optionsettings.Walls then
-			optionapi.Walls:Toggle()
-		end
-		
-		close.MouseButton1Click:Connect(function()
-			window.Visible = false
-		end)
-		button.MouseButton1Click:Connect(function()
-			window.Visible = not window.Visible
-			tween:Cancel(bkg)
-			bkg.BackgroundColor3 = window.Visible and Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value) or color.Light(uipallet.Main, 0.37)
-		end)
-		textlist.MouseEnter:Connect(function()
-			if not optionapi.Window.Visible then
-				tween:Tween(bkg, uipallet.Tween, {
-					BackgroundColor3 = color.Light(uipallet.Main, 0.37)
-				})
-			end
-		end)
-		textlist.MouseLeave:Connect(function()
-			if not optionapi.Window.Visible then
-				tween:Tween(bkg, uipallet.Tween, {
-					BackgroundColor3 = color.Light(uipallet.Main, 0.034)
-				})
-			end
-		end)
-		textlist:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
-			end
-			local actualPosition = (textlist.AbsolutePosition + Vector2.new(0, 60)) / scale.Scale
-			window.Position = UDim2.fromOffset(actualPosition.X + 220, actualPosition.Y)
-		end)
-		
-		optionapi.Object = textlist
-		api.Options.Targets = optionapi
-		
-		return optionapi
-	end,
-	TargetsButton = function(optionsettings, children, api)
-		local optionapi = {Enabled = false}
-		
-		local targetbutton = Instance.new('TextButton')
-		targetbutton.Size = UDim2.fromOffset(98, 31)
-		targetbutton.Position = optionsettings.Position
-		targetbutton.BackgroundColor3 = color.Light(uipallet.Main, 0.05)
-		targetbutton.AutoButtonColor = false
-		targetbutton.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		targetbutton.Text = ''
-		targetbutton.Parent = children
-		addCorner(targetbutton)
-		addTooltip(targetbutton, optionsettings.Tooltip)
-		local bkg = Instance.new('Frame')
-		bkg.Size = UDim2.new(1, -2, 1, -2)
-		bkg.Position = UDim2.fromOffset(1, 1)
-		bkg.BackgroundColor3 = uipallet.Main
-		bkg.Parent = targetbutton
-		addCorner(bkg)
-		local icon = Instance.new('ImageLabel')
-		icon.Size = optionsettings.IconSize
-		icon.Position = UDim2.fromScale(0.5, 0.5)
-		icon.AnchorPoint = Vector2.new(0.5, 0.5)
-		icon.BackgroundTransparency = 1
-		icon.Image = optionsettings.Icon
-		icon.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		icon.Parent = bkg
-		optionsettings.Function = optionsettings.Function or function() end
-		local tooltipicon
-		
-		function optionapi:Toggle()
-			self.Enabled = not self.Enabled
-			tween:Tween(bkg, uipallet.Tween, {
-				BackgroundColor3 = self.Enabled and Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value) or uipallet.Main
-			})
-			tween:Tween(icon, uipallet.Tween, {
-				ImageColor3 = self.Enabled and Color3.new(1, 1, 1) or color.Light(uipallet.Main, 0.37)
-			})
-			if tooltipicon then
-				tooltipicon:Destroy()
-			end
-			if self.Enabled then
-				tooltipicon = Instance.new('ImageLabel')
-				tooltipicon.Size = optionsettings.ToolSize
-				tooltipicon.BackgroundTransparency = 1
-				tooltipicon.Image = optionsettings.ToolIcon
-				tooltipicon.ImageColor3 = uipallet.Text
-				tooltipicon.Parent = optionsettings.IconParent
-			end
-			optionsettings.Function(self.Enabled)
-		end
-		
-		targetbutton.MouseEnter:Connect(function()
-			if not optionapi.Enabled then
-				tween:Tween(bkg, uipallet.Tween, {
-					BackgroundColor3 = Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value - 0.25)
-				})
-				tween:Tween(icon, uipallet.Tween, {
-					ImageColor3 = Color3.new(1, 1, 1)
-				})
-			end
-		end)
-		targetbutton.MouseLeave:Connect(function()
-			if not optionapi.Enabled then
-				tween:Tween(bkg, uipallet.Tween, {
-					BackgroundColor3 = uipallet.Main
-				})
-				tween:Tween(icon, uipallet.Tween, {
-					ImageColor3 = color.Light(uipallet.Main, 0.37)
-				})
-			end
-		end)
-		targetbutton.MouseButton1Click:Connect(function()
-			optionapi:Toggle()
-		end)
-		
-		optionapi.Object = targetbutton
-		
-		return optionapi
-	end,
-	TextBox = function(optionsettings, children, api)
-		local optionapi = {
-			Type = 'TextBox',
-			Value = optionsettings.Default or '',
-			Index = 0
-		}
-		
-		local textbox = Instance.new('TextButton')
-		textbox.Name = optionsettings.Name..'TextBox'
-		textbox.Size = UDim2.new(1, 0, 0, 58)
-		textbox.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		textbox.BorderSizePixel = 0
-		textbox.AutoButtonColor = false
-		textbox.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		textbox.Text = ''
-		textbox.Parent = children
-		addTooltip(textbox, optionsettings.Tooltip)
-		local title = Instance.new('TextLabel')
-		title.Size = UDim2.new(1, -10, 0, 20)
-		title.Position = UDim2.fromOffset(10, 3)
-		title.BackgroundTransparency = 1
-		title.Text = optionsettings.Name
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = uipallet.Text
-		title.TextSize = 12
-		title.FontFace = uipallet.Font
-		title.Parent = textbox
-		local bkg = Instance.new('Frame')
-		bkg.Name = 'BKG'
-		bkg.Size = UDim2.new(1, -20, 0, 29)
-		bkg.Position = UDim2.fromOffset(10, 23)
-		bkg.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-		bkg.Parent = textbox
-		addCorner(bkg, UDim.new(0, 4))
-		local box = Instance.new('TextBox')
-		box.Size = UDim2.new(1, -8, 1, 0)
-		box.Position = UDim2.fromOffset(8, 0)
-		box.BackgroundTransparency = 1
-		box.Text = optionsettings.Default or ''
-		box.PlaceholderText = optionsettings.Placeholder or 'Click to set'
-		box.TextXAlignment = Enum.TextXAlignment.Left
-		box.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		box.PlaceholderColor3 = color.Dark(uipallet.Text, 0.31)
-		box.TextSize = 12
-		box.FontFace = uipallet.Font
-		box.ClearTextOnFocus = false
-		box.Parent = bkg
-		optionsettings.Function = optionsettings.Function or function() end
-		
-		function optionapi:Save(tab)
-			tab[optionsettings.Name] = {Value = self.Value}
-		end
-		
-		function optionapi:Load(tab)
-			if self.Value ~= tab.Value then
-				self:SetValue(tab.Value)
-			end
-		end
-		
-		function optionapi:SetValue(val, enter)
-			self.Value = val
-			box.Text = val
-			optionsettings.Function(enter)
-		end
-		
-		textbox.MouseButton1Click:Connect(function()
-			box:CaptureFocus()
-		end)
-		box.FocusLost:Connect(function(enter)
-			optionapi:SetValue(box.Text, enter)
-		end)
-		box:GetPropertyChangedSignal('Text'):Connect(function()
-			optionapi:SetValue(box.Text)
-		end)
-		
-		optionapi.Object = textbox
-		api.Options[optionsettings.Name] = optionapi
-		
-		return optionapi
-	end,
-	TextList = function(optionsettings, children, api)
-		local optionapi = {
-			Type = 'TextList',
-			List = optionsettings.Default or {},
-			ListEnabled = optionsettings.Default or {},
-			Objects = {},
-			Window = {Visible = false},
-			Index = getTableSize(api.Options)
-		}
-		optionsettings.Color = optionsettings.Color or Color3.fromRGB(5, 134, 105)
-		
-		local textlist = Instance.new('TextButton')
-		textlist.Name = optionsettings.Name..'TextList'
-		textlist.Size = UDim2.new(1, 0, 0, 50)
-		textlist.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		textlist.BorderSizePixel = 0
-		textlist.AutoButtonColor = false
-		textlist.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		textlist.Text = ''
-		textlist.Parent = children
-		addTooltip(textlist, optionsettings.Tooltip)
-		local bkg = Instance.new('Frame')
-		bkg.Name = 'BKG'
-		bkg.Size = UDim2.new(1, -20, 1, -9)
-		bkg.Position = UDim2.fromOffset(10, 4)
-		bkg.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
-		bkg.Parent = textlist
-		addCorner(bkg, UDim.new(0, 4))
-		local button = Instance.new('TextButton')
-		button.Name = 'TextList'
-		button.Size = UDim2.new(1, -2, 1, -2)
-		button.Position = UDim2.fromOffset(1, 1)
-		button.BackgroundColor3 = uipallet.Main
-		button.AutoButtonColor = false
-		button.Text = ''
-		button.Parent = bkg
-		local buttonicon = Instance.new('ImageLabel')
-		buttonicon.Name = 'Icon'
-		buttonicon.Size = UDim2.fromOffset(14, 12)
-		buttonicon.Position = UDim2.fromOffset(10, 14)
-		buttonicon.BackgroundTransparency = 1
-		buttonicon.Image = optionsettings.Icon or getcustomasset('newvape/assets/new/allowedicon.png')
-		buttonicon.Parent = button
-		local buttontitle = Instance.new('TextLabel')
-		buttontitle.Name = 'Title'
-		buttontitle.Size = UDim2.new(1, -35, 0, 15)
-		buttontitle.Position = UDim2.fromOffset(35, 6)
-		buttontitle.BackgroundTransparency = 1
-		buttontitle.Text = optionsettings.Name
-		buttontitle.TextXAlignment = Enum.TextXAlignment.Left
-		buttontitle.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		buttontitle.TextSize = 15
-		buttontitle.TextTruncate = Enum.TextTruncate.AtEnd
-		buttontitle.FontFace = uipallet.Font
-		buttontitle.Parent = button
-		local amount = buttontitle:Clone()
-		amount.Name = 'Amount'
-		amount.Size = UDim2.new(1, -13, 0, 15)
-		amount.Position = UDim2.fromOffset(0, 6)
-		amount.Text = '0'
-		amount.TextXAlignment = Enum.TextXAlignment.Right
-		amount.Parent = button
-		local items = buttontitle:Clone()
-		items.Name = 'Items'
-		items.Position = UDim2.fromOffset(35, 21)
-		items.Text = 'None'
-		items.TextColor3 = color.Dark(uipallet.Text, 0.43)
-		items.TextSize = 11
-		items.Parent = button
-		addCorner(button, UDim.new(0, 4))
-		local window = Instance.new('TextButton')
-		window.Name = optionsettings.Name..'TextWindow'
-		window.Size = UDim2.fromOffset(220, 85)
-		window.BackgroundColor3 = uipallet.Main
-		window.BorderSizePixel = 0
-		window.AutoButtonColor = false
-		window.Visible = false
-		window.Text = ''
-		window.Parent = api.Legit and mainapi.Legit.Window or clickgui
-		optionapi.Window = window
-		addBlur(window)
-		addCorner(window)
-		local icon = Instance.new('ImageLabel')
-		icon.Name = 'Icon'
-		icon.Size = optionsettings.TabSize or UDim2.fromOffset(19, 16)
-		icon.Position = UDim2.fromOffset(10, 13)
-		icon.BackgroundTransparency = 1
-		icon.Image = optionsettings.Tab or getcustomasset('newvape/assets/new/allowedtab.png')
-		icon.Parent = window
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.new(1, -36, 0, 20)
-		title.Position = UDim2.fromOffset(math.abs(title.Size.X.Offset), 11)
-		title.BackgroundTransparency = 1
-		title.Text = optionsettings.Name
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = uipallet.Text
-		title.TextSize = 13
-		title.FontFace = uipallet.Font
-		title.Parent = window
-		local close = addCloseButton(window)
-		local addbkg = Instance.new('Frame')
-		addbkg.Name = 'Add'
-		addbkg.Size = UDim2.fromOffset(200, 31)
-		addbkg.Position = UDim2.fromOffset(10, 45)
-		addbkg.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-		addbkg.Parent = window
-		addCorner(addbkg)
-		local addbox = addbkg:Clone()
-		addbox.Size = UDim2.new(1, -2, 1, -2)
-		addbox.Position = UDim2.fromOffset(1, 1)
-		addbox.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-		addbox.Parent = addbkg
-		local addvalue = Instance.new('TextBox')
-		addvalue.Size = UDim2.new(1, -35, 1, 0)
-		addvalue.Position = UDim2.fromOffset(10, 0)
-		addvalue.BackgroundTransparency = 1
-		addvalue.Text = ''
-		addvalue.PlaceholderText = optionsettings.Placeholder or 'Add entry...'
-		addvalue.TextXAlignment = Enum.TextXAlignment.Left
-		addvalue.TextColor3 = Color3.new(1, 1, 1)
-		addvalue.TextSize = 15
-		addvalue.FontFace = uipallet.Font
-		addvalue.ClearTextOnFocus = false
-		addvalue.Parent = addbkg
-		local addbutton = Instance.new('ImageButton')
-		addbutton.Name = 'AddButton'
-		addbutton.Size = UDim2.fromOffset(16, 16)
-		addbutton.Position = UDim2.new(1, -26, 0, 8)
-		addbutton.BackgroundTransparency = 1
-		addbutton.Image = getcustomasset('newvape/assets/new/add.png')
-		addbutton.ImageColor3 = optionsettings.Color
-		addbutton.ImageTransparency = 0.3
-		addbutton.Parent = addbkg
-		optionsettings.Function = optionsettings.Function or function() end
-		
-		function optionapi:Save(tab)
-			tab[optionsettings.Name] = {
-				List = self.List,
-				ListEnabled = self.ListEnabled
-			}
-		end
-		
-		function optionapi:Load(tab)
-			self.List = tab.List or {}
-			self.ListEnabled = tab.ListEnabled or {}
-			self:ChangeValue()
-		end
-		
-		function optionapi:Color(hue, sat, val, rainbowcheck)
-			if window.Visible then
-				bkg.BackgroundColor3 = rainbowcheck and Color3.fromHSV(mainapi:Color((hue - (self.Index * 0.075)) % 1)) or Color3.fromHSV(hue, sat, val)
-			end
-		end
-		
-		function optionapi:ChangeValue(val)
-			if val then
-				local ind = table.find(self.List, val)
-				if ind then
-					table.remove(self.List, ind)
-					ind = table.find(self.ListEnabled, val)
-					if ind then
-						table.remove(self.ListEnabled, ind)
-					end
-				else
-					table.insert(self.List, val)
-					table.insert(self.ListEnabled, val)
-				end
-			end
-		
-			optionsettings.Function(self.List)
-			for _, v in self.Objects do
-				v:Destroy()
-			end
-			table.clear(self.Objects)
-			window.Size = UDim2.fromOffset(220, 85 + (#self.List * 35))
-			amount.Text = #self.List
-		
-			local enabledtext = 'None'
-			for i, v in self.ListEnabled do
-				if i == 1 then enabledtext = '' end
-				enabledtext = enabledtext..(i == 1 and v or ', '..v)
-			end
-			items.Text = enabledtext
-		
-			for i, v in self.List do
-				local enabled = table.find(self.ListEnabled, v)
-				local object = Instance.new('TextButton')
-				object.Name = v
-				object.Size = UDim2.fromOffset(200, 32)
-				object.Position = UDim2.fromOffset(10, 47 + (i * 35))
-				object.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-				object.AutoButtonColor = false
-				object.Text = ''
-				object.Parent = window
-				addCorner(object)
-				local objectbkg = Instance.new('Frame')
-				objectbkg.Name = 'BKG'
-				objectbkg.Size = UDim2.new(1, -2, 1, -2)
-				objectbkg.Position = UDim2.fromOffset(1, 1)
-				objectbkg.BackgroundColor3 = uipallet.Main
-				objectbkg.Visible = false
-				objectbkg.Parent = object
-				addCorner(objectbkg)
-				local objectdot = Instance.new('Frame')
-				objectdot.Name = 'Dot'
-				objectdot.Size = UDim2.fromOffset(10, 11)
-				objectdot.Position = UDim2.fromOffset(10, 12)
-				objectdot.BackgroundColor3 = enabled and optionsettings.Color or color.Light(uipallet.Main, 0.37)
-				objectdot.Parent = object
-				addCorner(objectdot, UDim.new(1, 0))
-				local objectdotin = objectdot:Clone()
-				objectdotin.Size = UDim2.fromOffset(8, 9)
-				objectdotin.Position = UDim2.fromOffset(1, 1)
-				objectdotin.BackgroundColor3 = enabled and optionsettings.Color or color.Light(uipallet.Main, 0.02)
-				objectdotin.Parent = objectdot
-				local objecttitle = Instance.new('TextLabel')
-				objecttitle.Name = 'Title'
-				objecttitle.Size = UDim2.new(1, -30, 1, 0)
-				objecttitle.Position = UDim2.fromOffset(30, 0)
-				objecttitle.BackgroundTransparency = 1
-				objecttitle.Text = v
-				objecttitle.TextXAlignment = Enum.TextXAlignment.Left
-				objecttitle.TextColor3 = color.Dark(uipallet.Text, 0.16)
-				objecttitle.TextSize = 15
-				objecttitle.FontFace = uipallet.Font
-				objecttitle.Parent = object
-				local close = Instance.new('ImageButton')
-				close.Name = 'Close'
-				close.Size = UDim2.fromOffset(16, 16)
-				close.Position = UDim2.new(1, -26, 0, 8)
-				close.BackgroundColor3 = Color3.new(1, 1, 1)
-				close.BackgroundTransparency = 1
-				close.AutoButtonColor = false
-				close.Image = getcustomasset('newvape/assets/new/closemini.png')
-				close.ImageColor3 = color.Light(uipallet.Text, 0.2)
-				close.ImageTransparency = 0.5
-				close.Parent = object
-				addCorner(close, UDim.new(1, 0))
-		
-				close.MouseEnter:Connect(function()
-					close.ImageTransparency = 0.3
-					tween:Tween(close, uipallet.Tween, {
-						BackgroundTransparency = 0.6
-					})
-				end)
-				close.MouseLeave:Connect(function()
-					close.ImageTransparency = 0.5
-					tween:Tween(close, uipallet.Tween, {
-						BackgroundTransparency = 1
-					})
-				end)
-				close.MouseButton1Click:Connect(function()
-					self:ChangeValue(v)
-				end)
-				object.MouseEnter:Connect(function()
-					objectbkg.Visible = true
-				end)
-				object.MouseLeave:Connect(function()
-					objectbkg.Visible = false
-				end)
-				object.MouseButton1Click:Connect(function()
-					local ind = table.find(self.ListEnabled, v)
-					if ind then
-						table.remove(self.ListEnabled, ind)
-						objectdot.BackgroundColor3 = color.Light(uipallet.Main, 0.37)
-						objectdotin.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-					else
-						table.insert(self.ListEnabled, v)
-						objectdot.BackgroundColor3 = optionsettings.Color
-						objectdotin.BackgroundColor3 = optionsettings.Color
-					end
-		
-					local enabledtext = 'None'
-					for i, v in self.ListEnabled do
-						if i == 1 then enabledtext = '' end
-						enabledtext = enabledtext..(i == 1 and v or ', '..v)
-					end
-		
-					items.Text = enabledtext
-					optionsettings.Function()
-				end)
-		
-				table.insert(self.Objects, object)
-			end
-		end
-		
-		addbutton.MouseEnter:Connect(function()
-			addbutton.ImageTransparency = 0
-		end)
-		addbutton.MouseLeave:Connect(function()
-			addbutton.ImageTransparency = 0.3
-		end)
-		addbutton.MouseButton1Click:Connect(function()
-			if not table.find(optionapi.List, addvalue.Text) then
-				optionapi:ChangeValue(addvalue.Text)
-				addvalue.Text = ''
-			end
-		end)
-		addvalue.FocusLost:Connect(function(enter)
-			if enter and not table.find(optionapi.List, addvalue.Text) then
-				optionapi:ChangeValue(addvalue.Text)
-				addvalue.Text = ''
-			end
-		end)
-		addvalue.MouseEnter:Connect(function()
-			tween:Tween(addbkg, uipallet.Tween, {
-				BackgroundColor3 = color.Light(uipallet.Main, 0.14)
-			})
-		end)
-		addvalue.MouseLeave:Connect(function()
-			tween:Tween(addbkg, uipallet.Tween, {
-				BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-			})
-		end)
-		close.MouseButton1Click:Connect(function()
-			window.Visible = false
-		end)
-		button.MouseButton1Click:Connect(function()
-			window.Visible = not window.Visible
-			tween:Cancel(bkg)
-			bkg.BackgroundColor3 = window.Visible and Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value) or color.Light(uipallet.Main, 0.37)
-		end)
-		textlist.MouseEnter:Connect(function()
-			if not optionapi.Window.Visible then
-				tween:Tween(bkg, uipallet.Tween, {
-					BackgroundColor3 = color.Light(uipallet.Main, 0.37)
-				})
-			end
-		end)
-		textlist.MouseLeave:Connect(function()
-			if not optionapi.Window.Visible then
-				tween:Tween(bkg, uipallet.Tween, {
-					BackgroundColor3 = color.Light(uipallet.Main, 0.034)
-				})
-			end
-		end)
-		textlist:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
-			end
-			local actualPosition = (textlist.AbsolutePosition - (api.Legit and mainapi.Legit.Window.AbsolutePosition or -guiService:GetGuiInset())) / scale.Scale
-			window.Position = UDim2.fromOffset(actualPosition.X + 220, actualPosition.Y)
-		end)
-		
-		if optionsettings.Default then
-			optionapi:ChangeValue()
-		end
-		optionapi.Object = textlist
-		api.Options[optionsettings.Name] = optionapi
-		
-		return optionapi
-	end,
-	Toggle = function(optionsettings, children, api)
-		local optionapi = {
-			Type = 'Toggle',
-			Enabled = false,
-			Index = getTableSize(api.Options)
-		}
-		
-		local toggle = Instance.new('TextButton')
-		toggle.Name = optionsettings.Name..'Toggle'
-		toggle.Size = UDim2.new(1, 0, 0, 30)
-		toggle.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		toggle.BorderSizePixel = 0
-		toggle.AutoButtonColor = false
-		toggle.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		toggle.Text = '          '..optionsettings.Name
-		toggle.TextXAlignment = Enum.TextXAlignment.Left
-		toggle.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		toggle.TextSize = 14
-		toggle.FontFace = uipallet.Font
-		toggle.Parent = children
-		addTooltip(toggle, optionsettings.Tooltip)
-		local knobholder = Instance.new('Frame')
-		knobholder.Name = 'Knob'
-		knobholder.Size = UDim2.fromOffset(22, 12)
-		knobholder.Position = UDim2.new(1, -30, 0, 9)
-		knobholder.BackgroundColor3 = color.Light(uipallet.Main, 0.14)
-		knobholder.Parent = toggle
-		addCorner(knobholder, UDim.new(1, 0))
-		local knob = knobholder:Clone()
-		knob.Size = UDim2.fromOffset(8, 8)
-		knob.Position = UDim2.fromOffset(2, 2)
-		knob.BackgroundColor3 = uipallet.Main
-		knob.Parent = knobholder
-		local hovered = false
-		optionsettings.Function = optionsettings.Function or function() end
-		
-		function optionapi:Save(tab)
-			tab[optionsettings.Name] = {Enabled = self.Enabled}
-		end
-		
-		function optionapi:Load(tab)
-			if self.Enabled ~= tab.Enabled then
-				self:Toggle()
-			end
-		end
-		
-		function optionapi:Color(hue, sat, val, rainbowcheck)
-			if self.Enabled then
-				tween:Cancel(knobholder)
-				knobholder.BackgroundColor3 = rainbowcheck and Color3.fromHSV(mainapi:Color((hue - (self.Index * 0.075)) % 1)) or Color3.fromHSV(hue, sat, val)
-			end
-		end
-		
-		function optionapi:Toggle()
-			self.Enabled = not self.Enabled
-			local rainbowcheck = mainapi.GUIColor.Rainbow and mainapi.RainbowMode.Value ~= 'Retro'
-			tween:Tween(knobholder, uipallet.Tween, {
-				BackgroundColor3 = self.Enabled and (rainbowcheck and Color3.fromHSV(mainapi:Color((mainapi.GUIColor.Hue - (self.Index * 0.075)) % 1)) or Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)) or (hovered and color.Light(uipallet.Main, 0.37) or color.Light(uipallet.Main, 0.14))
-			})
-			tween:Tween(knob, uipallet.Tween, {
-				Position = UDim2.fromOffset(self.Enabled and 12 or 2, 2)
-			})
-			optionsettings.Function(self.Enabled)
-		end
-		
-		toggle.MouseEnter:Connect(function()
-			hovered = true
-			if not optionapi.Enabled then
-				tween:Tween(knobholder, uipallet.Tween, {
-					BackgroundColor3 = color.Light(uipallet.Main, 0.37)
-				})
-			end
-		end)
-		toggle.MouseLeave:Connect(function()
-			hovered = false
-			if not optionapi.Enabled then
-				tween:Tween(knobholder, uipallet.Tween, {
-					BackgroundColor3 = color.Light(uipallet.Main, 0.14)
-				})
-			end
-		end)
-		toggle.MouseButton1Click:Connect(function()
-			optionapi:Toggle()
-		end)
-		
-		if optionsettings.Default then
-			optionapi:Toggle()
-		end
-		optionapi.Object = toggle
-		api.Options[optionsettings.Name] = optionapi
-		
-		return optionapi
-	end,
-	TwoSlider = function(optionsettings, children, api)
-		local optionapi = {
-			Type = 'TwoSlider',
-			ValueMin = optionsettings.DefaultMin or optionsettings.Min,
-			ValueMax = optionsettings.DefaultMax or 10,
-			Max = optionsettings.Max,
-			Index = getTableSize(api.Options)
-		}
-		
-		local slider = Instance.new('TextButton')
-		slider.Name = optionsettings.Name..'Slider'
-		slider.Size = UDim2.new(1, 0, 0, 50)
-		slider.BackgroundColor3 = color.Dark(children.BackgroundColor3, optionsettings.Darker and 0.02 or 0)
-		slider.BorderSizePixel = 0
-		slider.AutoButtonColor = false
-		slider.Visible = optionsettings.Visible == nil or optionsettings.Visible
-		slider.Text = ''
-		slider.Parent = children
-		addTooltip(slider, optionsettings.Tooltip)
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.fromOffset(60, 30)
-		title.Position = UDim2.fromOffset(10, 2)
-		title.BackgroundTransparency = 1
-		title.Text = optionsettings.Name
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		title.TextSize = 11
-		title.FontFace = uipallet.Font
-		title.Parent = slider
-		local valuebutton = Instance.new('TextButton')
-		valuebutton.Name = 'Value'
-		valuebutton.Size = UDim2.fromOffset(60, 15)
-		valuebutton.Position = UDim2.new(1, -69, 0, 9)
-		valuebutton.BackgroundTransparency = 1
-		valuebutton.Text = optionapi.ValueMax
-		valuebutton.TextXAlignment = Enum.TextXAlignment.Right
-		valuebutton.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		valuebutton.TextSize = 11
-		valuebutton.FontFace = uipallet.Font
-		valuebutton.Parent = slider
-		local valuebutton2 = valuebutton:Clone()
-		valuebutton2.Position = UDim2.new(1, -125, 0, 9)
-		valuebutton2.Text = optionapi.ValueMin
-		valuebutton2.Parent = slider
-		local valuebox = Instance.new('TextBox')
-		valuebox.Name = 'Box'
-		valuebox.Size = valuebutton.Size
-		valuebox.Position = valuebutton.Position
-		valuebox.BackgroundTransparency = 1
-		valuebox.Visible = false
-		valuebox.Text = optionapi.ValueMin
-		valuebox.TextXAlignment = Enum.TextXAlignment.Right
-		valuebox.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		valuebox.TextSize = 11
-		valuebox.FontFace = uipallet.Font
-		valuebox.ClearTextOnFocus = false
-		valuebox.Parent = slider
-		local valuebox2 = valuebox:Clone()
-		valuebox2.Position = valuebutton2.Position
-		valuebox2.Parent = slider
-		local bkg = Instance.new('Frame')
-		bkg.Name = 'Slider'
-		bkg.Size = UDim2.new(1, -20, 0, 2)
-		bkg.Position = UDim2.fromOffset(10, 37)
-		bkg.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
-		bkg.BorderSizePixel = 0
-		bkg.Parent = slider
-		local fill = bkg:Clone()
-		fill.Name = 'Fill'
-		fill.Position = UDim2.fromScale(math.clamp(optionapi.ValueMin / optionsettings.Max, 0.04, 0.96), 0)
-		fill.Size = UDim2.fromScale(math.clamp(math.clamp(optionapi.ValueMax / optionsettings.Max, 0, 1), 0.04, 0.96) - fill.Position.X.Scale, 1)
-		fill.BackgroundColor3 = Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)
-		fill.Parent = bkg
-		local knobholder = Instance.new('Frame')
-		knobholder.Name = 'Knob'
-		knobholder.Size = UDim2.fromOffset(16, 4)
-		knobholder.Position = UDim2.fromScale(0, 0.5)
-		knobholder.AnchorPoint = Vector2.new(0.5, 0.5)
-		knobholder.BackgroundColor3 = slider.BackgroundColor3
-		knobholder.BorderSizePixel = 0
-		knobholder.Parent = fill
-		local knob = Instance.new('ImageLabel')
-		knob.Name = 'Knob'
-		knob.Size = UDim2.fromOffset(9, 16)
-		knob.Position = UDim2.fromScale(0.5, 0.5)
-		knob.AnchorPoint = Vector2.new(0.5, 0.5)
-		knob.BackgroundTransparency = 1
-		knob.Image = getcustomasset('newvape/assets/new/range.png')
-		knob.ImageColor3 = Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)
-		knob.Parent = knobholder
-		local knobholdermax = knobholder:Clone()
-		knobholdermax.Name = 'KnobMax'
-		knobholdermax.Position = UDim2.fromScale(1, 0.5)
-		knobholdermax.Parent = fill
-		knobholdermax.Knob.Rotation = 180
-		local arrow = Instance.new('ImageLabel')
-		arrow.Name = 'Arrow'
-		arrow.Size = UDim2.fromOffset(12, 6)
-		arrow.Position = UDim2.new(1, -56, 0, 10)
-		arrow.BackgroundTransparency = 1
-		arrow.Image = getcustomasset('newvape/assets/new/rangearrow.png')
-		arrow.ImageColor3 = color.Light(uipallet.Main, 0.14)
-		arrow.Parent = slider
-		optionsettings.Function = optionsettings.Function or function() end
-		optionsettings.Decimal = optionsettings.Decimal or 1
-		local random = Random.new()
-		
-		function optionapi:Save(tab)
-			tab[optionsettings.Name] = {ValueMin = self.ValueMin, ValueMax = self.ValueMax}
-		end
-		
-		function optionapi:Load(tab)
-			if self.ValueMin ~= tab.ValueMin then
-				self:SetValue(false, tab.ValueMin)
-			end
-			if self.ValueMax ~= tab.ValueMax then
-				self:SetValue(true, tab.ValueMax)
-			end
-		end
-		
-		function optionapi:Color(hue, sat, val, rainbowcheck)
-			fill.BackgroundColor3 = rainbowcheck and Color3.fromHSV(mainapi:Color((hue - (self.Index * 0.075)) % 1)) or Color3.fromHSV(hue, sat, val)
-			knob.ImageColor3 = fill.BackgroundColor3
-			knobholdermax.Knob.ImageColor3 = fill.BackgroundColor3
-		end
-		
-		function optionapi:GetRandomValue()
-			return random:NextNumber(optionapi.ValueMin, optionapi.ValueMax)
-		end
-		
-		function optionapi:SetValue(max, value)
-			if tonumber(value) == math.huge or value ~= value then return end
-			self[max and 'ValueMax' or 'ValueMin'] = value
-			valuebutton.Text = self.ValueMax
-			valuebutton2.Text = self.ValueMin
-			local size = math.clamp(math.clamp(self.ValueMin / optionsettings.Max, 0, 1), 0.04, 0.96)
-			tween:Tween(fill, TweenInfo.new(0.1), {
-				Position = UDim2.fromScale(size, 0),
-				Size = UDim2.fromScale(math.clamp(math.clamp(math.clamp(self.ValueMax / optionsettings.Max, 0.04, 0.96), 0.04, 0.96) - size, 0, 1), 1)
-			})
-		end
-		
-		knobholder.MouseEnter:Connect(function()
-			tween:Tween(knob, uipallet.Tween, {
-				Size = UDim2.fromOffset(11, 18)
-			})
-		end)
-		knobholder.MouseLeave:Connect(function()
-			tween:Tween(knob, uipallet.Tween, {
-				Size = UDim2.fromOffset(9, 16)
-			})
-		end)
-		knobholdermax.MouseEnter:Connect(function()
-			tween:Tween(knobholdermax.Knob, uipallet.Tween, {
-				Size = UDim2.fromOffset(11, 18)
-			})
-		end)
-		knobholdermax.MouseLeave:Connect(function()
-			tween:Tween(knobholdermax.Knob, uipallet.Tween, {
-				Size = UDim2.fromOffset(9, 16)
-			})
-		end)
-		slider.InputBegan:Connect(function(inputObj)
-			if
-				(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-				and (inputObj.Position.Y - slider.AbsolutePosition.Y) > (20 * scale.Scale)
-			then
-				local maxCheck = (inputObj.Position.X - knobholdermax.AbsolutePosition.X) > -10
-				local newPosition = math.clamp((inputObj.Position.X - bkg.AbsolutePosition.X) / bkg.AbsoluteSize.X, 0, 1)
-				optionapi:SetValue(maxCheck, math.floor((optionsettings.Min + (optionsettings.Max - optionsettings.Min) * newPosition) * optionsettings.Decimal) / optionsettings.Decimal, newPosition)
-		
-				local changed = inputService.InputChanged:Connect(function(input)
-					if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-						local newPosition = math.clamp((input.Position.X - bkg.AbsolutePosition.X) / bkg.AbsoluteSize.X, 0, 1)
-						optionapi:SetValue(maxCheck, math.floor((optionsettings.Min + (optionsettings.Max - optionsettings.Min) * newPosition) * optionsettings.Decimal) / optionsettings.Decimal, newPosition)
-					end
-				end)
-		
-				local ended
-				ended = inputObj.Changed:Connect(function()
-					if inputObj.UserInputState == Enum.UserInputState.End then
-						if changed then
-							changed:Disconnect()
-						end
-						if ended then
-							ended:Disconnect()
-						end
-					end
-				end)
-			end
-		end)
-		valuebutton.MouseButton1Click:Connect(function()
-			valuebutton.Visible = false
-			valuebox.Visible = true
-			valuebox.Text = optionapi.ValueMax
-			valuebox:CaptureFocus()
-		end)
-		valuebutton2.MouseButton1Click:Connect(function()
-			valuebutton2.Visible = false
-			valuebox2.Visible = true
-			valuebox2.Text = optionapi.ValueMin
-			valuebox2:CaptureFocus()
-		end)
-		valuebox.FocusLost:Connect(function(enter)
-			valuebutton.Visible = true
-			valuebox.Visible = false
-			if enter and tonumber(valuebox.Text) then
-				optionapi:SetValue(true, tonumber(valuebox.Text))
-			end
-		end)
-		valuebox2.FocusLost:Connect(function(enter)
-			valuebutton2.Visible = true
-			valuebox2.Visible = false
-			if enter and tonumber(valuebox2.Text) then
-				optionapi:SetValue(false, tonumber(valuebox2.Text))
-			end
-		end)
-		
-		optionapi.Object = slider
-		api.Options[optionsettings.Name] = optionapi
-		
-		return optionapi
-	end,
-	Divider = function(children, text)
-		local divider = Instance.new('Frame')
-		divider.Name = 'Divider'
-		divider.Size = UDim2.new(1, 0, 0, 1)
-		divider.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-		divider.BorderSizePixel = 0
-		divider.Parent = children
-		if text then
-			local label = Instance.new('TextLabel')
-			label.Name = 'DividerLabel'
-			label.Size = UDim2.fromOffset(218, 27)
-			label.BackgroundTransparency = 1
-			label.Text = '          '..text:upper()
-			label.TextXAlignment = Enum.TextXAlignment.Left
-			label.TextColor3 = color.Dark(uipallet.Text, 0.43)
-			label.TextSize = 9
-			label.FontFace = uipallet.Font
-			label.Parent = children
-			divider.Position = UDim2.fromOffset(0, 26)
-			divider.Parent = label
-		end
-	end
-}
-
-mainapi.Components = setmetatable(components, {
-	__newindex = function(self, ind, func)
-		for _, v in mainapi.Modules do
-			rawset(v, 'Create'..ind, function(_, settings)
-				return func(settings, v.Children, v)
-			end)
-		end
-
-		if mainapi.Legit then
-			for _, v in mainapi.Legit.Modules do
-				rawset(v, 'Create'..ind, function(_, settings)
-					return func(settings, v.Children, v)
-				end)
-			end
-		end
-
-		rawset(self, ind, func)
-	end
-})
-
-task.spawn(function()
+local function waitForChildOfType(obj, name, timeout, prop)
+	local check, returned = tick() + timeout
 	repeat
-		local hue = tick() * (0.2 * mainapi.RainbowSpeed.Value) % 1
-		for _, v in mainapi.RainbowTable do
-			if v.Type == 'GUISlider' then
-				v:SetValue(mainapi:Color(hue))
-			else
-				v:SetValue(hue)
-			end
+		returned = prop and obj[name] or obj:FindFirstChildOfClass(name)
+		if returned and returned.Name ~= 'UpperTorso' or check < tick() then
+			break
 		end
-		task.wait(1 / mainapi.RainbowUpdateSpeed.Value)
-	until mainapi.Loaded == nil
-end)
+		task.wait()
+	until false
+	return returned
+end
 
-function mainapi:BlurCheck()
-	if self.ThreadFix then
-		setthreadidentity(8)
-		runService:SetRobloxGuiFocused((clickgui.Visible or guiService:GetErrorType() ~= Enum.ConnectionError.OK) and self.Blur.Enabled)
+local frictionTable, oldfrict = {}, {}
+local frictionConnection
+local frictionState
+
+local function modifyVelocity(v)
+	if v:IsA('BasePart') and v.Name ~= 'HumanoidRootPart' and not oldfrict[v] then
+		oldfrict[v] = v.CustomPhysicalProperties or 'none'
+		v.CustomPhysicalProperties = PhysicalProperties.new(0.0001, 0.2, 0.5, 1, 1)
 	end
 end
 
-addMaid(mainapi)
-
-function mainapi:CreateGUI()
-	local categoryapi = {
-		Type = 'MainWindow',
-		Buttons = {},
-		Options = {}
-	}
-
-	local window = Instance.new('TextButton')
-	window.Name = 'GUICategory'
-	window.Position = UDim2.fromOffset(6, 60)
-	window.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-	window.AutoButtonColor = false
-	window.Text = ''
-	window.Parent = clickgui
-	addBlur(window)
-	addCorner(window)
-	makeDraggable(window)
-	local logo = Instance.new('ImageLabel')
-	logo.Name = 'VapeLogo'
-	logo.Size = UDim2.fromOffset(62, 18)
-	logo.Position = UDim2.fromOffset(11, 10)
-	logo.BackgroundTransparency = 1
-	logo.Image = getcustomasset('newvape/assets/new/guivape.png')
-	logo.ImageColor3 = select(3, uipallet.Main:ToHSV()) > 0.5 and uipallet.Text or Color3.new(1, 1, 1)
-	logo.Parent = window
-	local logov4 = Instance.new('ImageLabel')
-	logov4.Name = 'V4Logo'
-	logov4.Size = UDim2.fromOffset(28, 16)
-	logov4.Position = UDim2.new(1, 1, 0, 1)
-	logov4.BackgroundTransparency = 1
-	logov4.Image = getcustomasset('newvape/assets/new/guiv4.png')
-	logov4.Parent = logo
-	local children = Instance.new('Frame')
-	children.Name = 'Children'
-	children.Size = UDim2.new(1, 0, 1, -33)
-	children.Position = UDim2.fromOffset(0, 37)
-	children.BackgroundTransparency = 1
-	children.Parent = window
-	local windowlist = Instance.new('UIListLayout')
-	windowlist.SortOrder = Enum.SortOrder.LayoutOrder
-	windowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	windowlist.Parent = children
-	local settingsbutton = Instance.new('TextButton')
-	settingsbutton.Name = 'Settings'
-	settingsbutton.Size = UDim2.fromOffset(40, 40)
-	settingsbutton.Position = UDim2.new(1, -40, 0, 0)
-	settingsbutton.BackgroundTransparency = 1
-	settingsbutton.Text = ''
-	settingsbutton.Parent = window
-	addTooltip(settingsbutton, 'Open settings')
-	local settingsicon = Instance.new('ImageLabel')
-	settingsicon.Size = UDim2.fromOffset(14, 14)
-	settingsicon.Position = UDim2.fromOffset(15, 12)
-	settingsicon.BackgroundTransparency = 1
-	settingsicon.Image = getcustomasset('newvape/assets/new/guisettings.png')
-	settingsicon.ImageColor3 = color.Light(uipallet.Main, 0.37)
-	settingsicon.Parent = settingsbutton
-	local settingspane = Instance.new('TextButton')
-	settingspane.Size = UDim2.fromScale(1, 1)
-	settingspane.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-	settingspane.AutoButtonColor = false
-	settingspane.Visible = false
-	settingspane.Text = ''
-	settingspane.Parent = window
-	local title = Instance.new('TextLabel')
-	title.Name = 'Title'
-	title.Size = UDim2.new(1, -36, 0, 20)
-	title.Position = UDim2.fromOffset(math.abs(title.Size.X.Offset), 11)
-	title.BackgroundTransparency = 1
-	title.Text = 'Settings'
-	title.TextXAlignment = Enum.TextXAlignment.Left
-	title.TextColor3 = uipallet.Text
-	title.TextSize = 13
-	title.FontFace = uipallet.Font
-	title.Parent = settingspane
-	local close = addCloseButton(settingspane)
-	local back = Instance.new('ImageButton')
-	back.Name = 'Back'
-	back.Size = UDim2.fromOffset(16, 16)
-	back.Position = UDim2.fromOffset(11, 13)
-	back.BackgroundTransparency = 1
-	back.Image = getcustomasset('newvape/assets/new/back.png')
-	back.ImageColor3 = color.Light(uipallet.Main, 0.37)
-	back.Parent = settingspane
-	local settingsversion = Instance.new('TextLabel')
-	settingsversion.Name = 'Version'
-	settingsversion.Size = UDim2.new(1, 0, 0, 16)
-	settingsversion.Position = UDim2.new(0, 0, 1, -16)
-	settingsversion.BackgroundTransparency = 1
-	settingsversion.Text = 'Vape '..mainapi.Version..' '..(
-		isfile('newvape/profiles/commit.txt') and readfile('newvape/profiles/commit.txt'):sub(1, 6) or ''
-	)..' '
-	settingsversion.TextColor3 = color.Dark(uipallet.Text, 0.43)
-	settingsversion.TextXAlignment = Enum.TextXAlignment.Right
-	settingsversion.TextSize = 10
-	settingsversion.FontFace = uipallet.Font
-	settingsversion.Parent = settingspane
-	addCorner(settingspane)
-	local settingschildren = Instance.new('Frame')
-	settingschildren.Name = 'Children'
-	settingschildren.Size = UDim2.new(1, 0, 1, -57)
-	settingschildren.Position = UDim2.fromOffset(0, 41)
-	settingschildren.BackgroundColor3 = uipallet.Main
-	settingschildren.BorderSizePixel = 0
-	settingschildren.Parent = settingspane
-	local settingswindowlist = Instance.new('UIListLayout')
-	settingswindowlist.SortOrder = Enum.SortOrder.LayoutOrder
-	settingswindowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	settingswindowlist.Parent = settingschildren
-	categoryapi.Object = window
-
-	function categoryapi:CreateBind()
-		local optionapi = {Bind = {'RightShift'}}
-
-		local button = Instance.new('TextButton')
-		button.Size = UDim2.fromOffset(220, 40)
-		button.BackgroundColor3 = uipallet.Main
-		button.BorderSizePixel = 0
-		button.AutoButtonColor = false
-		button.Text = '          Rebind GUI'
-		button.TextXAlignment = Enum.TextXAlignment.Left
-		button.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		button.TextSize = 14
-		button.FontFace = uipallet.Font
-		button.Parent = settingschildren
-		addTooltip(button, 'Change the bind of the GUI')
-		local bind = Instance.new('TextButton')
-		bind.Name = 'Bind'
-		bind.Size = UDim2.fromOffset(20, 21)
-		bind.Position = UDim2.new(1, -10, 0, 9)
-		bind.AnchorPoint = Vector2.new(1, 0)
-		bind.BackgroundColor3 = Color3.new(1, 1, 1)
-		bind.BackgroundTransparency = 0.92
-		bind.BorderSizePixel = 0
-		bind.AutoButtonColor = false
-		bind.Text = ''
-		bind.Parent = button
-		addTooltip(bind, 'Click to bind')
-		addCorner(bind, UDim.new(0, 4))
-		local icon = Instance.new('ImageLabel')
-		icon.Name = 'Icon'
-		icon.Size = UDim2.fromOffset(12, 12)
-		icon.Position = UDim2.new(0.5, -6, 0, 5)
-		icon.BackgroundTransparency = 1
-		icon.Image = getcustomasset('newvape/assets/new/bind.png')
-		icon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-		icon.Parent = bind
-		local label = Instance.new('TextLabel')
-		label.Name = 'Text'
-		label.Size = UDim2.fromScale(1, 1)
-		label.Position = UDim2.fromOffset(0, 1)
-		label.BackgroundTransparency = 1
-		label.Visible = false
-		label.Text = ''
-		label.TextColor3 = color.Dark(uipallet.Text, 0.43)
-		label.TextSize = 12
-		label.FontFace = uipallet.Font
-		label.Parent = bind
-
-		function optionapi:SetBind(tab)
-			mainapi.Keybind = #tab <= 0 and mainapi.Keybind or table.clone(tab)
-			self.Bind = mainapi.Keybind
-			if mainapi.VapeButton then
-				mainapi.VapeButton:Destroy()
-				mainapi.VapeButton = nil
-			end
-
-			bind.Visible = true
-			label.Visible = true
-			icon.Visible = false
-			label.Text = table.concat(mainapi.Keybind, ' + '):upper()
-			bind.Size = UDim2.fromOffset(math.max(getfontsize(label.Text, label.TextSize, label.Font).X + 10, 20), 21)
+local function updateVelocity(force)
+	local newState = getTableSize(frictionTable) > 0
+	if frictionState ~= newState or force then
+		if frictionConnection then
+			frictionConnection:Disconnect()
 		end
-
-		bind.MouseEnter:Connect(function()
-			label.Visible = false
-			icon.Visible = not label.Visible
-			icon.Image = getcustomasset('newvape/assets/new/edit.png')
-			icon.ImageColor3 = color.Dark(uipallet.Text, 0.16)
-		end)
-		bind.MouseLeave:Connect(function()
-			label.Visible = true
-			icon.Visible = not label.Visible
-			icon.Image = getcustomasset('newvape/assets/new/bind.png')
-			icon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-		end)
-		bind.MouseButton1Click:Connect(function()
-			mainapi.Binding = optionapi
-		end)
-
-		categoryapi.Options.Bind = optionapi
-
-		return optionapi
+		if newState then
+			if entitylib.isAlive then
+				for _, v in entitylib.character.Character:GetDescendants() do
+					modifyVelocity(v)
+				end
+				frictionConnection = entitylib.character.Character.DescendantAdded:Connect(modifyVelocity)
+			end
+		else
+			for i, v in oldfrict do
+				i.CustomPhysicalProperties = v ~= 'none' and v or nil
+			end
+			table.clear(oldfrict)
+		end
 	end
-
-	function categoryapi:CreateButton(categorysettings)
-		local optionapi = {
-			Enabled = false,
-			Index = getTableSize(categoryapi.Buttons)
-		}
-
-		local button = Instance.new('TextButton')
-		button.Name = categorysettings.Name
-		button.Size = UDim2.fromOffset(220, 40)
-		button.BackgroundColor3 = uipallet.Main
-		button.BorderSizePixel = 0
-		button.AutoButtonColor = false
-		button.Text = (categorysettings.Icon and '                                 ' or '             ')..categorysettings.Name
-		button.TextXAlignment = Enum.TextXAlignment.Left
-		button.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		button.TextSize = 14
-		button.FontFace = uipallet.Font
-		button.Parent = children
-		local icon
-		if categorysettings.Icon then
-			icon = Instance.new('ImageLabel')
-			icon.Name = 'Icon'
-			icon.Size = categorysettings.Size
-			icon.Position = UDim2.fromOffset(13, 13)
-			icon.BackgroundTransparency = 1
-			icon.Image = categorysettings.Icon
-			icon.ImageColor3 = color.Dark(uipallet.Text, 0.16)
-			icon.Parent = button
-		end
-		if categorysettings.Name == 'Profiles' then
-			local label = Instance.new('TextLabel')
-			label.Name = 'ProfileLabel'
-			label.Size = UDim2.fromOffset(53, 24)
-			label.Position = UDim2.new(1, -36, 0, 8)
-			label.AnchorPoint = Vector2.new(1, 0)
-			label.BackgroundColor3 = color.Light(uipallet.Main, 0.04)
-			label.Text = 'default'
-			label.TextColor3 = color.Dark(uipallet.Text, 0.29)
-			label.TextSize = 12
-			label.FontFace = uipallet.Font
-			label.Parent = button
-			addCorner(label)
-			mainapi.ProfileLabel = label
-		end
-		local arrow = Instance.new('ImageLabel')
-		arrow.Name = 'Arrow'
-		arrow.Size = UDim2.fromOffset(4, 8)
-		arrow.Position = UDim2.new(1, -20, 0, 16)
-		arrow.BackgroundTransparency = 1
-		arrow.Image = getcustomasset('newvape/assets/new/expandright.png')
-		arrow.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		arrow.Parent = button
-		optionapi.Name = categorysettings.Name
-		optionapi.Icon = icon
-		optionapi.Object = button
-
-		function optionapi:Toggle()
-			self.Enabled = not self.Enabled
-			tween:Tween(arrow, uipallet.Tween, {
-				Position = UDim2.new(1, self.Enabled and -14 or -20, 0, 16)
-			})
-			button.TextColor3 = self.Enabled and Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value) or uipallet.Text
-			if icon then
-				icon.ImageColor3 = button.TextColor3
-			end
-			button.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-			categorysettings.Window.Visible = self.Enabled
-		end
-
-		button.MouseEnter:Connect(function()
-			if not optionapi.Enabled then
-				button.TextColor3 = uipallet.Text
-				if buttonicon then buttonicon.ImageColor3 = uipallet.Text end
-				button.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-			end
-		end)
-		button.MouseLeave:Connect(function()
-			if not optionapi.Enabled then
-				button.TextColor3 = color.Dark(uipallet.Text, 0.16)
-				if buttonicon then buttonicon.ImageColor3 = color.Dark(uipallet.Text, 0.16) end
-				button.BackgroundColor3 = uipallet.Main
-			end
-		end)
-		button.MouseButton1Click:Connect(function()
-			optionapi:Toggle()
-		end)
-
-		categoryapi.Buttons[categorysettings.Name] = optionapi
-
-		return optionapi
-	end
-
-	function categoryapi:CreateDivider(text)
-		return components.Divider(children, text)
-	end
-
-	function categoryapi:CreateOverlayBar()
-		local optionapi = {Toggles = {}}
-
-		local bar = Instance.new('Frame')
-		bar.Name = 'Overlays'
-		bar.Size = UDim2.fromOffset(220, 36)
-		bar.BackgroundColor3 = uipallet.Main
-		bar.BorderSizePixel = 0
-		bar.Parent = children
-		components.Divider(bar)
-		local button = Instance.new('ImageButton')
-		button.Size = UDim2.fromOffset(24, 24)
-		button.Position = UDim2.new(1, -29, 0, 7)
-		button.BackgroundTransparency = 1
-		button.AutoButtonColor = false
-		button.Image = getcustomasset('newvape/assets/new/overlaysicon.png')
-		button.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		button.Parent = bar
-		addCorner(button, UDim.new(1, 0))
-		addTooltip(button, 'Open overlays menu')
-		local shadow = Instance.new('TextButton')
-		shadow.Name = 'Shadow'
-		shadow.Size = UDim2.new(1, 0, 1, -5)
-		shadow.BackgroundColor3 = Color3.new()
-		shadow.BackgroundTransparency = 1
-		shadow.AutoButtonColor = false
-		shadow.ClipsDescendants = true
-		shadow.Visible = false
-		shadow.Text = ''
-		shadow.Parent = window
-		addCorner(shadow)
-		local window = Instance.new('Frame')
-		window.Size = UDim2.fromOffset(220, 42)
-		window.Position = UDim2.fromScale(0, 1)
-		window.BackgroundColor3 = uipallet.Main
-		window.Parent = shadow
-		addCorner(window)
-		local icon = Instance.new('ImageLabel')
-		icon.Name = 'Icon'
-		icon.Size = UDim2.fromOffset(14, 12)
-		icon.Position = UDim2.fromOffset(10, 13)
-		icon.BackgroundTransparency = 1
-		icon.Image = getcustomasset('newvape/assets/new/overlaystab.png')
-		icon.ImageColor3 = uipallet.Text
-		icon.Parent = window
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.new(1, -36, 0, 38)
-		title.Position = UDim2.fromOffset(36, 0)
-		title.BackgroundTransparency = 1
-		title.Text = 'Overlays'
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = uipallet.Text
-		title.TextSize = 15
-		title.FontFace = uipallet.Font
-		title.Parent = window
-		local close = addCloseButton(window, 7)
-		local divider = Instance.new('Frame')
-		divider.Name = 'Divider'
-		divider.Size = UDim2.new(1, 0, 0, 1)
-		divider.Position = UDim2.fromOffset(0, 37)
-		divider.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-		divider.BorderSizePixel = 0
-		divider.Parent = window
-		local childrentoggle = Instance.new('Frame')
-		childrentoggle.Position = UDim2.fromOffset(0, 38)
-		childrentoggle.BackgroundTransparency = 1
-		childrentoggle.Parent = window
-		local windowlist = Instance.new('UIListLayout')
-		windowlist.SortOrder = Enum.SortOrder.LayoutOrder
-		windowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		windowlist.Parent = childrentoggle
-
-		function optionapi:CreateToggle(togglesettings)
-			local toggleapi = {
-				Enabled = false,
-				Index = getTableSize(optionapi.Toggles)
-			}
-
-			local toggle = Instance.new('TextButton')
-			toggle.Name = togglesettings.Name..'Toggle'
-			toggle.Size = UDim2.new(1, 0, 0, 40)
-			toggle.BackgroundTransparency = 1
-			toggle.AutoButtonColor = false
-			toggle.Text = string.rep(' ', 33 * scale.Scale)..togglesettings.Name
-			toggle.TextXAlignment = Enum.TextXAlignment.Left
-			toggle.TextColor3 = color.Dark(uipallet.Text, 0.16)
-			toggle.TextSize = 14
-			toggle.FontFace = uipallet.Font
-			toggle.Parent = childrentoggle
-			local icon = Instance.new('ImageLabel')
-			icon.Name = 'Icon'
-			icon.Size = togglesettings.Size
-			icon.Position = togglesettings.Position
-			icon.BackgroundTransparency = 1
-			icon.Image = togglesettings.Icon
-			icon.ImageColor3 = uipallet.Text
-			icon.Parent = toggle
-			local knob = Instance.new('Frame')
-			knob.Name = 'Knob'
-			knob.Size = UDim2.fromOffset(22, 12)
-			knob.Position = UDim2.new(1, -30, 0, 14)
-			knob.BackgroundColor3 = color.Light(uipallet.Main, 0.14)
-			knob.Parent = toggle
-			addCorner(knob, UDim.new(1, 0))
-			local knobmain = knob:Clone()
-			knobmain.Size = UDim2.fromOffset(8, 8)
-			knobmain.Position = UDim2.fromOffset(2, 2)
-			knobmain.BackgroundColor3 = uipallet.Main
-			knobmain.Parent = knob
-			toggleapi.Object = toggle
-
-			function toggleapi:Toggle()
-				self.Enabled = not self.Enabled
-				tween:Tween(knob, uipallet.Tween, {
-					BackgroundColor3 = self.Enabled and Color3.fromHSV(
-						mainapi.GUIColor.Hue,
-						mainapi.GUIColor.Sat,
-						mainapi.GUIColor.Value
-					) or (hovered and color.Light(uipallet.Main, 0.37) or color.Light(uipallet.Main, 0.14))
-				})
-				tween:Tween(knobmain, uipallet.Tween, {
-					Position = UDim2.fromOffset(self.Enabled and 12 or 2, 2)
-				})
-				togglesettings.Function(self.Enabled)
-			end
-
-			local hovered = false
-			scale:GetPropertyChangedSignal('Scale'):Connect(function()
-				toggle.Text = string.rep(' ', 33 * scale.Scale)..togglesettings.Name
-			end)
-			toggle.MouseEnter:Connect(function()
-				hovered = true
-				if not toggleapi.Enabled then
-					tween:Tween(knob, uipallet.Tween, {
-						BackgroundColor3 = color.Light(uipallet.Main, 0.37)
-					})
-				end
-			end)
-			toggle.MouseLeave:Connect(function()
-				hovered = false
-				if not toggleapi.Enabled then
-					tween:Tween(knob, uipallet.Tween, {
-						BackgroundColor3 = color.Light(uipallet.Main, 0.14)
-					})
-				end
-			end)
-			toggle.MouseButton1Click:Connect(function()
-				toggleapi:Toggle()
-			end)
-
-			table.insert(optionapi.Toggles, toggleapi)
-
-			return toggleapi
-		end
-
-		button.MouseEnter:Connect(function()
-			button.ImageColor3 = uipallet.Text
-			tween:Tween(button, uipallet.Tween, {
-				BackgroundTransparency = 0.9
-			})
-		end)
-		button.MouseLeave:Connect(function()
-			button.ImageColor3 = color.Light(uipallet.Main, 0.37)
-			tween:Tween(button, uipallet.Tween, {
-				BackgroundTransparency = 1
-			})
-		end)
-		button.MouseButton1Click:Connect(function()
-			shadow.Visible = true
-			tween:Tween(shadow, uipallet.Tween, {
-				BackgroundTransparency = 0.5
-			})
-			tween:Tween(window, uipallet.Tween, {
-				Position = UDim2.new(0, 0, 1, -(window.Size.Y.Offset))
-			})
-		end)
-		close.MouseButton1Click:Connect(function()
-			tween:Tween(shadow, uipallet.Tween, {
-				BackgroundTransparency = 1
-			})
-			tween:Tween(window, uipallet.Tween, {
-				Position = UDim2.fromScale(0, 1)
-			})
-			task.wait(0.2)
-			shadow.Visible = false
-		end)
-		shadow.MouseButton1Click:Connect(function()
-			tween:Tween(shadow, uipallet.Tween, {
-				BackgroundTransparency = 1
-			})
-			tween:Tween(window, uipallet.Tween, {
-				Position = UDim2.fromScale(0, 1)
-			})
-			task.wait(0.2)
-			shadow.Visible = false
-		end)
-		windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
-			end
-			window.Size = UDim2.fromOffset(220, math.min(37 + windowlist.AbsoluteContentSize.Y / scale.Scale, 605))
-			childrentoggle.Size = UDim2.fromOffset(220, window.Size.Y.Offset - 5)
-		end)
-
-		mainapi.Overlays = optionapi
-
-		return optionapi
-	end
-
-	function categoryapi:CreateSettingsDivider()
-		components.Divider(settingschildren)
-	end
-
-	function categoryapi:CreateSettingsPane(categorysettings)
-		local optionapi = {}
-
-		local button = Instance.new('TextButton')
-		button.Name = categorysettings.Name
-		button.Size = UDim2.fromOffset(220, 40)
-		button.BackgroundColor3 = uipallet.Main
-		button.BorderSizePixel = 0
-		button.AutoButtonColor = false
-		button.Text = '          '..categorysettings.Name
-		button.TextXAlignment = Enum.TextXAlignment.Left
-		button.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		button.TextSize = 14
-		button.FontFace = uipallet.Font
-		button.Parent = settingschildren
-		local arrow = Instance.new('ImageLabel')
-		arrow.Name = 'Arrow'
-		arrow.Size = UDim2.fromOffset(4, 8)
-		arrow.Position = UDim2.new(1, -20, 0, 16)
-		arrow.BackgroundTransparency = 1
-		arrow.Image = getcustomasset('newvape/assets/new/expandright.png')
-		arrow.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		arrow.Parent = button
-		local settingspane = Instance.new('TextButton')
-		settingspane.Size = UDim2.fromScale(1, 1)
-		settingspane.BackgroundColor3 = uipallet.Main
-		settingspane.AutoButtonColor = false
-		settingspane.Visible = false
-		settingspane.Text = ''
-		settingspane.Parent = window
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.new(1, -36, 0, 20)
-		title.Position = UDim2.fromOffset(math.abs(title.Size.X.Offset), 11)
-		title.BackgroundTransparency = 1
-		title.Text = categorysettings.Name
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = uipallet.Text
-		title.TextSize = 13
-		title.FontFace = uipallet.Font
-		title.Parent = settingspane
-		local close = addCloseButton(settingspane)
-		local back = Instance.new('ImageButton')
-		back.Name = 'Back'
-		back.Size = UDim2.fromOffset(16, 16)
-		back.Position = UDim2.fromOffset(11, 13)
-		back.BackgroundTransparency = 1
-		back.Image = getcustomasset('newvape/assets/new/back.png')
-		back.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		back.Parent = settingspane
-		addCorner(settingspane)
-		local settingschildren = Instance.new('Frame')
-		settingschildren.Name = 'Children'
-		settingschildren.Size = UDim2.new(1, 0, 1, -57)
-		settingschildren.Position = UDim2.fromOffset(0, 41)
-		settingschildren.BackgroundColor3 = uipallet.Main
-		settingschildren.BorderSizePixel = 0
-		settingschildren.Parent = settingspane
-		local divider = Instance.new('Frame')
-		divider.Name = 'Divider'
-		divider.Size = UDim2.new(1, 0, 0, 1)
-		divider.BackgroundColor3 = Color3.new(1, 1, 1)
-		divider.BackgroundTransparency = 0.928
-		divider.BorderSizePixel = 0
-		divider.Parent = settingschildren
-		local settingswindowlist = Instance.new('UIListLayout')
-		settingswindowlist.SortOrder = Enum.SortOrder.LayoutOrder
-		settingswindowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		settingswindowlist.Parent = settingschildren
-
-		for i, v in components do
-			optionapi['Create'..i] = function(_, settings)
-				return v(settings, settingschildren, categoryapi)
-			end
-		end
-
-		back.MouseEnter:Connect(function()
-			back.ImageColor3 = uipallet.Text
-		end)
-		back.MouseLeave:Connect(function()
-			back.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		end)
-		back.MouseButton1Click:Connect(function()
-			settingspane.Visible = false
-		end)
-		button.MouseEnter:Connect(function()
-			button.TextColor3 = uipallet.Text
-			button.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-		end)
-		button.MouseLeave:Connect(function()
-			button.TextColor3 = color.Dark(uipallet.Text, 0.16)
-			button.BackgroundColor3 = uipallet.Main
-		end)
-		button.MouseButton1Click:Connect(function()
-			settingspane.Visible = true
-		end)
-		close.MouseButton1Click:Connect(function()
-			settingspane.Visible = false
-		end)
-		windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
-			end
-			window.Size = UDim2.fromOffset(220, 45 + windowlist.AbsoluteContentSize.Y / scale.Scale)
-			for _, v in categoryapi.Buttons do
-				if v.Icon then
-					v.Object.Text = string.rep(' ', 33 * scale.Scale)..v.Name
-				end
-			end
-		end)
-
-		return optionapi
-	end
-
-	function categoryapi:CreateGUISlider(optionsettings)
-		local optionapi = {
-			Type = 'GUISlider',
-			Notch = 4,
-			Hue = 0.46,
-			Sat = 0.96,
-			Value = 0.52,
-			Rainbow = false,
-			CustomColor = false
-		}
-		local slidercolors = {
-			Color3.fromRGB(250, 50, 56),
-			Color3.fromRGB(242, 99, 33),
-			Color3.fromRGB(252, 179, 22),
-			Color3.fromRGB(5, 133, 104),
-			Color3.fromRGB(47, 122, 229),
-			Color3.fromRGB(126, 84, 217),
-			Color3.fromRGB(232, 96, 152)
-		}
-		local slidercolorpos = {
-			4,
-			33,
-			62,
-			90,
-			119,
-			148,
-			177
-		}
-
-		local function createSlider(name, gradientColor)
-			local slider = Instance.new('TextButton')
-			slider.Name = optionsettings.Name..'Slider'..name
-			slider.Size = UDim2.fromOffset(220, 50)
-			slider.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-			slider.BorderSizePixel = 0
-			slider.AutoButtonColor = false
-			slider.Visible = false
-			slider.Text = ''
-			slider.Parent = settingschildren
-			local title = Instance.new('TextLabel')
-			title.Name = 'Title'
-			title.Size = UDim2.fromOffset(60, 30)
-			title.Position = UDim2.fromOffset(10, 2)
-			title.BackgroundTransparency = 1
-			title.Text = name
-			title.TextXAlignment = Enum.TextXAlignment.Left
-			title.TextColor3 = color.Dark(uipallet.Text, 0.16)
-			title.TextSize = 11
-			title.FontFace = uipallet.Font
-			title.Parent = slider
-			local holder = Instance.new('Frame')
-			holder.Name = 'Slider'
-			holder.Size = UDim2.fromOffset(200, 2)
-			holder.Position = UDim2.fromOffset(10, 37)
-			holder.BackgroundColor3 = Color3.new(1, 1, 1)
-			holder.BorderSizePixel = 0
-			holder.Parent = slider
-			local uigradient = Instance.new('UIGradient')
-			uigradient.Color = gradientColor
-			uigradient.Parent = holder
-			local fill = holder:Clone()
-			fill.Name = 'Fill'
-			fill.Size = UDim2.fromScale(math.clamp(1, 0.04, 0.96), 1)
-			fill.Position = UDim2.new()
-			fill.BackgroundTransparency = 1
-			fill.Parent = holder
-			local knobframe = Instance.new('Frame')
-			knobframe.Name = 'Knob'
-			knobframe.Size = UDim2.fromOffset(24, 4)
-			knobframe.Position = UDim2.fromScale(1, 0.5)
-			knobframe.AnchorPoint = Vector2.new(0.5, 0.5)
-			knobframe.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-			knobframe.BorderSizePixel = 0
-			knobframe.Parent = fill
-			local knob = Instance.new('Frame')
-			knob.Name = 'Knob'
-			knob.Size = UDim2.fromOffset(14, 14)
-			knob.Position = UDim2.fromScale(0.5, 0.5)
-			knob.AnchorPoint = Vector2.new(0.5, 0.5)
-			knob.BackgroundColor3 = uipallet.Text
-			knob.Parent = knobframe
-			addCorner(knob, UDim.new(1, 0))
-			if name == 'Custom color' then
-				local reset = Instance.new('TextButton')
-				reset.Size = UDim2.fromOffset(45, 20)
-				reset.Position = UDim2.new(1, -52, 0, 5)
-				reset.BackgroundTransparency = 1
-				reset.Text = 'RESET'
-				reset.TextColor3 = color.Dark(uipallet.Text, 0.16)
-				reset.TextSize = 11
-				reset.FontFace = uipallet.Font
-				reset.Parent = slider
-				reset.MouseButton1Click:Connect(function()
-					optionapi:SetValue(nil, nil, nil, 4)
-				end)
-			end
-
-			slider.InputBegan:Connect(function(inputObj)
-				if
-					(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-					and (inputObj.Position.Y - slider.AbsolutePosition.Y) > (20 * scale.Scale)
-				then
-					local changed = inputService.InputChanged:Connect(function(input)
-						if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-							local value = math.clamp((input.Position.X - holder.AbsolutePosition.X) / holder.AbsoluteSize.X, 0, 1)
-							optionapi:SetValue(
-								name == 'Custom color' and value or nil,
-								name == 'Saturation' and value or nil,
-								name == 'Vibrance' and value or nil,
-								name == 'Opacity' and value or nil
-							)
-						end
-					end)
-
-					local ended
-					ended = inputObj.Changed:Connect(function()
-						if inputObj.UserInputState == Enum.UserInputState.End then
-							if changed then
-								changed:Disconnect()
-							end
-							if ended then
-								ended:Disconnect()
-							end
-						end
-					end)
-				end
-			end)
-			slider.MouseEnter:Connect(function()
-				tween:Tween(knob, uipallet.Tween, {
-					Size = UDim2.fromOffset(16, 16)
-				})
-			end)
-			slider.MouseLeave:Connect(function()
-				tween:Tween(knob, uipallet.Tween, {
-					Size = UDim2.fromOffset(14, 14)
-				})
-			end)
-
-			return slider
-		end
-
-		local slider = Instance.new('TextButton')
-		slider.Name = optionsettings.Name..'Slider'
-		slider.Size = UDim2.fromOffset(220, 50)
-		slider.BackgroundTransparency = 1
-		slider.AutoButtonColor = false
-		slider.Text = ''
-		slider.Parent = settingschildren
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.fromOffset(60, 30)
-		title.Position = UDim2.fromOffset(10, 2)
-		title.BackgroundTransparency = 1
-		title.Text = optionsettings.Name
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		title.TextSize = 11
-		title.FontFace = uipallet.Font
-		title.Parent = slider
-		local holder = Instance.new('Frame')
-		holder.Name = 'Slider'
-		holder.Size = UDim2.fromOffset(200, 2)
-		holder.Position = UDim2.fromOffset(10, 37)
-		holder.BackgroundTransparency = 1
-		holder.BorderSizePixel = 0
-		holder.Parent = slider
-		local colornum = 0
-		for i, color in slidercolors do
-			local colorframe = Instance.new('Frame')
-			colorframe.Size = UDim2.fromOffset(27 + (((i + 1) % 2) == 0 and 1 or 0), 2)
-			colorframe.Position = UDim2.fromOffset(colornum, 0)
-			colorframe.BackgroundColor3 = color
-			colorframe.BorderSizePixel = 0
-			colorframe.Parent = holder
-			colornum += (colorframe.Size.X.Offset + 1)
-		end
-		local preview = Instance.new('ImageButton')
-		preview.Name = 'Preview'
-		preview.Size = UDim2.fromOffset(12, 12)
-		preview.Position = UDim2.new(1, -22, 0, 10)
-		preview.BackgroundTransparency = 1
-		preview.Image = getcustomasset('newvape/assets/new/colorpreview.png')
-		preview.ImageColor3 = Color3.fromHSV(optionapi.Hue, 1, 1)
-		preview.Parent = slider
-		local valuebox = Instance.new('TextBox')
-		valuebox.Name = 'Box'
-		valuebox.Size = UDim2.fromOffset(60, 15)
-		valuebox.Position = UDim2.new(1, -69, 0, 9)
-		valuebox.BackgroundTransparency = 1
-		valuebox.Visible = false
-		valuebox.Text = ''
-		valuebox.TextXAlignment = Enum.TextXAlignment.Right
-		valuebox.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		valuebox.TextSize = 11
-		valuebox.FontFace = uipallet.Font
-		valuebox.ClearTextOnFocus = true
-		valuebox.Parent = slider
-		local expandbutton = Instance.new('TextButton')
-		expandbutton.Name = 'Expand'
-		expandbutton.Size = UDim2.fromOffset(17, 13)
-		expandbutton.Position = UDim2.new(0, getfontsize(title.Text, title.TextSize, title.Font).X + 11, 0, 7)
-		expandbutton.BackgroundTransparency = 1
-		expandbutton.Text = ''
-		expandbutton.Parent = slider
-		local expandicon = Instance.new('ImageLabel')
-		expandicon.Name = 'Expand'
-		expandicon.Size = UDim2.fromOffset(9, 5)
-		expandicon.Position = UDim2.fromOffset(4, 4)
-		expandicon.BackgroundTransparency = 1
-		expandicon.Image = getcustomasset('newvape/assets/new/expandicon.png')
-		expandicon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-		expandicon.Parent = expandbutton
-		local rainbow = Instance.new('TextButton')
-		rainbow.Name = 'Rainbow'
-		rainbow.Size = UDim2.fromOffset(12, 12)
-		rainbow.Position = UDim2.new(1, -42, 0, 10)
-		rainbow.BackgroundTransparency = 1
-		rainbow.Text = ''
-		rainbow.Parent = slider
-		local rainbow1 = Instance.new('ImageLabel')
-		rainbow1.Size = UDim2.fromOffset(12, 12)
-		rainbow1.BackgroundTransparency = 1
-		rainbow1.Image = getcustomasset('newvape/assets/new/rainbow_1.png')
-		rainbow1.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		rainbow1.Parent = rainbow
-		local rainbow2 = rainbow1:Clone()
-		rainbow2.Image = getcustomasset('newvape/assets/new/rainbow_2.png')
-		rainbow2.Parent = rainbow
-		local rainbow3 = rainbow1:Clone()
-		rainbow3.Image = getcustomasset('newvape/assets/new/rainbow_3.png')
-		rainbow3.Parent = rainbow
-		local rainbow4 = rainbow1:Clone()
-		rainbow4.Image = getcustomasset('newvape/assets/new/rainbow_4.png')
-		rainbow4.Parent = rainbow
-		local knob = Instance.new('ImageLabel')
-		knob.Name = 'Knob'
-		knob.Size = UDim2.fromOffset(26, 12)
-		knob.Position = UDim2.fromOffset(slidercolorpos[4] - 3, -5)
-		knob.BackgroundTransparency = 1
-		knob.Image = getcustomasset('newvape/assets/new/guislider.png')
-		knob.ImageColor3 = slidercolors[4]
-		knob.Parent = holder
-		optionsettings.Function = optionsettings.Function or function() end
-		local rainbowTable = {}
-		for i = 0, 1, 0.1 do
-			table.insert(rainbowTable, ColorSequenceKeypoint.new(i, Color3.fromHSV(i, 1, 1)))
-		end
-		local colorSlider = createSlider('Custom color', ColorSequence.new(rainbowTable))
-		local satSlider = createSlider('Saturation', ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 0, optionapi.Value)),
-			ColorSequenceKeypoint.new(1, Color3.fromHSV(optionapi.Hue, 1, optionapi.Value))
-		}))
-		local vibSlider = createSlider('Vibrance', ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 0, 0)),
-			ColorSequenceKeypoint.new(1, Color3.fromHSV(optionapi.Hue, optionapi.Sat, 1))
-		}))
-		local normalknob = getcustomasset('newvape/assets/new/guislider.png')
-		local rainbowknob = getcustomasset('newvape/assets/new/guisliderrain.png')
-		local rainbowthread
-
-		function optionapi:Save(tab)
-			tab[optionsettings.Name] = {
-				Hue = self.Hue,
-				Sat = self.Sat,
-				Value = self.Value,
-				Notch = self.Notch,
-				CustomColor = self.CustomColor,
-				Rainbow = self.Rainbow
-			}
-		end
-
-		function optionapi:Load(tab)
-			if tab.Rainbow then
-				self:Toggle()
-			end
-			if self.Rainbow or tab.CustomColor then
-				self:SetValue(tab.Hue, tab.Sat, tab.Value)
-			else
-				self:SetValue(nil, nil, nil, tab.Notch)
-			end
-		end
-
-		function optionapi:SetValue(h, s, v, n)
-			if n then
-				if self.Rainbow then
-					self:Toggle()
-				end
-				self.CustomColor = false
-				h, s, v = slidercolors[n]:ToHSV()
-			else
-				self.CustomColor = true
-			end
-
-			self.Hue = h or self.Hue
-			self.Sat = s or self.Sat
-			self.Value = v or self.Value
-			self.Notch = n
-			preview.ImageColor3 = Color3.fromHSV(self.Hue, self.Sat, self.Value)
-			satSlider.Slider.UIGradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 0, self.Value)),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(self.Hue, 1, self.Value))
-			})
-			vibSlider.Slider.UIGradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 0, 0)),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(self.Hue, self.Sat, 1))
-			})
-
-			if self.Rainbow or self.CustomColor then
-				knob.Image = rainbowknob
-				knob.ImageColor3 = Color3.new(1, 1, 1)
-				tween:Tween(knob, uipallet.Tween, {
-					Position = UDim2.fromOffset(slidercolorpos[4] - 3, -5)
-				})
-			else
-				knob.Image = normalknob
-				knob.ImageColor3 = Color3.fromHSV(self.Hue, self.Sat, self.Value)
-				tween:Tween(knob, uipallet.Tween, {
-					Position = UDim2.fromOffset(slidercolorpos[n or 4] - 3, -5)
-				})
-			end
-
-			if self.Rainbow then
-				if h then
-					colorSlider.Slider.Fill.Size = UDim2.fromScale(math.clamp(self.Hue, 0.04, 0.96), 1)
-				end
-				if s then
-					satSlider.Slider.Fill.Size = UDim2.fromScale(math.clamp(self.Sat, 0.04, 0.96), 1)
-				end
-				if v then
-					vibSlider.Slider.Fill.Size = UDim2.fromScale(math.clamp(self.Value, 0.04, 0.96), 1)
-				end
-			else
-				if h then
-					tween:Tween(colorSlider.Slider.Fill, uipallet.Tween, {
-						Size = UDim2.fromScale(math.clamp(self.Hue, 0.04, 0.96), 1)
-					})
-				end
-				if s then
-					tween:Tween(satSlider.Slider.Fill, uipallet.Tween, {
-						Size = UDim2.fromScale(math.clamp(self.Sat, 0.04, 0.96), 1)
-					})
-				end
-				if v then
-					tween:Tween(vibSlider.Slider.Fill, uipallet.Tween, {
-						Size = UDim2.fromScale(math.clamp(self.Value, 0.04, 0.96), 1)
-					})
-				end
-			end
-			optionsettings.Function(self.Hue, self.Sat, self.Value)
-		end
-
-		function optionapi:Toggle()
-			self.Rainbow = not self.Rainbow
-			if rainbowthread then
-				task.cancel(rainbowthread)
-			end
-
-			if self.Rainbow then
-				knob.Image = rainbowknob
-				table.insert(mainapi.RainbowTable, self)
-
-				rainbow1.ImageColor3 = Color3.fromRGB(5, 127, 100)
-				rainbowthread = task.delay(0.1, function()
-					rainbow2.ImageColor3 = Color3.fromRGB(228, 125, 43)
-					rainbowthread = task.delay(0.1, function()
-						rainbow3.ImageColor3 = Color3.fromRGB(225, 46, 52)
-						rainbowthread = nil
-					end)
-				end)
-			else
-				self:SetValue(nil, nil, nil, 4)
-				knob.Image = normalknob
-				local ind = table.find(mainapi.RainbowTable, self)
-				if ind then
-					table.remove(mainapi.RainbowTable, ind)
-				end
-
-				rainbow3.ImageColor3 = color.Light(uipallet.Main, 0.37)
-				rainbowthread = task.delay(0.1, function()
-					rainbow2.ImageColor3 = color.Light(uipallet.Main, 0.37)
-					rainbowthread = task.delay(0.1, function()
-						rainbow1.ImageColor3 = color.Light(uipallet.Main, 0.37)
-					end)
-				end)
-			end
-		end
-
-		expandbutton.MouseEnter:Connect(function()
-			expandicon.ImageColor3 = color.Dark(uipallet.Text, 0.16)
-		end)
-		expandbutton.MouseLeave:Connect(function()
-			expandicon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-		end)
-		expandbutton.MouseButton1Click:Connect(function()
-			colorSlider.Visible = not colorSlider.Visible
-			satSlider.Visible = colorSlider.Visible
-			vibSlider.Visible = satSlider.Visible
-			expandicon.Rotation = satSlider.Visible and 180 or 0
-		end)
-		preview.MouseButton1Click:Connect(function()
-			preview.Visible = false
-			valuebox.Visible = true
-			valuebox:CaptureFocus()
-			local text = Color3.fromHSV(optionapi.Hue, optionapi.Sat, optionapi.Value)
-			valuebox.Text = math.round(text.R * 255)..', '..math.round(text.G * 255)..', '..math.round(text.B * 255)
-		end)
-		slider.InputBegan:Connect(function(inputObj)
-			if
-				(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-				and (inputObj.Position.Y - slider.AbsolutePosition.Y) > (20 * scale.Scale)
-			then
-				local changed = inputService.InputChanged:Connect(function(input)
-					if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-						optionapi:SetValue(nil, nil, nil, math.clamp(math.round((input.Position.X - holder.AbsolutePosition.X) / scale.Scale / 27), 1, 7))
-					end
-				end)
-
-				local ended
-				ended = inputObj.Changed:Connect(function()
-					if inputObj.UserInputState == Enum.UserInputState.End then
-						if changed then
-							changed:Disconnect()
-						end
-						if ended then
-							ended:Disconnect()
-						end
-					end
-				end)
-				optionapi:SetValue(nil, nil, nil, math.clamp(math.round((inputObj.Position.X - holder.AbsolutePosition.X) / scale.Scale / 27), 1, 7))
-			end
-		end)
-		rainbow.MouseButton1Click:Connect(function()
-			optionapi:Toggle()
-		end)
-		valuebox.FocusLost:Connect(function(enter)
-			preview.Visible = true
-			valuebox.Visible = false
-			if enter then
-				local commas = valuebox.Text:split(',')
-				local suc, res = pcall(function()
-					return tonumber(commas[1]) and Color3.fromRGB(
-						tonumber(commas[1]),
-						tonumber(commas[2]),
-						tonumber(commas[3])
-					) or Color3.fromHex(valuebox.Text)
-				end)
-
-				if suc then
-					if optionapi.Rainbow then
-						optionapi:Toggle()
-					end
-					optionapi:SetValue(res:ToHSV())
-				end
-			end
-		end)
-
-		optionapi.Object = slider
-		categoryapi.Options[optionsettings.Name] = optionapi
-
-		return optionapi
-	end
-
-	back.MouseEnter:Connect(function()
-		back.ImageColor3 = uipallet.Text
-	end)
-	back.MouseLeave:Connect(function()
-		back.ImageColor3 = color.Light(uipallet.Main, 0.37)
-	end)
-	back.MouseButton1Click:Connect(function()
-		settingspane.Visible = false
-	end)
-	close.MouseButton1Click:Connect(function()
-		settingspane.Visible = false
-	end)
-	settingsbutton.MouseEnter:Connect(function()
-		settingsicon.ImageColor3 = uipallet.Text
-	end)
-	settingsbutton.MouseLeave:Connect(function()
-		settingsicon.ImageColor3 = color.Light(uipallet.Main, 0.37)
-	end)
-	settingsbutton.MouseButton1Click:Connect(function()
-		settingspane.Visible = true
-	end)
-	windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		window.Size = UDim2.fromOffset(220, 42 + windowlist.AbsoluteContentSize.Y / scale.Scale)
-		for _, v in categoryapi.Buttons do
-			if v.Icon then
-				v.Object.Text = string.rep(' ', 36 * scale.Scale)..v.Name
-			end
-		end
-	end)
-
-	self.Categories.Main = categoryapi
-
-	return categoryapi
+	frictionState = newState
 end
 
-function mainapi:CreateCategory(categorysettings)
-	local categoryapi = {
-		Type = 'Category',
-		Expanded = false
-	}
+local kitorder = {
+	hannah = 5,
+	spirit_assassin = 4,
+	dasher = 3,
+	jade = 2,
+	regent = 1
+}
 
-	local window = Instance.new('TextButton')
-	window.Name = categorysettings.Name..'Category'
-	window.Size = UDim2.fromOffset(220, 41)
-	window.Position = UDim2.fromOffset(236, 60)
-	window.BackgroundColor3 = uipallet.Main
-	window.AutoButtonColor = false
-	window.Visible = false
-	window.Text = ''
-	window.Parent = clickgui
-	addBlur(window)
-	addCorner(window)
-	makeDraggable(window)
-	local icon = Instance.new('ImageLabel')
-	icon.Name = 'Icon'
-	icon.Size = categorysettings.Size
-	icon.Position = UDim2.fromOffset(12, (icon.Size.X.Offset > 20 and 14 or 13))
-	icon.BackgroundTransparency = 1
-	icon.Image = categorysettings.Icon
-	icon.ImageColor3 = uipallet.Text
-	icon.Parent = window
-	local title = Instance.new('TextLabel')
-	title.Name = 'Title'
-	title.Size = UDim2.new(1, -(categorysettings.Size.X.Offset > 18 and 40 or 33), 0, 41)
-	title.Position = UDim2.fromOffset(math.abs(title.Size.X.Offset), 0)
-	title.BackgroundTransparency = 1
-	title.Text = categorysettings.Name
-	title.TextXAlignment = Enum.TextXAlignment.Left
-	title.TextColor3 = uipallet.Text
-	title.TextSize = 13
-	title.FontFace = uipallet.Font
-	title.Parent = window
-	local arrowbutton = Instance.new('TextButton')
-	arrowbutton.Name = 'Arrow'
-	arrowbutton.Size = UDim2.fromOffset(40, 40)
-	arrowbutton.Position = UDim2.new(1, -40, 0, 0)
-	arrowbutton.BackgroundTransparency = 1
-	arrowbutton.Text = ''
-	arrowbutton.Parent = window
-	local arrow = Instance.new('ImageLabel')
-	arrow.Name = 'Arrow'
-	arrow.Size = UDim2.fromOffset(9, 4)
-	arrow.Position = UDim2.fromOffset(20, 18)
-	arrow.BackgroundTransparency = 1
-	arrow.Image = getcustomasset('newvape/assets/new/expandup.png')
-	arrow.ImageColor3 = Color3.fromRGB(140, 140, 140)
-	arrow.Rotation = 180
-	arrow.Parent = arrowbutton
-	local children = Instance.new('ScrollingFrame')
-	children.Name = 'Children'
-	children.Size = UDim2.new(1, 0, 1, -41)
-	children.Position = UDim2.fromOffset(0, 37)
-	children.BackgroundTransparency = 1
-	children.BorderSizePixel = 0
-	children.Visible = false
-	children.ScrollBarThickness = 2
-	children.ScrollBarImageTransparency = 0.75
-	children.CanvasSize = UDim2.new()
-	children.Parent = window
-	local divider = Instance.new('Frame')
-	divider.Name = 'Divider'
-	divider.Size = UDim2.new(1, 0, 0, 1)
-	divider.Position = UDim2.fromOffset(0, 37)
-	divider.BackgroundColor3 = Color3.new(1, 1, 1)
-	divider.BackgroundTransparency = 0.928
-	divider.BorderSizePixel = 0
-	divider.Visible = false
-	divider.Parent = window
-	local windowlist = Instance.new('UIListLayout')
-	windowlist.SortOrder = Enum.SortOrder.LayoutOrder
-	windowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	windowlist.Parent = children
+local sortmethods = {
+	Damage = function(a, b)
+		return a.Entity.Character:GetAttribute('LastDamageTakenTime') < b.Entity.Character:GetAttribute('LastDamageTakenTime')
+	end,
+	Threat = function(a, b)
+		return getStrength(a.Entity) > getStrength(b.Entity)
+	end,
+	Kit = function(a, b)
+		return (a.Entity.Player and kitorder[a.Entity.Player:GetAttribute('PlayingAsKit')] or 0) > (b.Entity.Player and kitorder[b.Entity.Player:GetAttribute('PlayingAsKit')] or 0)
+	end,
+	Health = function(a, b)
+		return a.Entity.Health < b.Entity.Health
+	end,
+	Angle = function(a, b)
+		local selfrootpos = entitylib.character.RootPart.Position
+		local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
+		local angle = math.acos(localfacing:Dot(((a.Entity.RootPart.Position - selfrootpos) * Vector3.new(1, 0, 1)).Unit))
+		local angle2 = math.acos(localfacing:Dot(((b.Entity.RootPart.Position - selfrootpos) * Vector3.new(1, 0, 1)).Unit))
+		return angle < angle2
+	end
+}
 
-	function categoryapi:CreateModule(modulesettings)
-		mainapi:Remove(modulesettings.Name)
-		local moduleapi = {
-			Enabled = false,
-			Options = {},
-			Bind = {},
-			Index = getTableSize(mainapi.Modules),
-			ExtraText = modulesettings.ExtraText,
-			Name = modulesettings.Name,
-			Category = categorysettings.Name
-		}
-
-		local modulebutton = Instance.new('TextButton')
-		modulebutton.Name = modulesettings.Name
-		modulebutton.Size = UDim2.fromOffset(220, 40)
-		modulebutton.BackgroundColor3 = uipallet.Main
-		modulebutton.BorderSizePixel = 0
-		modulebutton.AutoButtonColor = false
-		modulebutton.Text = '            '..modulesettings.Name
-		modulebutton.TextXAlignment = Enum.TextXAlignment.Left
-		modulebutton.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		modulebutton.TextSize = 14
-		modulebutton.FontFace = uipallet.Font
-		modulebutton.Parent = children
-		local gradient = Instance.new('UIGradient')
-		gradient.Rotation = 90
-		gradient.Enabled = false
-		gradient.Parent = modulebutton
-		local modulechildren = Instance.new('Frame')
-		local bind = Instance.new('TextButton')
-		addTooltip(modulebutton, modulesettings.Tooltip)
-		addTooltip(bind, 'Click to bind')
-		bind.Name = 'Bind'
-		bind.Size = UDim2.fromOffset(20, 21)
-		bind.Position = UDim2.new(1, -36, 0, 9)
-		bind.AnchorPoint = Vector2.new(1, 0)
-		bind.BackgroundColor3 = Color3.new(1, 1, 1)
-		bind.BackgroundTransparency = 0.92
-		bind.BorderSizePixel = 0
-		bind.AutoButtonColor = false
-		bind.Visible = false
-		bind.Text = ''
-		addCorner(bind, UDim.new(0, 4))
-		local bindicon = Instance.new('ImageLabel')
-		bindicon.Name = 'Icon'
-		bindicon.Size = UDim2.fromOffset(12, 12)
-		bindicon.Position = UDim2.new(0.5, -6, 0, 5)
-		bindicon.BackgroundTransparency = 1
-		bindicon.Image = getcustomasset('newvape/assets/new/bind.png')
-		bindicon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-		bindicon.Parent = bind
-		local bindtext = Instance.new('TextLabel')
-		bindtext.Size = UDim2.fromScale(1, 1)
-		bindtext.Position = UDim2.fromOffset(0, 1)
-		bindtext.BackgroundTransparency = 1
-		bindtext.Visible = false
-		bindtext.Text = ''
-		bindtext.TextColor3 = color.Dark(uipallet.Text, 0.43)
-		bindtext.TextSize = 12
-		bindtext.FontFace = uipallet.Font
-		bindtext.Parent = bind
-		local bindcover = Instance.new('ImageLabel')
-		bindcover.Name = 'Cover'
-		bindcover.Size = UDim2.fromOffset(154, 40)
-		bindcover.BackgroundTransparency = 1
-		bindcover.Visible = false
-		bindcover.Image = getcustomasset('newvape/assets/new/bindbkg.png')
-		bindcover.ScaleType = Enum.ScaleType.Slice
-		bindcover.SliceCenter = Rect.new(0, 0, 141, 40)
-		bindcover.Parent = modulebutton
-		local bindcovertext = Instance.new('TextLabel')
-		bindcovertext.Name = 'Text'
-		bindcovertext.Size = UDim2.new(1, -10, 1, -3)
-		bindcovertext.BackgroundTransparency = 1
-		bindcovertext.Text = 'PRESS A KEY TO BIND'
-		bindcovertext.TextColor3 = uipallet.Text
-		bindcovertext.TextSize = 11
-		bindcovertext.FontFace = uipallet.Font
-		bindcovertext.Parent = bindcover
-		bind.Parent = modulebutton
-		local dotsbutton = Instance.new('TextButton')
-		dotsbutton.Name = 'Dots'
-		dotsbutton.Size = UDim2.fromOffset(25, 40)
-		dotsbutton.Position = UDim2.new(1, -25, 0, 0)
-		dotsbutton.BackgroundTransparency = 1
-		dotsbutton.Text = ''
-		dotsbutton.Parent = modulebutton
-		local dots = Instance.new('ImageLabel')
-		dots.Name = 'Dots'
-		dots.Size = UDim2.fromOffset(3, 16)
-		dots.Position = UDim2.fromOffset(4, 12)
-		dots.BackgroundTransparency = 1
-		dots.Image = getcustomasset('newvape/assets/new/dots.png')
-		dots.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		dots.Parent = dotsbutton
-		modulechildren.Name = modulesettings.Name..'Children'
-		modulechildren.Size = UDim2.new(1, 0, 0, 0)
-		modulechildren.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-		modulechildren.BorderSizePixel = 0
-		modulechildren.Visible = false
-		modulechildren.Parent = children
-		moduleapi.Children = modulechildren
-		local windowlist = Instance.new('UIListLayout')
-		windowlist.SortOrder = Enum.SortOrder.LayoutOrder
-		windowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		windowlist.Parent = modulechildren
-		local divider = Instance.new('Frame')
-		divider.Name = 'Divider'
-		divider.Size = UDim2.new(1, 0, 0, 1)
-		divider.Position = UDim2.new(0, 0, 1, -1)
-		divider.BackgroundColor3 = Color3.new(0.19, 0.19, 0.19)
-		divider.BackgroundTransparency = 0.52
-		divider.BorderSizePixel = 0
-		divider.Visible = false
-		divider.Parent = modulebutton
-		modulesettings.Function = modulesettings.Function or function() end
-		addMaid(moduleapi)
-
-		function moduleapi:SetBind(tab, mouse)
-			if tab.Mobile then
-				createMobileButton(moduleapi, Vector2.new(tab.X, tab.Y))
-				return
-			end
-
-			self.Bind = table.clone(tab)
-			if mouse then
-				bindcovertext.Text = #tab <= 0 and 'BIND REMOVED' or 'BOUND TO'
-				bindcover.Size = UDim2.fromOffset(getfontsize(bindcovertext.Text, bindcovertext.TextSize).X + 20, 40)
-				task.delay(1, function()
-					bindcover.Visible = false
-				end)
-			end
-
-			if #tab <= 0 then
-				bindtext.Visible = false
-				bindicon.Visible = true
-				bind.Size = UDim2.fromOffset(20, 21)
-			else
-				bind.Visible = true
-				bindtext.Visible = true
-				bindicon.Visible = false
-				bindtext.Text = table.concat(tab, ' + '):upper()
-				bind.Size = UDim2.fromOffset(math.max(getfontsize(bindtext.Text, bindtext.TextSize, bindtext.Font).X + 10, 20), 21)
-			end
+run(function()
+	local oldstart = entitylib.start
+	local function customEntity(ent)
+		if ent:HasTag('inventory-entity') and not ent:HasTag('Monster') then
+			return
 		end
 
-		function moduleapi:Toggle(multiple)
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
+		entitylib.addEntity(ent, nil, ent:HasTag('Drone') and function(self)
+			local droneplr = playersService:GetPlayerByUserId(self.Character:GetAttribute('PlayerUserId'))
+			return not droneplr or lplr:GetAttribute('Team') ~= droneplr:GetAttribute('Team')
+		end or function(self)
+			return lplr:GetAttribute('Team') ~= self.Character:GetAttribute('Team')
+		end)
+	end
+
+	entitylib.start = function()
+		oldstart()
+		if entitylib.Running then
+			for _, ent in collectionService:GetTagged('entity') do
+				customEntity(ent)
 			end
-			self.Enabled = not self.Enabled
-			divider.Visible = self.Enabled
-			gradient.Enabled = self.Enabled
-			modulebutton.TextColor3 = (hovered or modulechildren.Visible) and uipallet.Text or color.Dark(uipallet.Text, 0.16)
-			modulebutton.BackgroundColor3 = (hovered or modulechildren.Visible) and color.Light(uipallet.Main, 0.02) or uipallet.Main
-			dots.ImageColor3 = self.Enabled and Color3.fromRGB(50, 50, 50) or color.Light(uipallet.Main, 0.37)
-			bindicon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-			bindtext.TextColor3 = color.Dark(uipallet.Text, 0.43)
-			if not self.Enabled then
-				for _, v in self.Connections do
-					v:Disconnect()
+			table.insert(entitylib.Connections, collectionService:GetInstanceAddedSignal('entity'):Connect(customEntity))
+			table.insert(entitylib.Connections, collectionService:GetInstanceRemovedSignal('entity'):Connect(function(ent)
+				entitylib.removeEntity(ent)
+			end))
+		end
+	end
+
+	entitylib.addPlayer = function(plr)
+		if plr.Character then
+			entitylib.refreshEntity(plr.Character, plr)
+		end
+		entitylib.PlayerConnections[plr] = {
+			plr.CharacterAdded:Connect(function(char)
+				entitylib.refreshEntity(char, plr)
+			end),
+			plr.CharacterRemoving:Connect(function(char)
+				entitylib.removeEntity(char, plr == lplr)
+			end),
+			plr:GetAttributeChangedSignal('Team'):Connect(function()
+				for _, v in entitylib.List do
+					if v.Targetable ~= entitylib.targetCheck(v) then
+						entitylib.refreshEntity(v.Character, v.Player)
+					end
 				end
-				table.clear(self.Connections)
-			end
-			if not multiple then
-				mainapi:UpdateTextGUI()
-			end
-			task.spawn(modulesettings.Function, self.Enabled)
-		end
 
-		for i, v in components do
-			moduleapi['Create'..i] = function(_, optionsettings)
-				return v(optionsettings, modulechildren, moduleapi)
-			end
-		end
+				if plr == lplr then
+					entitylib.start()
+				else
+					entitylib.refreshEntity(plr.Character, plr)
+				end
+			end)
+		}
+	end
 
-		bind.MouseEnter:Connect(function()
-			bindtext.Visible = false
-			bindicon.Visible = not bindtext.Visible
-			bindicon.Image = getcustomasset('newvape/assets/new/edit.png')
-			if not moduleapi.Enabled then bindicon.ImageColor3 = color.Dark(uipallet.Text, 0.16) end
-		end)
-		bind.MouseLeave:Connect(function()
-			bindtext.Visible = #moduleapi.Bind > 0
-			bindicon.Visible = not bindtext.Visible
-			bindicon.Image = getcustomasset('newvape/assets/new/bind.png')
-			if not moduleapi.Enabled then
-				bindicon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
+	entitylib.addEntity = function(char, plr, teamfunc)
+		if not char then return end
+		entitylib.EntityThreads[char] = task.spawn(function()
+			local hum, humrootpart, head
+			if plr then
+				hum = waitForChildOfType(char, 'Humanoid', 10)
+				humrootpart = hum and waitForChildOfType(hum, 'RootPart', workspace.StreamingEnabled and 9e9 or 10, true)
+				head = char:WaitForChild('Head', 10) or humrootpart
+			else
+				hum = {HipHeight = 0.5}
+				humrootpart = waitForChildOfType(char, 'PrimaryPart', 10, true)
+				head = humrootpart
 			end
-		end)
-		bind.MouseButton1Click:Connect(function()
-			bindcovertext.Text = 'PRESS A KEY TO BIND'
-			bindcover.Size = UDim2.fromOffset(getfontsize(bindcovertext.Text, bindcovertext.TextSize).X + 20, 40)
-			bindcover.Visible = true
-			mainapi.Binding = moduleapi
-		end)
-		dotsbutton.MouseEnter:Connect(function()
-			if not moduleapi.Enabled then
-				dots.ImageColor3 = uipallet.Text
-			end
-		end)
-		dotsbutton.MouseLeave:Connect(function()
-			if not moduleapi.Enabled then
-				dots.ImageColor3 = color.Light(uipallet.Main, 0.37)
-			end
-		end)
-		dotsbutton.MouseButton1Click:Connect(function()
-			modulechildren.Visible = not modulechildren.Visible
-		end)
-		dotsbutton.MouseButton2Click:Connect(function()
-			modulechildren.Visible = not modulechildren.Visible
-		end)
-		local hovered = false
-		modulebutton.MouseEnter:Connect(function()
-			hovered = true
-			if not moduleapi.Enabled and not modulechildren.Visible then
-				modulebutton.TextColor3 = uipallet.Text
-				modulebutton.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-			end
-			bind.Visible = #moduleapi.Bind > 0 or hovered or modulechildren.Visible
-		end)
-		modulebutton.MouseLeave:Connect(function()
-			hovered = false
-			if not moduleapi.Enabled and not modulechildren.Visible then
-				modulebutton.TextColor3 = color.Dark(uipallet.Text, 0.16)
-				modulebutton.BackgroundColor3 = uipallet.Main
-			end
-			bind.Visible = #moduleapi.Bind > 0 or hovered or modulechildren.Visible
-		end)
-		modulebutton.MouseButton1Click:Connect(function()
-			moduleapi:Toggle()
-		end)
-		modulebutton.MouseButton2Click:Connect(function()
-			modulechildren.Visible = not modulechildren.Visible
-		end)
-		if inputService.TouchEnabled then
-			local heldbutton = false
-			modulebutton.MouseButton1Down:Connect(function()
-				heldbutton = true
-				local holdtime, holdpos = tick(), inputService:GetMouseLocation()
-				repeat
-					heldbutton = (inputService:GetMouseLocation() - holdpos).Magnitude < 3
-					task.wait()
-				until (tick() - holdtime) > 1 or not heldbutton or not clickgui.Visible
-				if heldbutton and clickgui.Visible then
-					if mainapi.ThreadFix then
-						setthreadidentity(8)
-					end
-					clickgui.Visible = false
-					tooltip.Visible = false
-					mainapi:BlurCheck()
-					for _, mobileButton in mainapi.Modules do
-						if mobileButton.Bind.Button then
-							mobileButton.Bind.Button.Visible = true
-						end
+			local updateobjects = plr and plr ~= lplr and {
+				char:WaitForChild('ArmorInvItem_0', 5),
+				char:WaitForChild('ArmorInvItem_1', 5),
+				char:WaitForChild('ArmorInvItem_2', 5),
+				char:WaitForChild('HandInvItem', 5)
+			} or {}
+
+			if hum and humrootpart then
+				local entity = {
+					Connections = {},
+					Character = char,
+					Health = (char:GetAttribute('Health') or 100) + getShieldAttribute(char),
+					Head = head,
+					Humanoid = hum,
+					HumanoidRootPart = humrootpart,
+					HipHeight = hum.HipHeight + (humrootpart.Size.Y / 2) + (hum.RigType == Enum.HumanoidRigType.R6 and 2 or 0),
+					Jumps = 0,
+					JumpTick = tick(),
+					Jumping = false,
+					LandTick = tick(),
+					MaxHealth = char:GetAttribute('MaxHealth') or 100,
+					NPC = plr == nil,
+					Player = plr,
+					RootPart = humrootpart,
+					TeamCheck = teamfunc
+				}
+
+				if plr == lplr then
+					entity.AirTime = tick()
+					entitylib.character = entity
+					entitylib.isAlive = true
+					entitylib.Events.LocalAdded:Fire(entity)
+					table.insert(entitylib.Connections, char.AttributeChanged:Connect(function(attr)
+						vapeEvents.AttributeChanged:Fire(attr)
+					end))
+				else
+					entity.Targetable = entitylib.targetCheck(entity)
+
+					for _, v in entitylib.getUpdateConnections(entity) do
+						table.insert(entity.Connections, v:Connect(function()
+							entity.Health = (char:GetAttribute('Health') or 100) + getShieldAttribute(char)
+							entity.MaxHealth = char:GetAttribute('MaxHealth') or 100
+							entitylib.Events.EntityUpdated:Fire(entity)
+						end))
 					end
 
-					local touchconnection
-					touchconnection = inputService.InputBegan:Connect(function(inputType)
-						if inputType.UserInputType == Enum.UserInputType.Touch then
-							if mainapi.ThreadFix then
-								setthreadidentity(8)
-							end
-							createMobileButton(moduleapi, inputType.Position + Vector3.new(0, guiService:GetGuiInset().Y, 0))
-							clickgui.Visible = true
-							mainapi:BlurCheck()
-							for _, mobileButton in mainapi.Modules do
-								if mobileButton.Bind.Button then
-									mobileButton.Bind.Button.Visible = false
+					for _, v in updateobjects do
+						table.insert(entity.Connections, v:GetPropertyChangedSignal('Value'):Connect(function()
+							task.delay(0.1, function()
+								if bedwars.getInventory then
+									store.inventories[plr] = bedwars.getInventory(plr)
+									entitylib.Events.EntityUpdated:Fire(entity)
 								end
+							end)
+						end))
+					end
+
+					if plr then
+						local anim = char:FindFirstChild('Animate')
+						if anim then
+							pcall(function()
+								anim = anim.jump:FindFirstChildWhichIsA('Animation').AnimationId
+								table.insert(entity.Connections, hum.Animator.AnimationPlayed:Connect(function(playedanim)
+									if playedanim.Animation.AnimationId == anim then
+										entity.JumpTick = tick()
+										entity.Jumps += 1
+										entity.LandTick = tick() + 1
+										entity.Jumping = entity.Jumps > 1
+									end
+								end))
+							end)
+						end
+
+						task.delay(0.1, function()
+							if bedwars.getInventory then
+								store.inventories[plr] = bedwars.getInventory(plr)
 							end
-							touchconnection:Disconnect()
-						end
-					end)
-				end
-			end)
-			modulebutton.MouseButton1Up:Connect(function()
-				heldbutton = false
-			end)
-		end
-		windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
-			end
-			modulechildren.Size = UDim2.new(1, 0, 0, windowlist.AbsoluteContentSize.Y / scale.Scale)
-		end)
-
-		moduleapi.Object = modulebutton
-		mainapi.Modules[modulesettings.Name] = moduleapi
-
-		local sorting = {}
-		for _, v in mainapi.Modules do
-			sorting[v.Category] = sorting[v.Category] or {}
-			table.insert(sorting[v.Category], v.Name)
-		end
-
-		for _, sort in sorting do
-			table.sort(sort)
-			for i, v in sort do
-				mainapi.Modules[v].Index = i
-				mainapi.Modules[v].Object.LayoutOrder = i
-				mainapi.Modules[v].Children.LayoutOrder = i
-			end
-		end
-
-		return moduleapi
-	end
-
-	function categoryapi:Expand()
-		self.Expanded = not self.Expanded
-		children.Visible = self.Expanded
-		arrow.Rotation = self.Expanded and 0 or 180
-		window.Size = UDim2.fromOffset(220, self.Expanded and math.min(41 + windowlist.AbsoluteContentSize.Y / scale.Scale, 601) or 41)
-		divider.Visible = children.CanvasPosition.Y > 10 and children.Visible
-	end
-
-	arrowbutton.MouseButton1Click:Connect(function()
-		categoryapi:Expand()
-	end)
-	arrowbutton.MouseButton2Click:Connect(function()
-		categoryapi:Expand()
-	end)
-	arrowbutton.MouseEnter:Connect(function()
-		arrow.ImageColor3 = Color3.fromRGB(220, 220, 220)
-	end)
-	arrowbutton.MouseLeave:Connect(function()
-		arrow.ImageColor3 = Color3.fromRGB(140, 140, 140)
-	end)
-	children:GetPropertyChangedSignal('CanvasPosition'):Connect(function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		divider.Visible = children.CanvasPosition.Y > 10 and children.Visible
-	end)
-	window.InputBegan:Connect(function(inputObj)
-		if inputObj.Position.Y < window.AbsolutePosition.Y + 41 and inputObj.UserInputType == Enum.UserInputType.MouseButton2 then
-			categoryapi:Expand()
-		end
-	end)
-	windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		children.CanvasSize = UDim2.fromOffset(0, windowlist.AbsoluteContentSize.Y / scale.Scale)
-		if categoryapi.Expanded then
-			window.Size = UDim2.fromOffset(220, math.min(41 + windowlist.AbsoluteContentSize.Y / scale.Scale, 601))
-		end
-	end)
-
-	categoryapi.Button = self.Categories.Main:CreateButton({
-		Name = categorysettings.Name,
-		Icon = categorysettings.Icon,
-		Size = categorysettings.Size,
-		Window = window
-	})
-
-	categoryapi.Object = window
-	self.Categories[categorysettings.Name] = categoryapi
-
-	return categoryapi
-end
-
-function mainapi:CreateOverlay(categorysettings)
-	local window
-	local categoryapi
-	categoryapi = {
-		Type = 'Overlay',
-		Expanded = false,
-		Button = self.Overlays:CreateToggle({
-		Name = categorysettings.Name,
-			Function = function(callback)
-				window.Visible = callback and (clickgui.Visible or categoryapi.Pinned)
-				if not callback then
-					for _, v in categoryapi.Connections do
-						v:Disconnect()
-					end
-					table.clear(categoryapi.Connections)
-				end
-
-				if categorysettings.Function then
-					task.spawn(categorysettings.Function, callback)
-				end
-			end,
-			Icon = categorysettings.Icon,
-			Size = categorysettings.Size,
-			Position = categorysettings.Position
-		}),
-		Pinned = false,
-		Options = {}
-	}
-
-	window = Instance.new('TextButton')
-	window.Name = categorysettings.Name..'Overlay'
-	window.Size = UDim2.fromOffset(categorysettings.CategorySize or 220, 41)
-	window.Position = UDim2.fromOffset(240, 46)
-	window.BackgroundColor3 = uipallet.Main
-	window.AutoButtonColor = false
-	window.Visible = false
-	window.Text = ''
-	window.Parent = scaledgui
-	local blur = addBlur(window)
-	addCorner(window)
-	makeDraggable(window)
-	local icon = Instance.new('ImageLabel')
-	icon.Name = 'Icon'
-	icon.Size = categorysettings.Size
-	icon.Position = UDim2.fromOffset(12, (icon.Size.X.Offset > 14 and 14 or 13))
-	icon.BackgroundTransparency = 1
-	icon.Image = categorysettings.Icon
-	icon.ImageColor3 = uipallet.Text
-	icon.Parent = window
-	local title = Instance.new('TextLabel')
-	title.Name = 'Title'
-	title.Size = UDim2.new(1, -32, 0, 41)
-	title.Position = UDim2.fromOffset(math.abs(title.Size.X.Offset), 0)
-	title.BackgroundTransparency = 1
-	title.Text = categorysettings.Name
-	title.TextXAlignment = Enum.TextXAlignment.Left
-	title.TextColor3 = uipallet.Text
-	title.TextSize = 13
-	title.FontFace = uipallet.Font
-	title.Parent = window
-	local pin = Instance.new('ImageButton')
-	pin.Name = 'Pin'
-	pin.Size = UDim2.fromOffset(16, 16)
-	pin.Position = UDim2.new(1, -47, 0, 12)
-	pin.BackgroundTransparency = 1
-	pin.AutoButtonColor = false
-	pin.Image = getcustomasset('newvape/assets/new/pin.png')
-	pin.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-	pin.Parent = window
-	local dotsbutton = Instance.new('TextButton')
-	dotsbutton.Name = 'Dots'
-	dotsbutton.Size = UDim2.fromOffset(17, 40)
-	dotsbutton.Position = UDim2.new(1, -17, 0, 0)
-	dotsbutton.BackgroundTransparency = 1
-	dotsbutton.Text = ''
-	dotsbutton.Parent = window
-	local dots = Instance.new('ImageLabel')
-	dots.Name = 'Dots'
-	dots.Size = UDim2.fromOffset(3, 16)
-	dots.Position = UDim2.fromOffset(4, 12)
-	dots.BackgroundTransparency = 1
-	dots.Image = getcustomasset('newvape/assets/new/dots.png')
-	dots.ImageColor3 = color.Light(uipallet.Main, 0.37)
-	dots.Parent = dotsbutton
-	local customchildren = Instance.new('Frame')
-	customchildren.Name = 'CustomChildren'
-	customchildren.Size = UDim2.new(1, 0, 0, 200)
-	customchildren.Position = UDim2.fromScale(0, 1)
-	customchildren.BackgroundTransparency = 1
-	customchildren.Parent = window
-	local children = Instance.new('ScrollingFrame')
-	children.Name = 'Children'
-	children.Size = UDim2.new(1, 0, 1, -41)
-	children.Position = UDim2.fromOffset(0, 37)
-	children.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-	children.BorderSizePixel = 0
-	children.Visible = false
-	children.ScrollBarThickness = 2
-	children.ScrollBarImageTransparency = 0.75
-	children.CanvasSize = UDim2.new()
-	children.Parent = window
-	local windowlist = Instance.new('UIListLayout')
-	windowlist.SortOrder = Enum.SortOrder.LayoutOrder
-	windowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	windowlist.Parent = children
-	addMaid(categoryapi)
-
-	function categoryapi:Expand(check)
-		if check and not blur.Visible then return end
-		self.Expanded = not self.Expanded
-		children.Visible = self.Expanded
-		dots.ImageColor3 = self.Expanded and uipallet.Text or color.Light(uipallet.Main, 0.37)
-		if self.Expanded then
-			window.Size = UDim2.fromOffset(window.Size.X.Offset, math.min(41 + windowlist.AbsoluteContentSize.Y / scale.Scale, 601))
-		else
-			window.Size = UDim2.fromOffset(window.Size.X.Offset, 41)
-		end
-	end
-
-	function categoryapi:Pin()
-		self.Pinned = not self.Pinned
-		pin.ImageColor3 = self.Pinned and uipallet.Text or color.Dark(uipallet.Text, 0.43)
-	end
-
-	function categoryapi:Update()
-		window.Visible = self.Button.Enabled and (clickgui.Visible or self.Pinned)
-		if self.Expanded then
-			self:Expand()
-		end
-		if clickgui.Visible then
-			window.Size = UDim2.fromOffset(window.Size.X.Offset, 41)
-			window.BackgroundTransparency = 0
-			blur.Visible = true
-			icon.Visible = true
-			title.Visible = true
-			pin.Visible = true
-			dotsbutton.Visible = true
-		else
-			window.Size = UDim2.fromOffset(window.Size.X.Offset, 0)
-			window.BackgroundTransparency = 1
-			blur.Visible = false
-			icon.Visible = false
-			title.Visible = false
-			pin.Visible = false
-			dotsbutton.Visible = false
-		end
-	end
-
-	for i, v in components do
-		categoryapi['Create'..i] = function(self, optionsettings)
-			return v(optionsettings, children, categoryapi)
-		end
-	end
-
-	dotsbutton.MouseEnter:Connect(function()
-		if not children.Visible then
-			dots.ImageColor3 = uipallet.Text
-		end
-	end)
-	dotsbutton.MouseLeave:Connect(function()
-		if not children.Visible then
-			dots.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		end
-	end)
-	dotsbutton.MouseButton1Click:Connect(function()
-		categoryapi:Expand(true)
-	end)
-	dotsbutton.MouseButton2Click:Connect(function()
-		categoryapi:Expand(true)
-	end)
-	pin.MouseButton1Click:Connect(function()
-		categoryapi:Pin()
-	end)
-	window.MouseButton2Click:Connect(function()
-		categoryapi:Expand(true)
-	end)
-	windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		children.CanvasSize = UDim2.fromOffset(0, windowlist.AbsoluteContentSize.Y / scale.Scale)
-		if categoryapi.Expanded then
-			window.Size = UDim2.fromOffset(window.Size.X.Offset, math.min(41 + windowlist.AbsoluteContentSize.Y / scale.Scale, 601))
-		end
-	end)
-	self:Clean(clickgui:GetPropertyChangedSignal('Visible'):Connect(function()
-		categoryapi:Update()
-	end))
-
-	categoryapi:Update()
-	categoryapi.Object = window
-	categoryapi.Children = customchildren
-	self.Categories[categorysettings.Name] = categoryapi
-
-	return categoryapi
-end
-
-function mainapi:CreateCategoryList(categorysettings)
-	local categoryapi = {
-		Type = 'CategoryList',
-		Expanded = false,
-		List = {},
-		ListEnabled = {},
-		Objects = {},
-		Options = {}
-	}
-	categorysettings.Color = categorysettings.Color or Color3.fromRGB(5, 134, 105)
-
-	local window = Instance.new('TextButton')
-	window.Name = categorysettings.Name..'CategoryList'
-	window.Size = UDim2.fromOffset(220, 45)
-	window.Position = UDim2.fromOffset(240, 46)
-	window.BackgroundColor3 = uipallet.Main
-	window.AutoButtonColor = false
-	window.Visible = false
-	window.Text = ''
-	window.Parent = clickgui
-	addBlur(window)
-	addCorner(window)
-	makeDraggable(window)
-	local icon = Instance.new('ImageLabel')
-	icon.Name = 'Icon'
-	icon.Size = categorysettings.Size
-	icon.Position = categorysettings.Position or UDim2.fromOffset(12, (categorysettings.Size.X.Offset > 20 and 13 or 12))
-	icon.BackgroundTransparency = 1
-	icon.Image = categorysettings.Icon
-	icon.ImageColor3 = uipallet.Text
-	icon.Parent = window
-	local title = Instance.new('TextLabel')
-	title.Name = 'Title'
-	title.Size = UDim2.new(1, -(categorysettings.Size.X.Offset > 20 and 44 or 36), 0, 20)
-	title.Position = UDim2.fromOffset(math.abs(title.Size.X.Offset), 12)
-	title.BackgroundTransparency = 1
-	title.Text = categorysettings.Name
-	title.TextXAlignment = Enum.TextXAlignment.Left
-	title.TextColor3 = uipallet.Text
-	title.TextSize = 13
-	title.FontFace = uipallet.Font
-	title.Parent = window
-	local arrowbutton = Instance.new('TextButton')
-	arrowbutton.Name = 'Arrow'
-	arrowbutton.Size = UDim2.fromOffset(40, 40)
-	arrowbutton.Position = UDim2.new(1, -40, 0, 0)
-	arrowbutton.BackgroundTransparency = 1
-	arrowbutton.Text = ''
-	arrowbutton.Parent = window
-	local arrow = Instance.new('ImageLabel')
-	arrow.Name = 'Arrow'
-	arrow.Size = UDim2.fromOffset(9, 4)
-	arrow.Position = UDim2.fromOffset(20, 19)
-	arrow.BackgroundTransparency = 1
-	arrow.Image = getcustomasset('newvape/assets/new/expandup.png')
-	arrow.ImageColor3 = Color3.fromRGB(140, 140, 140)
-	arrow.Rotation = 180
-	arrow.Parent = arrowbutton
-	local children = Instance.new('ScrollingFrame')
-	children.Name = 'Children'
-	children.Size = UDim2.new(1, 0, 1, -45)
-	children.Position = UDim2.fromOffset(0, 45)
-	children.BackgroundTransparency = 1
-	children.BorderSizePixel = 0
-	children.Visible = false
-	children.ScrollBarThickness = 2
-	children.ScrollBarImageTransparency = 0.75
-	children.CanvasSize = UDim2.new()
-	children.Parent = window
-	local childrentwo = Instance.new('Frame')
-	childrentwo.BackgroundTransparency = 1
-	childrentwo.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-	childrentwo.Visible = false
-	childrentwo.Parent = children
-	local settings = Instance.new('ImageButton')
-	settings.Name = 'Settings'
-	settings.Size = UDim2.fromOffset(16, 16)
-	settings.Position = UDim2.new(1, -52, 0, 13)
-	settings.BackgroundTransparency = 1
-	settings.AutoButtonColor = false
-	settings.Image = getcustomasset('newvape/assets/new/customsettings.png')
-	settings.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-	settings.Parent = window
-	local divider = Instance.new('Frame')
-	divider.Name = 'Divider'
-	divider.Size = UDim2.new(1, 0, 0, 1)
-	divider.Position = UDim2.fromOffset(0, 41)
-	divider.BorderSizePixel = 0
-	divider.Visible = false
-	divider.BackgroundColor3 = Color3.new(1, 1, 1)
-	divider.BackgroundTransparency = 0.928
-	divider.Parent = window
-	local windowlist = Instance.new('UIListLayout')
-	windowlist.SortOrder = Enum.SortOrder.LayoutOrder
-	windowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	windowlist.Padding = UDim.new(0, 3)
-	windowlist.Parent = children
-	local windowlisttwo = Instance.new('UIListLayout')
-	windowlisttwo.SortOrder = Enum.SortOrder.LayoutOrder
-	windowlisttwo.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	windowlisttwo.Parent = childrentwo
-	local addbkg = Instance.new('Frame')
-	addbkg.Name = 'Add'
-	addbkg.Size = UDim2.fromOffset(200, 31)
-	addbkg.Position = UDim2.fromOffset(10, 45)
-	addbkg.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-	addbkg.Parent = children
-	addCorner(addbkg)
-	local addbox = addbkg:Clone()
-	addbox.Size = UDim2.new(1, -2, 1, -2)
-	addbox.Position = UDim2.fromOffset(1, 1)
-	addbox.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-	addbox.Parent = addbkg
-	local addvalue = Instance.new('TextBox')
-	addvalue.Size = UDim2.new(1, -35, 1, 0)
-	addvalue.Position = UDim2.fromOffset(10, 0)
-	addvalue.BackgroundTransparency = 1
-	addvalue.Text = ''
-	addvalue.PlaceholderText = categorysettings.Placeholder or 'Add entry...'
-	addvalue.TextXAlignment = Enum.TextXAlignment.Left
-	addvalue.TextColor3 = Color3.new(1, 1, 1)
-	addvalue.TextSize = 15
-	addvalue.FontFace = uipallet.Font
-	addvalue.ClearTextOnFocus = false
-	addvalue.Parent = addbkg
-	local addbutton = Instance.new('ImageButton')
-	addbutton.Name = 'AddButton'
-	addbutton.Size = UDim2.fromOffset(16, 16)
-	addbutton.Position = UDim2.new(1, -26, 0, 8)
-	addbutton.BackgroundTransparency = 1
-	addbutton.Image = getcustomasset('newvape/assets/new/add.png')
-	addbutton.ImageColor3 = categorysettings.Color
-	addbutton.ImageTransparency = 0.3
-	addbutton.Parent = addbkg
-	local cursedpadding = Instance.new('Frame')
-	cursedpadding.Size = UDim2.fromOffset()
-	cursedpadding.BackgroundTransparency = 1
-	cursedpadding.Parent = children
-	categorysettings.Function = categorysettings.Function or function() end
-
-	function categoryapi:ChangeValue(val)
-		if val then
-			if categorysettings.Profiles then
-				local ind = self:GetValue(val)
-				if ind then
-					if val ~= 'default' then
-						table.remove(mainapi.Profiles, ind)
-						if isfile('newvape/profiles/'..val..mainapi.Place..'.txt') and delfile then
-							delfile('newvape/profiles/'..val..mainapi.Place..'.txt')
-						end
-					end
-				else
-					table.insert(mainapi.Profiles, {Name = val, Bind = {}})
-				end
-			else
-				local ind = table.find(self.List, val)
-				if ind then
-					table.remove(self.List, ind)
-					ind = table.find(self.ListEnabled, val)
-					if ind then
-						table.remove(self.ListEnabled, ind)
-					end
-				else
-					table.insert(self.List, val)
-					table.insert(self.ListEnabled, val)
-				end
-			end
-		end
-
-		categorysettings.Function()
-		for _, v in self.Objects do
-			v:Destroy()
-		end
-		table.clear(self.Objects)
-		self.Selected = nil
-
-		for i, v in (categorysettings.Profiles and mainapi.Profiles or self.List) do
-			if categorysettings.Profiles then
-				local object = Instance.new('TextButton')
-				object.Name = v.Name
-				object.Size = UDim2.fromOffset(200, 33)
-				object.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-				object.AutoButtonColor = false
-				object.Text = ''
-				object.Parent = children
-				addCorner(object)
-				local objectstroke = Instance.new('UIStroke')
-				objectstroke.Color = color.Light(uipallet.Main, 0.1)
-				objectstroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-				objectstroke.Enabled = false
-				objectstroke.Parent = object
-				local objecttitle = Instance.new('TextLabel')
-				objecttitle.Name = 'Title'
-				objecttitle.Size = UDim2.new(1, -10, 1, 0)
-				objecttitle.Position = UDim2.fromOffset(10, 0)
-				objecttitle.BackgroundTransparency = 1
-				objecttitle.Text = v.Name
-				objecttitle.TextXAlignment = Enum.TextXAlignment.Left
-				objecttitle.TextColor3 = color.Dark(uipallet.Text, 0.4)
-				objecttitle.TextSize = 15
-				objecttitle.FontFace = uipallet.Font
-				objecttitle.Parent = object
-				local dotsbutton = Instance.new('TextButton')
-				dotsbutton.Name = 'Dots'
-				dotsbutton.Size = UDim2.fromOffset(25, 33)
-				dotsbutton.Position = UDim2.new(1, -25, 0, 0)
-				dotsbutton.BackgroundTransparency = 1
-				dotsbutton.Text = ''
-				dotsbutton.Parent = object
-				local dots = Instance.new('ImageLabel')
-				dots.Name = 'Dots'
-				dots.Size = UDim2.fromOffset(3, 16)
-				dots.Position = UDim2.fromOffset(10, 9)
-				dots.BackgroundTransparency = 1
-				dots.Image = getcustomasset('newvape/assets/new/dots.png')
-				dots.ImageColor3 = color.Light(uipallet.Main, 0.37)
-				dots.Parent = dotsbutton
-				local bind = Instance.new('TextButton')
-				addTooltip(bind, 'Click to bind')
-				bind.Name = 'Bind'
-				bind.Size = UDim2.fromOffset(20, 21)
-				bind.Position = UDim2.new(1, -30, 0, 6)
-				bind.AnchorPoint = Vector2.new(1, 0)
-				bind.BackgroundColor3 = Color3.new(1, 1, 1)
-				bind.BackgroundTransparency = 0.92
-				bind.BorderSizePixel = 0
-				bind.AutoButtonColor = false
-				bind.Visible = false
-				bind.Text = ''
-				addCorner(bind, UDim.new(0, 4))
-				local bindicon = Instance.new('ImageLabel')
-				bindicon.Name = 'Icon'
-				bindicon.Size = UDim2.fromOffset(12, 12)
-				bindicon.Position = UDim2.new(0.5, -6, 0, 5)
-				bindicon.BackgroundTransparency = 1
-				bindicon.Image = getcustomasset('newvape/assets/new/bind.png')
-				bindicon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-				bindicon.Parent = bind
-				local bindtext = Instance.new('TextLabel')
-				bindtext.Size = UDim2.fromScale(1, 1)
-				bindtext.Position = UDim2.fromOffset(0, 1)
-				bindtext.BackgroundTransparency = 1
-				bindtext.Visible = false
-				bindtext.Text = ''
-				bindtext.TextColor3 = color.Dark(uipallet.Text, 0.43)
-				bindtext.TextSize = 12
-				bindtext.FontFace = uipallet.Font
-				bindtext.Parent = bind
-				bind.MouseEnter:Connect(function()
-					bindtext.Visible = false
-					bindicon.Visible = not bindtext.Visible
-					bindicon.Image = getcustomasset('newvape/assets/new/edit.png')
-					if v.Name ~= mainapi.Profile then
-						bindicon.ImageColor3 = color.Dark(uipallet.Text, 0.16)
-					end
-				end)
-				bind.MouseLeave:Connect(function()
-					bindtext.Visible = #v.Bind > 0
-					bindicon.Visible = not bindtext.Visible
-					bindicon.Image = getcustomasset('newvape/assets/new/bind.png')
-					if v.Name ~= mainapi.Profile then
-						bindicon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
-					end
-				end)
-				local bindcover = Instance.new('ImageLabel')
-				bindcover.Name = 'Cover'
-				bindcover.Size = UDim2.fromOffset(154, 33)
-				bindcover.BackgroundTransparency = 1
-				bindcover.Visible = false
-				bindcover.Image = getcustomasset('newvape/assets/new/bindbkg.png')
-				bindcover.ScaleType = Enum.ScaleType.Slice
-				bindcover.SliceCenter = Rect.new(0, 0, 141, 40)
-				bindcover.Parent = object
-				local bindcovertext = Instance.new('TextLabel')
-				bindcovertext.Name = 'Text'
-				bindcovertext.Size = UDim2.new(1, -10, 1, -3)
-				bindcovertext.BackgroundTransparency = 1
-				bindcovertext.Text = 'PRESS A KEY TO BIND'
-				bindcovertext.TextColor3 = uipallet.Text
-				bindcovertext.TextSize = 11
-				bindcovertext.FontFace = uipallet.Font
-				bindcovertext.Parent = bindcover
-				bind.Parent = object
-				dotsbutton.MouseEnter:Connect(function()
-					if v.Name ~= mainapi.Profile then
-						dots.ImageColor3 = uipallet.Text
-					end
-				end)
-				dotsbutton.MouseLeave:Connect(function()
-					if v.Name ~= mainapi.Profile then
-						dots.ImageColor3 = color.Light(uipallet.Main, 0.37)
-					end
-				end)
-				dotsbutton.MouseButton1Click:Connect(function()
-					if v.Name ~= mainapi.Profile then
-						categoryapi:ChangeValue(v.Name)
-					end
-				end)
-				object.MouseButton1Click:Connect(function()
-					mainapi:Save(v.Name)
-					mainapi:Load(true)
-				end)
-				object.MouseEnter:Connect(function()
-					bind.Visible = true
-					if v.Name ~= mainapi.Profile then
-						objectstroke.Enabled = true
-						objecttitle.TextColor3 = color.Dark(uipallet.Text, 0.16)
-					end
-				end)
-				object.MouseLeave:Connect(function()
-					bind.Visible = #v.Bind > 0
-					if v.Name ~= mainapi.Profile then
-						objectstroke.Enabled = false
-						objecttitle.TextColor3 = color.Dark(uipallet.Text, 0.4)
-					end
-				end)
-
-				local function bindFunction(self, tab, mouse)
-					v.Bind = table.clone(tab)
-					if mouse then
-						bindcovertext.Text = #tab <= 0 and 'BIND REMOVED' or 'BOUND TO '..table.concat(tab, ' + '):upper()
-						bindcover.Size = UDim2.fromOffset(getfontsize(bindcovertext.Text, bindcovertext.TextSize).X + 20, 40)
-						task.delay(1, function()
-							bindcover.Visible = false
 						end)
 					end
-
-					if #tab <= 0 then
-						bindtext.Visible = false
-						bindicon.Visible = true
-						bind.Size = UDim2.fromOffset(20, 21)
-					else
-						bind.Visible = true
-						bindtext.Visible = true
-						bindicon.Visible = false
-						bindtext.Text = table.concat(tab, ' + '):upper()
-						bind.Size = UDim2.fromOffset(math.max(getfontsize(bindtext.Text, bindtext.TextSize, bindtext.Font).X + 10, 20), 21)
-					end
+					table.insert(entitylib.List, entity)
+					entitylib.Events.EntityAdded:Fire(entity)
 				end
 
-				bindFunction({}, v.Bind)
-				bind.MouseButton1Click:Connect(function()
-					bindcovertext.Text = 'PRESS A KEY TO BIND'
-					bindcover.Size = UDim2.fromOffset(getfontsize(bindcovertext.Text, bindcovertext.TextSize).X + 20, 40)
-					bindcover.Visible = true
-					mainapi.Binding = {SetBind = bindFunction, Bind = v.Bind}
-				end)
-				if v.Name == mainapi.Profile then
-					self.Selected = object
-				end
-				table.insert(self.Objects, object)
-			else
-				local enabled = table.find(self.ListEnabled, v)
-				local object = Instance.new('TextButton')
-				object.Name = v
-				object.Size = UDim2.fromOffset(200, 32)
-				object.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-				object.AutoButtonColor = false
-				object.Text = ''
-				object.Parent = children
-				addCorner(object)
-				local objectbkg = Instance.new('Frame')
-				objectbkg.Name = 'BKG'
-				objectbkg.Size = UDim2.new(1, -2, 1, -2)
-				objectbkg.Position = UDim2.fromOffset(1, 1)
-				objectbkg.BackgroundColor3 = uipallet.Main
-				objectbkg.Visible = false
-				objectbkg.Parent = object
-				addCorner(objectbkg)
-				local objectdot = Instance.new('Frame')
-				objectdot.Name = 'Dot'
-				objectdot.Size = UDim2.fromOffset(10, 11)
-				objectdot.Position = UDim2.fromOffset(10, 12)
-				objectdot.BackgroundColor3 = enabled and categorysettings.Color or color.Light(uipallet.Main, 0.37)
-				objectdot.Parent = object
-				addCorner(objectdot, UDim.new(1, 0))
-				local objectdotin = objectdot:Clone()
-				objectdotin.Size = UDim2.fromOffset(8, 9)
-				objectdotin.Position = UDim2.fromOffset(1, 1)
-				objectdotin.BackgroundColor3 = enabled and categorysettings.Color or color.Light(uipallet.Main, 0.02)
-				objectdotin.Parent = objectdot
-				local objecttitle = Instance.new('TextLabel')
-				objecttitle.Name = 'Title'
-				objecttitle.Size = UDim2.new(1, -30, 1, 0)
-				objecttitle.Position = UDim2.fromOffset(30, 0)
-				objecttitle.BackgroundTransparency = 1
-				objecttitle.Text = v
-				objecttitle.TextXAlignment = Enum.TextXAlignment.Left
-				objecttitle.TextColor3 = color.Dark(uipallet.Text, 0.16)
-				objecttitle.TextSize = 15
-				objecttitle.FontFace = uipallet.Font
-				objecttitle.Parent = object
-				if mainapi.ThreadFix then
-					setthreadidentity(8)
-				end
-				local close = Instance.new('ImageButton')
-				close.Name = 'Close'
-				close.Size = UDim2.fromOffset(16, 16)
-				close.Position = UDim2.new(1, -23, 0, 8)
-				close.BackgroundColor3 = Color3.new(1, 1, 1)
-				close.BackgroundTransparency = 1
-				close.AutoButtonColor = false
-				close.Image = getcustomasset('newvape/assets/new/closemini.png')
-				close.ImageColor3 = color.Light(uipallet.Text, 0.2)
-				close.ImageTransparency = 0.5
-				close.Parent = object
-				addCorner(close, UDim.new(1, 0))
-				close.MouseEnter:Connect(function()
-					close.ImageTransparency = 0.3
-					tween:Tween(close, uipallet.Tween, {
-						BackgroundTransparency = 0.6
-					})
-				end)
-				close.MouseLeave:Connect(function()
-					close.ImageTransparency = 0.5
-					tween:Tween(close, uipallet.Tween, {
-						BackgroundTransparency = 1
-					})
-				end)
-				close.MouseButton1Click:Connect(function()
-					categoryapi:ChangeValue(v)
-				end)
-				object.MouseEnter:Connect(function()
-					objectbkg.Visible = true
-				end)
-				object.MouseLeave:Connect(function()
-					objectbkg.Visible = false
-				end)
-				object.MouseButton1Click:Connect(function()
-					local ind = table.find(self.ListEnabled, v)
-					if ind then
-						table.remove(self.ListEnabled, ind)
-						objectdot.BackgroundColor3 = color.Light(uipallet.Main, 0.37)
-						objectdotin.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-					else
-						table.insert(self.ListEnabled, v)
-						objectdot.BackgroundColor3 = categorysettings.Color
-						objectdotin.BackgroundColor3 = categorysettings.Color
+				table.insert(entity.Connections, char.ChildRemoved:Connect(function(part)
+					if part == humrootpart or part == hum or part == head then
+						if part == humrootpart and hum.RootPart then
+							humrootpart = hum.RootPart
+							entity.RootPart = hum.RootPart
+							entity.HumanoidRootPart = hum.RootPart
+							return
+						end
+						entitylib.removeEntity(char, plr == lplr)
 					end
-					categorysettings.Function()
-				end)
-				table.insert(self.Objects, object)
+				end))
+			end
+			entitylib.EntityThreads[char] = nil
+		end)
+	end
+
+	entitylib.getUpdateConnections = function(ent)
+		local char = ent.Character
+		local tab = {
+			char:GetAttributeChangedSignal('Health'),
+			char:GetAttributeChangedSignal('MaxHealth'),
+			{
+				Connect = function()
+					ent.Friend = ent.Player and isFriend(ent.Player) or nil
+					ent.Target = ent.Player and isTarget(ent.Player) or nil
+					return {Disconnect = function() end}
+				end
+			}
+		}
+
+		for name, val in char:GetAttributes() do
+			if name:find('Shield') and type(val) == 'number' then
+				table.insert(tab, char:GetAttributeChangedSignal(name))
 			end
 		end
-		mainapi:UpdateGUI(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)
+
+		return tab
 	end
 
-	function categoryapi:Expand()
-		self.Expanded = not self.Expanded
-		children.Visible = self.Expanded
-		arrow.Rotation = self.Expanded and 0 or 180
-		window.Size = UDim2.fromOffset(220, self.Expanded and math.min(51 + windowlist.AbsoluteContentSize.Y / scale.Scale, 611) or 45)
-		divider.Visible = children.CanvasPosition.Y > 10 and children.Visible
+	entitylib.targetCheck = function(ent)
+		if ent.TeamCheck then
+			return ent:TeamCheck()
+		end
+		if ent.NPC then return true end
+		if isFriend(ent.Player) then return false end
+		if not select(2, whitelist:get(ent.Player)) then return false end
+		return lplr:GetAttribute('Team') ~= ent.Player:GetAttribute('Team')
+	end
+	vape:Clean(entitylib.Events.LocalAdded:Connect(updateVelocity))
+end)
+entitylib.start()
+
+run(function()
+	local KnitInit, Knit
+	repeat
+		KnitInit, Knit = pcall(function()
+			return debug.getupvalue(require(lplr.PlayerScripts.TS.knit).setup, 6)
+		end)
+		if KnitInit then break end
+		task.wait()
+	until KnitInit
+
+	if not debug.getupvalue(Knit.Start, 1) then
+		repeat task.wait() until debug.getupvalue(Knit.Start, 1)
 	end
 
-	function categoryapi:GetValue(name)
-		for i, v in mainapi.Profiles do
-			if v.Name == name then
-				return i
-			end
-		end
-	end
+	local Flamework = require(replicatedStorage['rbxts_include']['node_modules']['@flamework'].core.out).Flamework
+	local InventoryUtil = require(replicatedStorage.TS.inventory['inventory-util']).InventoryUtil
+	local Client = require(replicatedStorage.TS.remotes).default.Client
+	local OldGet, OldBreak = Client.Get
 
-	for i, v in components do
-		categoryapi['Create'..i] = function(self, optionsettings)
-			return v(optionsettings, childrentwo, categoryapi)
+	bedwars = setmetatable({
+		AnimationType = require(replicatedStorage.TS.animation['animation-type']).AnimationType,
+		AnimationUtil = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['game-core'].out['shared'].util['animation-util']).AnimationUtil,
+		AppController = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['game-core'].out.client.controllers['app-controller']).AppController,
+		AbilityController = Flamework.resolveDependency('@easy-games/game-core:client/controllers/ability/ability-controller@AbilityController'),
+		BedwarsKitMeta = require(replicatedStorage.TS.games.bedwars.kit['bedwars-kit-meta']).BedwarsKitMeta,
+		BlockBreaker = Knit.Controllers.BlockBreakController.blockBreaker,
+		BlockController = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['block-engine'].out).BlockEngine,
+		BlockPlacer = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['block-engine'].out.client.placement['block-placer']).BlockPlacer,
+		BlockEngine = require(lplr.PlayerScripts.TS.lib['block-engine']['client-block-engine']).ClientBlockEngine,
+		BowConstantsTable = debug.getupvalue(Knit.Controllers.ProjectileController.enableBeam, 8),
+		ClickHold = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['game-core'].out.client.ui.lib.util['click-hold']).ClickHold,
+		Client = Client,
+		ClientConstructor = require(replicatedStorage['rbxts_include']['node_modules']['@rbxts'].net.out.client),
+		ClientDamageBlock = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['block-engine'].out.shared.remotes).BlockEngineRemotes.Client,
+		CombatConstant = require(replicatedStorage.TS.combat['combat-constant']).CombatConstant,
+		DamageIndicator = Knit.Controllers.DamageIndicatorController.spawnDamageIndicator,
+		DefaultKillEffect = require(lplr.PlayerScripts.TS.controllers.game.locker['kill-effect'].effects['default-kill-effect']),
+		EmoteType = require(replicatedStorage.TS.locker.emote['emote-type']).EmoteType,
+		GameAnimationUtil = require(replicatedStorage.TS.animation['animation-util']).GameAnimationUtil,
+		getIcon = function(item, showinv)
+			local itemmeta = bedwars.ItemMeta[item.itemType]
+			return itemmeta and showinv and itemmeta.image or ''
+		end,
+		getInventory = function(plr)
+			local suc, res = pcall(function()
+				return InventoryUtil.getInventory(plr)
+			end)
+			return suc and res or {
+				items = {},
+				armor = {}
+			}
+		end,
+		ItemMeta = debug.getupvalue(require(replicatedStorage.TS.item['item-meta']).getItemMeta, 1),
+		KillEffectMeta = require(replicatedStorage.TS.locker['kill-effect']['kill-effect-meta']).KillEffectMeta,
+		KillFeedController = Flamework.resolveDependency('client/controllers/game/kill-feed/kill-feed-controller@KillFeedController'),
+		Knit = Knit,
+		KnockbackUtil = require(replicatedStorage.TS.damage['knockback-util']).KnockbackUtil,
+		NametagController = Knit.Controllers.NametagController,
+		MatchEndScreenController = Flamework.resolveDependency('client/controllers/game/match/match-end-screen-controller@MatchEndScreenController'),
+		MageKitUtil = require(replicatedStorage.TS.games.bedwars.kit.kits.mage['mage-kit-util']).MageKitUtil,
+		ProjectileMeta = require(replicatedStorage.TS.projectile['projectile-meta']).ProjectileMeta,
+		QueryUtil = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['game-core'].out).GameQueryUtil,
+		QueueCard = require(lplr.PlayerScripts.TS.controllers.global.queue.ui['queue-card']).QueueCard,
+		QueueMeta = require(replicatedStorage.TS.game['queue-meta']).QueueMeta,
+		Roact = require(replicatedStorage['rbxts_include']['node_modules']['@rbxts']['roact'].src),
+		RuntimeLib = require(replicatedStorage['rbxts_include'].RuntimeLib),
+		Shop = require(replicatedStorage.TS.games.bedwars.shop['bedwars-shop']).BedwarsShop,
+		ShopItems = debug.getupvalue(debug.getupvalue(require(replicatedStorage.TS.games.bedwars.shop['bedwars-shop']).BedwarsShop.getShopItem, 1), 2),
+		SoundList = require(replicatedStorage.TS.sound['game-sound']).GameSound,
+		SoundManager = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['game-core'].out).SoundManager,
+		Store = require(lplr.PlayerScripts.TS.ui.store).ClientStore,
+		TeamUpgradeMeta = debug.getupvalue(require(replicatedStorage.TS.games.bedwars['team-upgrade']['team-upgrade-meta']).getTeamUpgradeMeta, 1),
+		UILayers = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['game-core'].out).UILayers,
+		VisualizerUtils = require(lplr.PlayerScripts.TS.lib.visualizer['visualizer-utils']).VisualizerUtils,
+		WeldTable = require(replicatedStorage.TS.util['weld-util']).WeldUtil
+	}, {
+		__index = function(self, ind)
+			rawset(self, ind, Knit.Controllers[ind])
+			return rawget(self, ind)
 		end
-	end
-
-	addbutton.MouseEnter:Connect(function()
-		addbutton.ImageTransparency = 0
-	end)
-	addbutton.MouseLeave:Connect(function()
-		addbutton.ImageTransparency = 0.3
-	end)
-	addbutton.MouseButton1Click:Connect(function()
-		if not table.find(categoryapi.List, addvalue.Text) then
-			categoryapi:ChangeValue(addvalue.Text)
-			addvalue.Text = ''
-		end
-	end)
-	arrowbutton.MouseEnter:Connect(function()
-		arrow.ImageColor3 = Color3.fromRGB(220, 220, 220)
-	end)
-	arrowbutton.MouseLeave:Connect(function()
-		arrow.ImageColor3 = Color3.fromRGB(140, 140, 140)
-	end)
-	arrowbutton.MouseButton1Click:Connect(function()
-		categoryapi:Expand()
-	end)
-	arrowbutton.MouseButton2Click:Connect(function()
-		categoryapi:Expand()
-	end)
-	addvalue.FocusLost:Connect(function(enter)
-		if enter and not table.find(categoryapi.List, addvalue.Text) then
-			categoryapi:ChangeValue(addvalue.Text)
-			addvalue.Text = ''
-		end
-	end)
-	addvalue.MouseEnter:Connect(function()
-		tween:Tween(addbkg, uipallet.Tween, {
-			BackgroundColor3 = color.Light(uipallet.Main, 0.14)
-		})
-	end)
-	addvalue.MouseLeave:Connect(function()
-		tween:Tween(addbkg, uipallet.Tween, {
-			BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-		})
-	end)
-	children:GetPropertyChangedSignal('CanvasPosition'):Connect(function()
-		divider.Visible = children.CanvasPosition.Y > 10 and children.Visible
-	end)
-	settings.MouseEnter:Connect(function()
-		settings.ImageColor3 = uipallet.Text
-	end)
-	settings.MouseLeave:Connect(function()
-		settings.ImageColor3 = color.Light(uipallet.Main, 0.37)
-	end)
-	settings.MouseButton1Click:Connect(function()
-		childrentwo.Visible = not childrentwo.Visible
-	end)
-	window.InputBegan:Connect(function(inputObj)
-		if inputObj.Position.Y < window.AbsolutePosition.Y + 41 and inputObj.UserInputType == Enum.UserInputType.MouseButton2 then
-			categoryapi:Expand()
-		end
-	end)
-	windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		children.CanvasSize = UDim2.fromOffset(0, windowlist.AbsoluteContentSize.Y / scale.Scale)
-		if categoryapi.Expanded then
-			window.Size = UDim2.fromOffset(220, math.min(51 + windowlist.AbsoluteContentSize.Y / scale.Scale, 611))
-		end
-	end)
-	windowlisttwo:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		childrentwo.Size = UDim2.fromOffset(220, windowlisttwo.AbsoluteContentSize.Y)
-	end)
-
-	categoryapi.Button = self.Categories.Main:CreateButton({
-		Name = categorysettings.Name,
-		Icon = categorysettings.CategoryIcon,
-		Size = categorysettings.CategorySize,
-		Window = window
 	})
 
-	categoryapi.Object = window
-	self.Categories[categorysettings.Name] = categoryapi
-
-	return categoryapi
-end
-
-function mainapi:CreateSearch()
-	local searchbkg = Instance.new('Frame')
-	searchbkg.Name = 'Search'
-	searchbkg.Size = UDim2.fromOffset(220, 37)
-	searchbkg.Position = UDim2.new(0.5, 0, 0, 13)
-	searchbkg.AnchorPoint = Vector2.new(0.5, 0)
-	searchbkg.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-	searchbkg.Parent = clickgui
-	local searchicon = Instance.new('ImageLabel')
-	searchicon.Name = 'Icon'
-	searchicon.Size = UDim2.fromOffset(14, 14)
-	searchicon.Position = UDim2.new(1, -23, 0, 11)
-	searchicon.BackgroundTransparency = 1
-	searchicon.Image = getcustomasset('newvape/assets/new/search.png')
-	searchicon.ImageColor3 = color.Light(uipallet.Main, 0.37)
-	searchicon.Parent = searchbkg
-	local legiticon = Instance.new('ImageButton')
-	legiticon.Name = 'Legit'
-	legiticon.Size = UDim2.fromOffset(29, 16)
-	legiticon.Position = UDim2.fromOffset(8, 11)
-	legiticon.BackgroundTransparency = 1
-	legiticon.Image = getcustomasset('newvape/assets/new/legit.png')
-	legiticon.Parent = searchbkg
-	local legitdivider = Instance.new('Frame')
-	legitdivider.Name = 'LegitDivider'
-	legitdivider.Size = UDim2.fromOffset(2, 12)
-	legitdivider.Position = UDim2.fromOffset(43, 13)
-	legitdivider.BackgroundColor3 = color.Light(uipallet.Main, 0.14)
-	legitdivider.BorderSizePixel = 0
-	legitdivider.Parent = searchbkg
-	addBlur(searchbkg)
-	addCorner(searchbkg)
-	local search = Instance.new('TextBox')
-	search.Size = UDim2.new(1, -50, 0, 37)
-	search.Position = UDim2.fromOffset(50, 0)
-	search.BackgroundTransparency = 1
-	search.Text = ''
-	search.PlaceholderText = ''
-	search.TextXAlignment = Enum.TextXAlignment.Left
-	search.TextColor3 = uipallet.Text
-	search.TextSize = 12
-	search.FontFace = uipallet.Font
-	search.ClearTextOnFocus = false
-	search.Parent = searchbkg
-	local children = Instance.new('ScrollingFrame')
-	children.Name = 'Children'
-	children.Size = UDim2.new(1, 0, 1, -37)
-	children.Position = UDim2.fromOffset(0, 34)
-	children.BackgroundTransparency = 1
-	children.BorderSizePixel = 0
-	children.ScrollBarThickness = 2
-	children.ScrollBarImageTransparency = 0.75
-	children.CanvasSize = UDim2.new()
-	children.Parent = searchbkg
-	local divider = Instance.new('Frame')
-	divider.Name = 'Divider'
-	divider.Size = UDim2.new(1, 0, 0, 1)
-	divider.Position = UDim2.fromOffset(0, 33)
-	divider.BackgroundColor3 = Color3.new(1, 1, 1)
-	divider.BackgroundTransparency = 0.928
-	divider.BorderSizePixel = 0
-	divider.Visible = false
-	divider.Parent = searchbkg
-	local windowlist = Instance.new('UIListLayout')
-	windowlist.SortOrder = Enum.SortOrder.LayoutOrder
-	windowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	windowlist.Parent = children
-
-	children:GetPropertyChangedSignal('CanvasPosition'):Connect(function()
-		divider.Visible = children.CanvasPosition.Y > 10 and children.Visible
-	end)
-	legiticon.MouseButton1Click:Connect(function()
-		clickgui.Visible = false
-		self.Legit.Window.Visible = true
-		self.Legit.Window.Position = UDim2.new(0.5, -350, 0.5, -194)
-	end)
-	search:GetPropertyChangedSignal('Text'):Connect(function()
-		for _, v in children:GetChildren() do
-			if v:IsA('TextButton') then
-				v:Destroy()
-			end
-		end
-		if search.Text == '' then return end
-
-		for i, v in self.Modules do
-			if i:lower():find(search.Text:lower()) then
-				local button = v.Object:Clone()
-				button.Bind:Destroy()
-				button.MouseButton1Click:Connect(function()
-					v:Toggle()
-				end)
-				button.Parent = children
-				task.spawn(function()
-					repeat
-						for _, v2 in {'Text', 'TextColor3', 'BackgroundColor3'} do
-							button[v2] = v.Object[v2]
-						end
-						button.UIGradient.Color = v.Object.UIGradient.Color
-						button.UIGradient.Enabled = v.Object.UIGradient.Enabled
-						button.Dots.Dots.ImageColor3 = v.Object.Dots.Dots.ImageColor3
-						task.wait()
-					until not button.Parent
-				end)
-			end
-		end
-	end)
-	windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		children.CanvasSize = UDim2.fromOffset(0, windowlist.AbsoluteContentSize.Y / scale.Scale)
-		searchbkg.Size = UDim2.fromOffset(220, math.min(37 + windowlist.AbsoluteContentSize.Y / scale.Scale, 437))
-	end)
-
-	self.Legit.Icon = legiticon
-end
-
-function mainapi:CreateLegit()
-	local legitapi = {Modules = {}}
-
-	local window = Instance.new('Frame')
-	window.Name = 'LegitGUI'
-	window.Size = UDim2.fromOffset(700, 389)
-	window.Position = UDim2.new(0.5, -350, 0.5, -194)
-	window.BackgroundColor3 = uipallet.Main
-	window.Visible = false
-	window.Parent = scaledgui
-	addBlur(window)
-	addCorner(window)
-	makeDraggable(window)
-	local modal = Instance.new('TextButton')
-	modal.BackgroundTransparency = 1
-	modal.Text = ''
-	modal.Modal = true
-	modal.Parent = window
-	local icon = Instance.new('ImageLabel')
-	icon.Name = 'Icon'
-	icon.Size = UDim2.fromOffset(16, 16)
-	icon.Position = UDim2.fromOffset(18, 13)
-	icon.BackgroundTransparency = 1
-	icon.Image = getcustomasset('newvape/assets/new/legittab.png')
-	icon.ImageColor3 = uipallet.Text
-	icon.Parent = window
-	local close = addCloseButton(window)
-	local children = Instance.new('ScrollingFrame')
-	children.Name = 'Children'
-	children.Size = UDim2.fromOffset(684, 340)
-	children.Position = UDim2.fromOffset(14, 41)
-	children.BackgroundTransparency = 1
-	children.BorderSizePixel = 0
-	children.ScrollBarThickness = 2
-	children.ScrollBarImageTransparency = 0.75
-	children.CanvasSize = UDim2.new()
-	children.Parent = window
-	local windowlist = Instance.new('UIGridLayout')
-	windowlist.SortOrder = Enum.SortOrder.LayoutOrder
-	windowlist.FillDirectionMaxCells = 4
-	windowlist.CellSize = UDim2.fromOffset(163, 114)
-	windowlist.CellPadding = UDim2.fromOffset(6, 5)
-	windowlist.Parent = children
-	legitapi.Window = window
-	table.insert(mainapi.Windows, window)
-
-	function legitapi:CreateModule(modulesettings)
-		mainapi:Remove(modulesettings.Name)
-		local moduleapi = {
-			Enabled = false,
-			Options = {},
-			Name = modulesettings.Name,
-			Legit = true
-		}
-
-		local module = Instance.new('TextButton')
-		module.Name = modulesettings.Name
-		module.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-		module.Text = ''
-		module.AutoButtonColor = false
-		module.Parent = children
-		addTooltip(module, modulesettings.Tooltip)
-		addCorner(module)
-		local title = Instance.new('TextLabel')
-		title.Name = 'Title'
-		title.Size = UDim2.new(1, -16, 0, 20)
-		title.Position = UDim2.fromOffset(16, 81)
-		title.BackgroundTransparency = 1
-		title.Text = modulesettings.Name
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.TextColor3 = color.Dark(uipallet.Text, 0.31)
-		title.TextSize = 13
-		title.FontFace = uipallet.Font
-		title.Parent = module
-		local knob = Instance.new('Frame')
-		knob.Name = 'Knob'
-		knob.Size = UDim2.fromOffset(22, 12)
-		knob.Position = UDim2.new(1, -57, 0, 14)
-		knob.BackgroundColor3 = color.Light(uipallet.Main, 0.14)
-		knob.Parent = module
-		addCorner(knob, UDim.new(1, 0))
-		local knobmain = knob:Clone()
-		knobmain.Size = UDim2.fromOffset(8, 8)
-		knobmain.Position = UDim2.fromOffset(2, 2)
-		knobmain.BackgroundColor3 = uipallet.Main
-		knobmain.Parent = knob
-		local dotsbutton = Instance.new('TextButton')
-		dotsbutton.Name = 'Dots'
-		dotsbutton.Size = UDim2.fromOffset(14, 24)
-		dotsbutton.Position = UDim2.new(1, -27, 0, 8)
-		dotsbutton.BackgroundTransparency = 1
-		dotsbutton.Text = ''
-		dotsbutton.Parent = module
-		local dots = Instance.new('ImageLabel')
-		dots.Name = 'Dots'
-		dots.Size = UDim2.fromOffset(2, 12)
-		dots.Position = UDim2.fromOffset(6, 6)
-		dots.BackgroundTransparency = 1
-		dots.Image = getcustomasset('newvape/assets/new/dots.png')
-		dots.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		dots.Parent = dotsbutton
-		local shadow = Instance.new('TextButton')
-		shadow.Name = 'Shadow'
-		shadow.Size = UDim2.new(1, 0, 1, -5)
-		shadow.BackgroundColor3 = Color3.new()
-		shadow.BackgroundTransparency = 1
-		shadow.AutoButtonColor = false
-		shadow.ClipsDescendants = true
-		shadow.Visible = false
-		shadow.Text = ''
-		shadow.Parent = window
-		addCorner(shadow)
-		local settingspane = Instance.new('TextButton')
-		settingspane.Size = UDim2.new(0, 220, 1, 0)
-		settingspane.Position = UDim2.fromScale(1, 0)
-		settingspane.BackgroundColor3 = uipallet.Main
-		settingspane.AutoButtonColor = false
-		settingspane.Text = ''
-		settingspane.Parent = shadow
-		local settingstitle = Instance.new('TextLabel')
-		settingstitle.Name = 'Title'
-		settingstitle.Size = UDim2.new(1, -36, 0, 20)
-		settingstitle.Position = UDim2.fromOffset(36, 12)
-		settingstitle.BackgroundTransparency = 1
-		settingstitle.Text = modulesettings.Name
-		settingstitle.TextXAlignment = Enum.TextXAlignment.Left
-		settingstitle.TextColor3 = color.Dark(uipallet.Text, 0.16)
-		settingstitle.TextSize = 13
-		settingstitle.FontFace = uipallet.Font
-		settingstitle.Parent = settingspane
-		local back = Instance.new('ImageButton')
-		back.Name = 'Back'
-		back.Size = UDim2.fromOffset(16, 16)
-		back.Position = UDim2.fromOffset(11, 13)
-		back.BackgroundTransparency = 1
-		back.Image = getcustomasset('newvape/assets/new/back.png')
-		back.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		back.Parent = settingspane
-		addCorner(settingspane)
-		local settingschildren = Instance.new('ScrollingFrame')
-		settingschildren.Name = 'Children'
-		settingschildren.Size = UDim2.new(1, 0, 1, -45)
-		settingschildren.Position = UDim2.fromOffset(0, 41)
-		settingschildren.BackgroundColor3 = uipallet.Main
-		settingschildren.BorderSizePixel = 0
-		settingschildren.ScrollBarThickness = 2
-		settingschildren.ScrollBarImageTransparency = 0.75
-		settingschildren.CanvasSize = UDim2.new()
-		settingschildren.Parent = settingspane
-		local settingswindowlist = Instance.new('UIListLayout')
-		settingswindowlist.SortOrder = Enum.SortOrder.LayoutOrder
-		settingswindowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		settingswindowlist.Parent = settingschildren
-		if modulesettings.Size then
-			local modulechildren = Instance.new('Frame')
-			modulechildren.Size = modulesettings.Size
-			modulechildren.BackgroundTransparency = 1
-			modulechildren.Visible = false
-			modulechildren.Parent = scaledgui
-			makeDraggable(modulechildren, window)
-			local objectstroke = Instance.new('UIStroke')
-			objectstroke.Color = Color3.fromRGB(5, 134, 105)
-			objectstroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-			objectstroke.Thickness = 0
-			objectstroke.Parent = modulechildren
-			moduleapi.Children = modulechildren
-		end
-		modulesettings.Function = modulesettings.Function or function() end
-		addMaid(moduleapi)
-
-		function moduleapi:Toggle()
-			moduleapi.Enabled = not moduleapi.Enabled
-			if moduleapi.Children then
-				moduleapi.Children.Visible = moduleapi.Enabled
-			end
-			title.TextColor3 = moduleapi.Enabled and color.Light(uipallet.Text, 0.2) or color.Dark(uipallet.Text, 0.31)
-			module.BackgroundColor3 = moduleapi.Enabled and color.Light(uipallet.Main, 0.05) or module.BackgroundColor3
-			tween:Tween(knob, uipallet.Tween, {
-				BackgroundColor3 = moduleapi.Enabled and Color3.fromHSV(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value) or color.Light(uipallet.Main, 0.14)
-			})
-			tween:Tween(knobmain, uipallet.Tween, {
-				Position = UDim2.fromOffset(moduleapi.Enabled and 12 or 2, 2)
-			})
-			if not moduleapi.Enabled then
-				for _, v in moduleapi.Connections do
-					v:Disconnect()
-				end
-				table.clear(moduleapi.Connections)
-			end
-			task.spawn(modulesettings.Function, moduleapi.Enabled)
-		end
-
-		back.MouseEnter:Connect(function()
-			back.ImageColor3 = uipallet.Text
-		end)
-		back.MouseLeave:Connect(function()
-			back.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		end)
-		back.MouseButton1Click:Connect(function()
-			tween:Tween(shadow, uipallet.Tween, {
-				BackgroundTransparency = 1
-			})
-			tween:Tween(settingspane, uipallet.Tween, {
-				Position = UDim2.fromScale(1, 0)
-			})
-			task.wait(0.2)
-			shadow.Visible = false
-		end)
-		dotsbutton.MouseButton1Click:Connect(function()
-			shadow.Visible = true
-			tween:Tween(shadow, uipallet.Tween, {
-				BackgroundTransparency = 0.5
-			})
-			tween:Tween(settingspane, uipallet.Tween, {
-				Position = UDim2.new(1, -220, 0, 0)
-			})
-		end)
-		dotsbutton.MouseEnter:Connect(function()
-			dots.ImageColor3 = uipallet.Text
-		end)
-		dotsbutton.MouseLeave:Connect(function()
-			dots.ImageColor3 = color.Light(uipallet.Main, 0.37)
-		end)
-		module.MouseEnter:Connect(function()
-			if not moduleapi.Enabled then
-				module.BackgroundColor3 = color.Light(uipallet.Main, 0.05)
-			end
-		end)
-		module.MouseLeave:Connect(function()
-			if not moduleapi.Enabled then
-				module.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
-			end
-		end)
-		module.MouseButton1Click:Connect(function()
-			moduleapi:Toggle()
-		end)
-		module.MouseButton2Click:Connect(function()
-			shadow.Visible = true
-			tween:Tween(shadow, uipallet.Tween, {
-				BackgroundTransparency = 0.5
-			})
-			tween:Tween(settingspane, uipallet.Tween, {
-				Position = UDim2.new(1, -220, 0, 0)
-			})
-		end)
-		shadow.MouseButton1Click:Connect(function()
-			tween:Tween(shadow, uipallet.Tween, {
-				BackgroundTransparency = 1
-			})
-			tween:Tween(settingspane, uipallet.Tween, {
-				Position = UDim2.fromScale(1, 0)
-			})
-			task.wait(0.2)
-			shadow.Visible = false
-		end)
-		settingswindowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
-			end
-			settingschildren.CanvasSize = UDim2.fromOffset(0, settingswindowlist.AbsoluteContentSize.Y / scale.Scale)
-		end)
-
-		for i, v in components do
-			moduleapi['Create'..i] = function(_, optionsettings)
-				return v(optionsettings, settingschildren, moduleapi)
-			end
-		end
-
-		moduleapi.Object = module
-		legitapi.Modules[modulesettings.Name] = moduleapi
-
-		local sorting = {}
-		for _, v in legitapi.Modules do
-			table.insert(sorting, v.Name)
-		end
-		table.sort(sorting)
-
-		for i, v in sorting do
-			legitapi.Modules[v].Object.LayoutOrder = i
-		end
-
-		return moduleapi
-	end
-
-	local function visibleCheck()
-		for _, v in legitapi.Modules do
-			if v.Children then
-				local visible = clickgui.Visible
-				for _, v2 in self.Windows do
-					visible = visible or v2.Visible
-				end
-				v.Children.Visible = (not visible or window.Visible) and v.Enabled
-			end
-		end
-	end
-
-	close.MouseButton1Click:Connect(function()
-		window.Visible = false
-		clickgui.Visible = true
-	end)
-	self:Clean(clickgui:GetPropertyChangedSignal('Visible'):Connect(visibleCheck))
-	window:GetPropertyChangedSignal('Visible'):Connect(function()
-		self:UpdateGUI(self.GUIColor.Hue, self.GUIColor.Sat, self.GUIColor.Value)
-		visibleCheck()
-	end)
-	windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		children.CanvasSize = UDim2.fromOffset(0, windowlist.AbsoluteContentSize.Y / scale.Scale)
-	end)
-
-	self.Legit = legitapi
-
-	return legitapi
-end
-
-function mainapi:CreateNotification(title, text, duration, type)
-	if not self.Notifications.Enabled then return end
-	task.delay(0, function()
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-		local i = #notifications:GetChildren() + 1
-		local notification = Instance.new('ImageLabel')
-		notification.Name = 'Notification'
-		notification.Size = UDim2.fromOffset(math.max(getfontsize(removeTags(text), 14, uipallet.Font).X + 80, 266), 75)
-		notification.Position = UDim2.new(1, 0, 1, -(29 + (78 * i)))
-		notification.ZIndex = 5
-		notification.BackgroundTransparency = 1
-		notification.Image = getcustomasset('newvape/assets/new/notification.png')
-		notification.ScaleType = Enum.ScaleType.Slice
-		notification.SliceCenter = Rect.new(7, 7, 9, 9)
-		notification.Parent = notifications
-		addBlur(notification, true)
-		local iconshadow = Instance.new('ImageLabel')
-		iconshadow.Name = 'Icon'
-		iconshadow.Size = UDim2.fromOffset(60, 60)
-		iconshadow.Position = UDim2.fromOffset(-5, -8)
-		iconshadow.ZIndex = 5
-		iconshadow.BackgroundTransparency = 1
-		iconshadow.Image = getcustomasset('newvape/assets/new/'..(type or 'info')..'.png')
-		iconshadow.ImageColor3 = Color3.new()
-		iconshadow.ImageTransparency = 0.5
-		iconshadow.Parent = notification
-		local icon = iconshadow:Clone()
-		icon.Position = UDim2.fromOffset(-1, -1)
-		icon.ImageColor3 = Color3.new(1, 1, 1)
-		icon.ImageTransparency = 0
-		icon.Parent = iconshadow
-		local titlelabel = Instance.new('TextLabel')
-		titlelabel.Name = 'Title'
-		titlelabel.Size = UDim2.new(1, -56, 0, 20)
-		titlelabel.Position = UDim2.fromOffset(46, 16)
-		titlelabel.ZIndex = 5
-		titlelabel.BackgroundTransparency = 1
-		titlelabel.Text = "<stroke color='#FFFFFF' joins='round' thickness='0.3' transparency='0.5'>"..title..'</stroke>'
-		titlelabel.TextXAlignment = Enum.TextXAlignment.Left
-		titlelabel.TextYAlignment = Enum.TextYAlignment.Top
-		titlelabel.TextColor3 = Color3.fromRGB(209, 209, 209)
-		titlelabel.TextSize = 14
-		titlelabel.RichText = true
-		titlelabel.FontFace = uipallet.FontSemiBold
-		titlelabel.Parent = notification
-		local textshadow = titlelabel:Clone()
-		textshadow.Name = 'Text'
-		textshadow.Position = UDim2.fromOffset(47, 44)
-		textshadow.Text = removeTags(text)
-		textshadow.TextColor3 = Color3.new()
-		textshadow.TextTransparency = 0.5
-		textshadow.RichText = false
-		textshadow.FontFace = uipallet.Font
-		textshadow.Parent = notification
-		local textlabel = textshadow:Clone()
-		textlabel.Position = UDim2.fromOffset(-1, -1)
-		textlabel.Text = text
-		textlabel.TextColor3 = Color3.fromRGB(170, 170, 170)
-		textlabel.TextTransparency = 0
-		textlabel.RichText = true
-		textlabel.Parent = textshadow
-		local progress = Instance.new('Frame')
-		progress.Name = 'Progress'
-		progress.Size = UDim2.new(1, -13, 0, 2)
-		progress.Position = UDim2.new(0, 3, 1, -4)
-		progress.ZIndex = 5
-		progress.BackgroundColor3 =
-			type == 'alert' and Color3.fromRGB(250, 50, 56)
-			or type == 'warning' and Color3.fromRGB(236, 129, 43)
-			or Color3.fromRGB(220, 220, 220)
-		progress.BorderSizePixel = 0
-		progress.Parent = notification
-		if tween.Tween then
-			tween:Tween(notification, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {
-				AnchorPoint = Vector2.new(1, 0)
-			}, tween.tweenstwo)
-			tween:Tween(progress, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
-				Size = UDim2.fromOffset(0, 2)
-			})
-		end
-		task.delay(duration, function()
-			if tween.Tween then
-				tween:Tween(notification, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {
-					AnchorPoint = Vector2.new(0, 0)
-				}, tween.tweenstwo)
-			end
-			task.wait(0.2)
-			notification:ClearAllChildren()
-			notification:Destroy()
-		end)
-	end)
-end
-
-function mainapi:Load(skipgui, profile)
-	if not skipgui then
-		self.GUIColor:SetValue(nil, nil, nil, 4)
-	end
-	local guidata = {}
-	local savecheck = true
-
-	if isfile('newvape/profiles/'..game.GameId..'.gui.txt') then
-		guidata = loadJson('newvape/profiles/'..game.GameId..'.gui.txt')
-		if not guidata then
-			guidata = {Categories = {}}
-			self:CreateNotification('Vape', 'Failed to load GUI settings.', 10, 'alert')
-			savecheck = false
-		end
-
-		if not skipgui then
-			self.Keybind = guidata.Keybind
-			for i, v in guidata.Categories do
-				local object = self.Categories[i]
-				if not object then continue end
-				if object.Options and v.Options then
-					self:LoadOptions(object, v.Options)
-				end
-				if v.Enabled then
-					object.Button:Toggle()
-				end
-				if v.Pinned then
-					object:Pin()
-				end
-				if v.Expanded and object.Expand then
-					object:Expand()
-				end
-				if v.List and (#object.List > 0 or #v.List > 0) then
-					object.List = v.List or {}
-					object.ListEnabled = v.ListEnabled or {}
-					object:ChangeValue()
-				end
-				if v.Position then
-					object.Object.Position = UDim2.fromOffset(v.Position.X, v.Position.Y)
-				end
-			end
-		end
-	end
-
-	self.Profile = profile or guidata.Profile or 'default'
-	self.Profiles = guidata.Profiles or {{
-		Name = 'default', Bind = {}
-	}}
-	self.Categories.Profiles:ChangeValue()
-	if self.ProfileLabel then
-		self.ProfileLabel.Text = #self.Profile > 10 and self.Profile:sub(1, 10)..'...' or self.Profile
-		self.ProfileLabel.Size = UDim2.fromOffset(getfontsize(self.ProfileLabel.Text, self.ProfileLabel.TextSize, self.ProfileLabel.Font).X + 16, 24)
-	end
-
-	if isfile('newvape/profiles/'..self.Profile..self.Place..'.txt') then
-		local savedata = loadJson('newvape/profiles/'..self.Profile..self.Place..'.txt')
-		if not savedata then
-			savedata = {Categories = {}, Modules = {}, Legit = {}}
-			self:CreateNotification('Vape', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
-			savecheck = false
-		end
-
-		for i, v in savedata.Categories do
-			local object = self.Categories[i]
-			if not object then continue end
-			if object.Options and v.Options then
-				self:LoadOptions(object, v.Options)
-			end
-			if v.Pinned ~= object.Pinned then
-				object:Pin()
-			end
-			if v.Expanded ~= nil and v.Expanded ~= object.Expanded then
-				object:Expand()
-			end
-			if object.Button and (v.Enabled or false) ~= object.Button.Enabled then
-				object.Button:Toggle()
-			end
-			if v.List and (#object.List > 0 or #v.List > 0) then
-				object.List = v.List or {}
-				object.ListEnabled = v.ListEnabled or {}
-				object:ChangeValue()
-			end
-			object.Object.Position = UDim2.fromOffset(v.Position.X, v.Position.Y)
-		end
-
-		for i, v in savedata.Modules do
-			local object = self.Modules[i]
-			if not object then continue end
-			if object.Options and v.Options then
-				self:LoadOptions(object, v.Options)
-			end
-			if v.Enabled ~= object.Enabled then
-				if skipgui then
-					if self.ToggleNotifications.Enabled then self:CreateNotification('Module Toggled', i.."<font color='#FFFFFF'> has been </font>"..(v.Enabled and "<font color='#5AFF5A'>Enabled</font>" or "<font color='#FF5A5A'>Disabled</font>").."<font color='#FFFFFF'>!</font>", 0.75) end
-				end
-				object:Toggle(true)
-			end
-			object:SetBind(v.Bind)
-			object.Object.Bind.Visible = #v.Bind > 0
-		end
-
-		for i, v in savedata.Legit do
-			local object = self.Legit.Modules[i]
-			if not object then continue end
-			if object.Options and v.Options then
-				self:LoadOptions(object, v.Options)
-			end
-			if object.Enabled ~= v.Enabled then
-				object:Toggle()
-			end
-			if v.Position and object.Children then
-				object.Children.Position = UDim2.fromOffset(v.Position.X, v.Position.Y)
-			end
-		end
-
-		self:UpdateTextGUI(true)
-	else
-		self:Save()
-	end
-
-	if self.Downloader then
-		self.Downloader:Destroy()
-		self.Downloader = nil
-	end
-	self.Loaded = savecheck
-	self.Categories.Main.Options.Bind:SetBind(self.Keybind)
-
-	if inputService.TouchEnabled and #self.Keybind == 1 and self.Keybind[1] == 'RightShift' then
-		local button = Instance.new('TextButton')
-		button.Size = UDim2.fromOffset(32, 32)
-		button.Position = UDim2.new(1, -90, 0, 4)
-		button.BackgroundColor3 = Color3.new()
-		button.BackgroundTransparency = 0.5
-		button.Text = ''
-		button.Parent = gui
-		local image = Instance.new('ImageLabel')
-		image.Size = UDim2.fromOffset(26, 26)
-		image.Position = UDim2.fromOffset(3, 3)
-		image.BackgroundTransparency = 1
-		image.Image = getcustomasset('newvape/assets/new/vape.png')
-		image.Parent = button
-		local buttoncorner = Instance.new('UICorner')
-		buttoncorner.Parent = button
-		self.VapeButton = button
-		button.MouseButton1Click:Connect(function()
-			if self.ThreadFix then
-				setthreadidentity(8)
-			end
-			for _, v in self.Windows do
-				v.Visible = false
-			end
-			for _, mobileButton in self.Modules do
-				if mobileButton.Bind.Button then
-					mobileButton.Bind.Button.Visible = clickgui.Visible
-				end
-			end
-			clickgui.Visible = not clickgui.Visible
-			tooltip.Visible = false
-			self:BlurCheck()
-		end)
-	end
-end
-
-function mainapi:LoadOptions(object, savedoptions)
-	for i, v in savedoptions do
-		local option = object.Options[i]
-		if not option then continue end
-		option:Load(v)
-	end
-end
-
-function mainapi:Remove(obj)
-	local tab = (self.Modules[obj] and self.Modules or self.Legit.Modules[obj] and self.Legit.Modules or self.Categories)
-	if tab and tab[obj] then
-		local newobj = tab[obj]
-		if self.ThreadFix then
-			setthreadidentity(8)
-		end
-
-		for _, v in {'Object', 'Children', 'Toggle', 'Button'} do
-			local childobj = typeof(newobj[v]) == 'table' and newobj[v].Object or newobj[v]
-			if typeof(childobj) == 'Instance' then
-				childobj:Destroy()
-				childobj:ClearAllChildren()
-			end
-		end
-
-		loopClean(newobj)
-		tab[obj] = nil
-	end
-end
-
-function mainapi:Save(newprofile)
-	if not self.Loaded then return end
-	local guidata = {
-		Categories = {},
-		Profile = newprofile or self.Profile,
-		Profiles = self.Profiles,
-		Keybind = self.Keybind
-	}
-	local savedata = {
-		Modules = {},
-		Categories = {},
-		Legit = {}
+	local remoteNames = {
+		AckKnockback = debug.getproto(debug.getproto(Knit.Controllers.KnockbackController.KnitStart, 1), 1),
+		AfkStatus = debug.getproto(Knit.Controllers.AfkController.KnitStart, 1),
+		AttackEntity = Knit.Controllers.SwordController.sendServerRequest,
+		ConsumeBattery = debug.getproto(debug.getproto(Knit.Controllers.BatteryController.KnitStart, 1), 1),
+		CannonAim = debug.getproto(Knit.Controllers.CannonController.startAiming, 5),
+		CannonLaunch = Knit.Controllers.CannonHandController.launchSelf,
+		ConsumeItem = debug.getproto(Knit.Controllers.ConsumeController.onEnable, 1),
+		ConsumeSoul = Knit.Controllers.GrimReaperController.consumeSoul,
+		ConsumeTreeOrb = debug.getproto(Knit.Controllers.EldertreeController.createTreeOrbInteraction, 1),
+		DepositPinata = debug.getproto(debug.getproto(Knit.Controllers.PiggyBankController.KnitStart, 2), 5),
+		DragonBreath = debug.getproto(Knit.Controllers.VoidDragonController.KnitStart, 4),
+		DragonEndFly = debug.getproto(Knit.Controllers.VoidDragonController.flapWings, 1),
+		DragonFly = Knit.Controllers.VoidDragonController.flapWings,
+		DropItem = Knit.Controllers.ItemDropController.dropItemInHand,
+		EquipItem = debug.getproto(require(replicatedStorage.TS.entity.entities['inventory-entity']).InventoryEntity.equipItem, 3),
+		FireProjectile = debug.getupvalue(Knit.Controllers.ProjectileController.launchProjectileWithValues, 2),
+		GroundHit = Knit.Controllers.FallDamageController.KnitStart,
+		GuitarHeal = Knit.Controllers.GuitarController.performHeal,
+		HannahKill = debug.getproto(debug.getproto(Knit.Controllers.HannahController.KnitStart, 2), 1),
+		HarvestCrop = Knit.Controllers.CropController.KnitStart,
+		MageSelect = debug.getproto(Knit.Controllers.MageController.registerTomeInteraction, 1),
+		MinerDig = debug.getproto(Knit.Controllers.MinerController.setupMinerPrompts, 1),
+		PickupItem = Knit.Controllers.ItemDropController.checkForPickup,
+		PickupMetal = debug.getproto(debug.getproto(Knit.Controllers.MetalDetectorController.KnitStart, 1), 2),
+		ReportPlayer = require(lplr.PlayerScripts.TS.controllers.global.report['report-controller']).default.reportPlayer,
+		ResetCharacter = debug.getproto(Knit.Controllers.ResetController.createBindable, 1),
+		SpawnRaven = Knit.Controllers.RavenController.spawnRaven,
+		SummonerClawAttack = Knit.Controllers.SummonerClawController.attack
 	}
 
-	for i, v in self.Categories do
-		(v.Type ~= 'Category' and i ~= 'Main' and savedata or guidata).Categories[i] = {
-			Enabled = i ~= 'Main' and v.Button.Enabled or nil,
-			Expanded = v.Type ~= 'Overlay' and v.Expanded or nil,
-			Pinned = v.Pinned,
-			Position = {X = v.Object.Position.X.Offset, Y = v.Object.Position.Y.Offset},
-			Options = mainapi:SaveOptions(v, v.Options),
-			List = v.List,
-			ListEnabled = v.ListEnabled
-		}
-	end
-
-	for i, v in self.Modules do
-		savedata.Modules[i] = {
-			Enabled = v.Enabled,
-			Bind = v.Bind.Button and {Mobile = true, X = v.Bind.Button.Position.X.Offset, Y = v.Bind.Button.Position.Y.Offset} or v.Bind,
-			Options = mainapi:SaveOptions(v, true)
-		}
-	end
-
-	for i, v in self.Legit.Modules do
-		savedata.Legit[i] = {
-			Enabled = v.Enabled,
-			Position = v.Children and {X = v.Children.Position.X.Offset, Y = v.Children.Position.Y.Offset} or nil,
-			Options = mainapi:SaveOptions(v, v.Options)
-		}
-	end
-
-	writefile('newvape/profiles/'..game.GameId..'.gui.txt', httpService:JSONEncode(guidata))
-	writefile('newvape/profiles/'..self.Profile..self.Place..'.txt', httpService:JSONEncode(savedata))
-end
-
-function mainapi:SaveOptions(object, savedoptions)
-	if not savedoptions then return end
-	savedoptions = {}
-	for _, v in object.Options do
-		if not v.Save then continue end
-		v:Save(savedoptions)
-	end
-	return savedoptions
-end
-
-function mainapi:Uninject()
-	mainapi:Save()
-	mainapi.Loaded = nil
-	for _, v in self.Modules do
-		if v.Enabled then
-			v:Toggle()
-		end
-	end
-	for _, v in self.Legit.Modules do
-		if v.Enabled then
-			v:Toggle()
-		end
-	end
-	for _, v in self.Categories do
-		if v.Type == 'Overlay' and v.Button.Enabled then
-			v.Button:Toggle()
-		end
-	end
-	for _, v in mainapi.Connections do
-		pcall(function()
-			v:Disconnect()
-		end)
-	end
-	if mainapi.ThreadFix then
-		setthreadidentity(8)
-		clickgui.Visible = false
-		mainapi:BlurCheck()
-	end
-	mainapi.gui:ClearAllChildren()
-	mainapi.gui:Destroy()
-	table.clear(mainapi.Libraries)
-	loopClean(mainapi)
-	shared.vape = nil
-	shared.vapereload = nil
-	shared.VapeIndependent = nil
-end
-
-gui = Instance.new('ScreenGui')
-gui.Name = randomString()
-gui.DisplayOrder = 9999999
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-gui.IgnoreGuiInset = true
-gui.OnTopOfCoreBlur = true
-if mainapi.ThreadFix then
-	gui.Parent = cloneref(game:GetService('CoreGui'))--(gethui and gethui()) or cloneref(game:GetService('CoreGui'))
-else
-	gui.Parent = cloneref(game:GetService('Players')).LocalPlayer.PlayerGui
-	gui.ResetOnSpawn = false
-end
-mainapi.gui = gui
-scaledgui = Instance.new('Frame')
-scaledgui.Name = 'ScaledGui'
-scaledgui.Size = UDim2.fromScale(1, 1)
-scaledgui.BackgroundTransparency = 1
-scaledgui.Parent = gui
-clickgui = Instance.new('Frame')
-clickgui.Name = 'ClickGui'
-clickgui.Size = UDim2.fromScale(1, 1)
-clickgui.BackgroundTransparency = 1
-clickgui.Visible = false
-clickgui.Parent = scaledgui
-local modal = Instance.new('TextButton')
-modal.BackgroundTransparency = 1
-modal.Modal = true
-modal.Text = ''
-modal.Parent = clickgui
-local cursor = Instance.new('ImageLabel')
-cursor.Size = UDim2.fromOffset(64, 64)
-cursor.BackgroundTransparency = 1
-cursor.Visible = false
-cursor.Image = 'rbxasset://textures/Cursors/KeyboardMouse/ArrowFarCursor.png'
-cursor.Parent = gui
-notifications = Instance.new('Folder')
-notifications.Name = 'Notifications'
-notifications.Parent = scaledgui
-tooltip = Instance.new('TextLabel')
-tooltip.Name = 'Tooltip'
-tooltip.Position = UDim2.fromScale(-1, -1)
-tooltip.ZIndex = 5
-tooltip.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
-tooltip.Visible = false
-tooltip.Text = ''
-tooltip.TextColor3 = color.Dark(uipallet.Text, 0.16)
-tooltip.TextSize = 12
-tooltip.FontFace = uipallet.Font
-tooltip.Parent = scaledgui
-toolblur = addBlur(tooltip)
-addCorner(tooltip)
-local toolstrokebkg = Instance.new('Frame')
-toolstrokebkg.Size = UDim2.new(1, -2, 1, -2)
-toolstrokebkg.Position = UDim2.fromOffset(1, 1)
-toolstrokebkg.ZIndex = 6
-toolstrokebkg.BackgroundTransparency = 1
-toolstrokebkg.Parent = tooltip
-local toolstroke = Instance.new('UIStroke')
-toolstroke.Color = color.Light(uipallet.Main, 0.02)
-toolstroke.Parent = toolstrokebkg
-addCorner(toolstrokebkg, UDim.new(0, 4))
-scale = Instance.new('UIScale')
-scale.Scale = math.max(gui.AbsoluteSize.X / 1920, 0.6)
-scale.Parent = scaledgui
-mainapi.guiscale = scale
-scaledgui.Size = UDim2.fromScale(1 / scale.Scale, 1 / scale.Scale)
-
-mainapi:Clean(gui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-	if mainapi.Scale.Enabled then
-		scale.Scale = math.max(gui.AbsoluteSize.X / 1920, 0.6)
-	end
-end))
-
-mainapi:Clean(scale:GetPropertyChangedSignal('Scale'):Connect(function()
-	scaledgui.Size = UDim2.fromScale(1 / scale.Scale, 1 / scale.Scale)
-	for _, v in scaledgui:GetDescendants() do
-		if v:IsA('GuiObject') and v.Visible then
-			v.Visible = false
-			v.Visible = true
-		end
-	end
-end))
-
-mainapi:Clean(clickgui:GetPropertyChangedSignal('Visible'):Connect(function()
-	mainapi:UpdateGUI(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value, true)
-	if clickgui.Visible and inputService.MouseEnabled then
-		repeat
-			local visibleCheck = clickgui.Visible
-			for _, v in mainapi.Windows do
-				visibleCheck = visibleCheck or v.Visible
-			end
-			if not visibleCheck then break end
-
-			cursor.Visible = not inputService.MouseIconEnabled
-			if cursor.Visible then
-				local mouseLocation = inputService:GetMouseLocation()
-				cursor.Position = UDim2.fromOffset(mouseLocation.X - 31, mouseLocation.Y - 32)
-			end
-
-			task.wait()
-		until mainapi.Loaded == nil
-		cursor.Visible = false
-	end
-end))
-
-mainapi:CreateGUI()
-mainapi.Categories.Main:CreateDivider()
-mainapi:CreateCategory({
-	Name = 'Combat',
-	Icon = getcustomasset('newvape/assets/new/combaticon.png'),
-	Size = UDim2.fromOffset(13, 14)
-})
-mainapi:CreateCategory({
-	Name = 'Blatant',
-	Icon = getcustomasset('newvape/assets/new/blatanticon.png'),
-	Size = UDim2.fromOffset(14, 14)
-})
-mainapi:CreateCategory({
-	Name = 'Render',
-	Icon = getcustomasset('newvape/assets/new/rendericon.png'),
-	Size = UDim2.fromOffset(15, 14)
-})
-mainapi:CreateCategory({
-	Name = 'Utility',
-	Icon = getcustomasset('newvape/assets/new/utilityicon.png'),
-	Size = UDim2.fromOffset(15, 14)
-})
-mainapi:CreateCategory({
-	Name = 'World',
-	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
-	Size = UDim2.fromOffset(14, 14)
-})
-mainapi:CreateCategory({
-	Name = 'Inventory',
-	Icon = getcustomasset('newvape/assets/new/inventoryicon.png'),
-	Size = UDim2.fromOffset(15, 14)
-})
-mainapi:CreateCategory({
-	Name = 'Minigames',
-	Icon = getcustomasset('newvape/assets/new/miniicon.png'),
-	Size = UDim2.fromOffset(19, 12)
-})
-mainapi:CreateCategory({
-	Name = 'Novaware only',
-	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
-	Size = UDim2.fromOffset(19, 12)
-})
-mainapi.Categories.Main:CreateDivider('misc')
-
---[[
-	Friends
-]]
-local friends
-local friendscolor = {
-	Hue = 1,
-	Sat = 1,
-	Value = 1
-}
-local friendssettings = {
-	Name = 'Friends',
-	Icon = getcustomasset('newvape/assets/new/friendstab.png'),
-	Size = UDim2.fromOffset(17, 16),
-	Placeholder = 'Roblox username',
-	Color = Color3.fromRGB(5, 134, 105),
-	Function = function()
-		friends.Update:Fire()
-		friends.ColorUpdate:Fire(friendscolor.Hue, friendscolor.Sat, friendscolor.Value)
-	end
-}
-friends = mainapi:CreateCategoryList(friendssettings)
-friends.Update = Instance.new('BindableEvent')
-friends.ColorUpdate = Instance.new('BindableEvent')
-friends:CreateToggle({
-	Name = 'Recolor visuals',
-	Darker = true,
-	Default = true,
-	Function = function()
-		friends.Update:Fire()
-		friends.ColorUpdate:Fire(friendscolor.Hue, friendscolor.Sat, friendscolor.Value)
-	end
-})
-friendscolor = friends:CreateColorSlider({
-	Name = 'Friends color',
-	Darker = true,
-	Function = function(hue, sat, val)
-		for _, v in friends.Object.Children:GetChildren() do
-			local dot = v:FindFirstChild('Dot')
-			if dot and dot.BackgroundColor3 ~= color.Light(uipallet.Main, 0.37) then
-				dot.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-				dot.Dot.BackgroundColor3 = dot.BackgroundColor3
-			end
-		end
-		friendssettings.Color = Color3.fromHSV(hue, sat, val)
-		friends.ColorUpdate:Fire(hue, sat, val)
-	end
-})
-friends:CreateToggle({
-	Name = 'Use friends',
-	Darker = true,
-	Default = true,
-	Function = function()
-		friends.Update:Fire()
-		friends.ColorUpdate:Fire(friendscolor.Hue, friendscolor.Sat, friendscolor.Value)
-	end
-})
-mainapi:Clean(friends.Update)
-mainapi:Clean(friends.ColorUpdate)
-
---[[
-	Profiles
-]]
-mainapi:CreateCategoryList({
-	Name = 'Profiles',
-	Icon = getcustomasset('newvape/assets/new/profilesicon.png'),
-	Size = UDim2.fromOffset(17, 10),
-	Position = UDim2.fromOffset(12, 16),
-	Placeholder = 'Type name',
-	Profiles = true
-})
-
---[[
-	Targets
-]]
-local targets
-targets = mainapi:CreateCategoryList({
-	Name = 'Targets',
-	Icon = getcustomasset('newvape/assets/new/friendstab.png'),
-	Size = UDim2.fromOffset(17, 16),
-	Placeholder = 'Roblox username',
-	Function = function()
-		targets.Update:Fire()
-	end
-})
-targets.Update = Instance.new('BindableEvent')
-mainapi:Clean(targets.Update)
-
-mainapi:CreateLegit()
-mainapi:CreateSearch()
-mainapi.Categories.Main:CreateOverlayBar()
-mainapi.Categories.Main:CreateSettingsDivider()
-
---[[
-	General Settings
-]]
-
-local general = mainapi.Categories.Main:CreateSettingsPane({Name = 'General'})
-mainapi.MultiKeybind = general:CreateToggle({
-	Name = 'Enable Multi-Keybinding',
-	Tooltip = 'Allows multiple keys to be bound to a module (eg. G + H)'
-})
-general:CreateButton({
-	Name = 'Reset current profile',
-	Function = function()
-	mainapi.Save = function() end
-		if isfile('newvape/profiles/'..mainapi.Profile..mainapi.Place..'.txt') and delfile then
-			delfile('newvape/profiles/'..mainapi.Profile..mainapi.Place..'.txt')
-		end
-		shared.vapereload = true
-		if shared.VapeDeveloper then
-			loadstring(readfile('newvape/loader.lua'), 'loader')()
-		else
-			loadstring(game:HttpGet('https://raw.githubusercontent.com/xxpwnxxx420lord/Novaware/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
-		end
-	end,
-	Tooltip = 'This will set your profile to the default settings of Vape'
-})
-general:CreateButton({
-	Name = 'Self destruct',
-	Function = function()
-		mainapi:Uninject()
-	end,
-	Tooltip = 'Removes vape from the current game'
-})
-general:CreateButton({
-	Name = 'Reinject',
-	Function = function()
-		shared.vapereload = true
-		if shared.VapeDeveloper then
-			loadstring(readfile('newvape/loader.lua'), 'loader')()
-		else
-			loadstring(game:HttpGet('https://raw.githubusercontent.com/xxpwnxxx420lord/Novaware/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
-		end
-	end,
-	Tooltip = 'Reloads vape for debugging purposes'
-})
-
---[[
-	Module Settings
-]]
-
-local modules = mainapi.Categories.Main:CreateSettingsPane({Name = 'Modules'})
-modules:CreateToggle({
-	Name = 'Teams by server',
-	Tooltip = 'Ignore players on your team designated by the server',
-	Default = true,
-	Function = function()
-		if mainapi.Libraries.entity and mainapi.Libraries.entity.Running then
-			mainapi.Libraries.entity.refresh()
-		end
-	end
-})
-modules:CreateToggle({
-	Name = 'Use team color',
-	Tooltip = 'Uses the TeamColor property on players for render modules',
-	Default = true,
-	Function = function()
-		if mainapi.Libraries.entity and mainapi.Libraries.entity.Running then
-			mainapi.Libraries.entity.refresh()
-		end
-	end
-})
-
---[[
-	GUI Settings
-]]
-
-local guipane = mainapi.Categories.Main:CreateSettingsPane({Name = 'GUI'})
-mainapi.Blur = guipane:CreateToggle({
-	Name = 'Blur background',
-	Function = function()
-		mainapi:BlurCheck()
-	end,
-	Default = true,
-	Tooltip = 'Blur the background of the GUI'
-})
-guipane:CreateToggle({
-	Name = 'GUI bind indicator',
-	Default = true,
-	Tooltip = "Displays a message indicating your GUI upon injecting.\nI.E. 'Press RSHIFT to open GUI'"
-})
-guipane:CreateToggle({
-	Name = 'Show tooltips',
-	Function = function(enabled)
-		tooltip.Visible = false
-		toolblur.Visible = enabled
-	end,
-	Default = true,
-	Tooltip = 'Toggles visibility of these'
-})
-guipane:CreateToggle({
-	Name = 'Show legit mode',
-	Function = function(enabled)
-		clickgui.Search.Legit.Visible = enabled
-		clickgui.Search.LegitDivider.Visible = enabled
-		clickgui.Search.TextBox.Size = UDim2.new(1, enabled and -50 or -10, 0, 37)
-		clickgui.Search.TextBox.Position = UDim2.fromOffset(enabled and 50 or 10, 0)
-	end,
-	Default = true,
-	Tooltip = 'Shows the button to change to Legit Mode'
-})
-local scaleslider = {Object = {}, Value = 1}
-mainapi.Scale = guipane:CreateToggle({
-	Name = 'Auto rescale',
-	Default = true,
-	Function = function(callback)
-		scaleslider.Object.Visible = not callback
-		if callback then
-			scale.Scale = math.max(gui.AbsoluteSize.X / 1920, 0.6)
-		else
-			scale.Scale = scaleslider.Value
-		end
-	end,
-	Tooltip = 'Automatically rescales the gui using the screens resolution'
-})
-scaleslider = guipane:CreateSlider({
-	Name = 'Scale',
-	Min = 0.1,
-	Max = 2,
-	Decimal = 10,
-	Function = function(val, final)
-		if final and not mainapi.Scale.Enabled then
-			scale.Scale = val
-		end
-	end,
-	Default = 1,
-	Darker = true,
-	Visible = false
-})
-guipane:CreateDropdown({
-	Name = 'GUI Theme',
-	List = inputService.TouchEnabled and {'new', 'old'} or {'new', 'old', 'rise'},
-	Function = function(val, mouse)
-		if mouse then
-			writefile('newvape/profiles/gui.txt', val)
-			shared.vapereload = true
-			if shared.VapeDeveloper then
-				loadstring(readfile('newvape/loader.lua'), 'loader')()
-			else
-				loadstring(game:HttpGet('https://raw.githubusercontent.com/xxpwnxxx420lord/Novaware/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
-			end
-		end
-	end,
-	Tooltip = 'new - The newest vape theme to since v4.05\nold - The vape theme pre v4.05\nrise - Rise 6.0'
-})
-mainapi.RainbowMode = guipane:CreateDropdown({
-	Name = 'Rainbow Mode',
-	List = {'Normal', 'Gradient', 'Retro'},
-	Tooltip = 'Normal - Smooth color fade\nGradient - Gradient color fade\nRetro - Static color'
-})
-mainapi.RainbowSpeed = guipane:CreateSlider({
-	Name = 'Rainbow speed',
-	Min = 0.1,
-	Max = 10,
-	Decimal = 10,
-	Default = 1,
-	Tooltip = 'Adjusts the speed of rainbow values'
-})
-mainapi.RainbowUpdateSpeed = guipane:CreateSlider({
-	Name = 'Rainbow update rate',
-	Min = 1,
-	Max = 144,
-	Default = 60,
-	Tooltip = 'Adjusts the update rate of rainbow values',
-	Suffix = 'hz'
-})
-guipane:CreateButton({
-	Name = 'Reset GUI positions',
-	Function = function()
-		for _, v in mainapi.Categories do
-			v.Object.Position = UDim2.fromOffset(6, 42)
-		end
-	end,
-	Tooltip = 'This will reset your GUI back to default'
-})
-guipane:CreateButton({
-	Name = 'Sort GUI',
-	Function = function()
-		local priority = {
-			GUICategory = 1,
-			CombatCategory = 2,
-			BlatantCategory = 3,
-			RenderCategory = 4,
-			UtilityCategory = 5,
-			WorldCategory = 6,
-			InventoryCategory = 7,
-			MinigamesCategory = 8,
-			FriendsCategory = 9,
-			ProfilesCategory = 10
-		}
-		local categories = {}
-		for _, v in mainapi.Categories do
-			if v.Type ~= 'Overlay' then
-				table.insert(categories, v)
-			end
-		end
-		table.sort(categories, function(a, b)
-			return (priority[a.Object.Name] or 99) < (priority[b.Object.Name] or 99)
-		end)
-
-		local ind = 0
-		for _, v in categories do
-			if v.Object.Visible then
-				v.Object.Position = UDim2.fromOffset(6 + (ind % 8 * 230), 60 + (ind > 7 and 360 or 0))
-				ind += 1
-			end
-		end
-	end,
-	Tooltip = 'Sorts GUI'
-})
-
---[[
-	Notification Settings
-]]
-
-local notifpane = mainapi.Categories.Main:CreateSettingsPane({Name = 'Notifications'})
-mainapi.Notifications = notifpane:CreateToggle({
-	Name = 'Notifications',
-	Function = function(enabled)
-		if mainapi.ToggleNotifications.Object then
-			mainapi.ToggleNotifications.Object.Visible = enabled
-		end
-	end,
-	Tooltip = 'Shows notifications',
-	Default = true
-})
-mainapi.ToggleNotifications = notifpane:CreateToggle({
-	Name = 'Toggle alert',
-	Tooltip = 'Notifies you if a module is enabled/disabled.',
-	Default = true,
-	Darker = true
-})
-
-mainapi.GUIColor = mainapi.Categories.Main:CreateGUISlider({
-	Name = 'GUI Theme',
-	Function = function(h, s, v)
-		mainapi:UpdateGUI(h, s, v, true)
-	end
-})
-mainapi.Categories.Main:CreateBind()
-
---[[
-	Text GUI
-]]
-
-local textgui = mainapi:CreateOverlay({
-	Name = 'Text GUI',
-	Icon = getcustomasset('newvape/assets/new/textguiicon.png'),
-	Size = UDim2.fromOffset(16, 12),
-	Position = UDim2.fromOffset(12, 14),
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end
-})
-local textguisort = textgui:CreateDropdown({
-	Name = 'Sort',
-	List = {'Alphabetical', 'Length'},
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end
-})
-local textguifont = textgui:CreateFont({
-	Name = 'Font',
-	Blacklist = 'Arial',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end
-})
-local textguicolor
-local textguicolordrop = textgui:CreateDropdown({
-	Name = 'Color Mode',
-	List = {'Match GUI color', 'Custom color'},
-	Function = function(val)
-		textguicolor.Object.Visible = val == 'Custom color'
-		mainapi:UpdateTextGUI()
-	end
-})
-textguicolor = textgui:CreateColorSlider({
-	Name = 'Text GUI color',
-	Function = function()
-		mainapi:UpdateGUI(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)
-	end,
-	Darker = true,
-	Visible = false
-})
-local VapeTextScale = Instance.new('UIScale')
-VapeTextScale.Parent = textgui.Children
-local textguiscale = textgui:CreateSlider({
-	Name = 'Scale',
-	Min = 0,
-	Max = 2,
-	Decimal = 10,
-	Default = 1,
-	Function = function(val)
-		VapeTextScale.Scale = val
-		mainapi:UpdateTextGUI()
-	end
-})
-local textguishadow = textgui:CreateToggle({
-	Name = 'Shadow',
-	Tooltip = 'Renders shadowed text.',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end
-})
-local textguigradientv4
-local textguigradient = textgui:CreateToggle({
-	Name = 'Gradient',
-	Tooltip = 'Renders a gradient',
-	Function = function(callback)
-		textguigradientv4.Object.Visible = callback
-		mainapi:UpdateTextGUI()
-	end
-})
-textguigradientv4 = textgui:CreateToggle({
-	Name = 'V4 Gradient',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end,
-	Darker = true,
-	Visible = false
-})
-local textguianimations = textgui:CreateToggle({
-	Name = 'Animations',
-	Tooltip = 'Use animations on text gui',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end
-})
-local textguiwatermark = textgui:CreateToggle({
-	Name = 'Watermark',
-	Tooltip = 'Renders a vape watermark',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end
-})
-local textguibackgroundtransparency = {
-	Value = 0.5,
-	Object = {Visible = {}}
-}
-local textguibackgroundtint = {Enabled = false}
-local textguibackground = textgui:CreateToggle({
-	Name = 'Render background',
-	Function = function(callback)
-		textguibackgroundtransparency.Object.Visible = callback
-		textguibackgroundtint.Object.Visible = callback
-		mainapi:UpdateTextGUI()
-	end
-})
-textguibackgroundtransparency = textgui:CreateSlider({
-	Name = 'Transparency',
-	Min = 0,
-	Max = 1,
-	Default = 0.5,
-	Decimal = 10,
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end,
-	Darker = true,
-	Visible = false
-})
-textguibackgroundtint = textgui:CreateToggle({
-	Name = 'Tint',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end,
-	Darker = true,
-	Visible = false
-})
-local textguimoduleslist
-local textguimodules = textgui:CreateToggle({
-	Name = 'Hide modules',
-	Tooltip = 'Allows you to blacklist certain modules from being shown.',
-	Function = function(enabled)
-		textguimoduleslist.Object.Visible = enabled
-		mainapi:UpdateTextGUI()
-	end
-})
-textguimoduleslist = textgui:CreateTextList({
-	Name = 'Blacklist',
-	Tooltip = 'Name of module to hide.',
-	Icon = getcustomasset('newvape/assets/new/blockedicon.png'),
-	Tab = getcustomasset('newvape/assets/new/blockedtab.png'),
-	TabSize = UDim2.fromOffset(21, 16),
-	Color = Color3.fromRGB(250, 50, 56),
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end,
-	Visible = false,
-	Darker = true
-})
-local textguirender = textgui:CreateToggle({
-	Name = 'Hide render',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end
-})
-local textguibox
-local textguifontcustom
-local textguicolorcustomtoggle
-local textguicolorcustom
-local textguitext = textgui:CreateToggle({
-	Name = 'Add custom text',
-	Function = function(enabled)
-		textguibox.Object.Visible = enabled
-		textguifontcustom.Object.Visible = enabled
-		textguicolorcustomtoggle.Object.Visible = enabled
-		textguicolorcustom.Object.Visible = textguicolorcustomtoggle.Enabled and enabled
-		mainapi:UpdateTextGUI()
-	end
-})
-textguibox = textgui:CreateTextBox({
-	Name = 'Custom text',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end,
-	Darker = true,
-	Visible = false
-})
-textguifontcustom = textgui:CreateFont({
-	Name = 'Custom Font',
-	Blacklist = 'Arial',
-	Function = function()
-		mainapi:UpdateTextGUI()
-	end,
-	Darker = true,
-	Visible = false
-})
-textguicolorcustomtoggle = textgui:CreateToggle({
-	Name = 'Set custom text color',
-	Function = function(enabled)
-		textguicolorcustom.Object.Visible = enabled
-		mainapi:UpdateGUI(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)
-	end,
-	Darker = true,
-	Visible = false
-})
-textguicolorcustom = textgui:CreateColorSlider({
-	Name = 'Color of custom text',
-	Function = function()
-		mainapi:UpdateGUI(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value)
-	end,
-	Darker = true,
-	Visible = false
-})
-
---[[
-	Text GUI Objects
-]]
-
-local VapeLabels = {}
-local VapeLogo = Instance.new('ImageLabel')
-VapeLogo.Name = 'Logo'
-VapeLogo.Size = UDim2.fromOffset(80, 21)
-VapeLogo.Position = UDim2.new(1, -142, 0, 3)
-VapeLogo.BackgroundTransparency = 1
-VapeLogo.BorderSizePixel = 0
-VapeLogo.Visible = false
-VapeLogo.BackgroundColor3 = Color3.new()
-VapeLogo.Image = getcustomasset('newvape/assets/new/textvape.png')
-VapeLogo.Parent = textgui.Children
-
-local lastside = textgui.Children.AbsolutePosition.X > (gui.AbsoluteSize.X / 2)
-mainapi:Clean(textgui.Children:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-	if mainapi.ThreadFix then
-		setthreadidentity(8)
-	end
-	local newside = textgui.Children.AbsolutePosition.X > (gui.AbsoluteSize.X / 2)
-	if lastside ~= newside then
-		lastside = newside
-		mainapi:UpdateTextGUI()
-	end
-end))
-
-local VapeLogoV4 = Instance.new('ImageLabel')
-VapeLogoV4.Name = 'Logo2'
-VapeLogoV4.Size = UDim2.fromOffset(33, 18)
-VapeLogoV4.Position = UDim2.new(1, 1, 0, 1)
-VapeLogoV4.BackgroundColor3 = Color3.new()
-VapeLogoV4.BackgroundTransparency = 1
-VapeLogoV4.BorderSizePixel = 0
-VapeLogoV4.Image = getcustomasset('newvape/assets/new/textv4.png')
-VapeLogoV4.Parent = VapeLogo
-local VapeLogoShadow = VapeLogo:Clone()
-VapeLogoShadow.Position = UDim2.fromOffset(1, 1)
-VapeLogoShadow.ZIndex = 0
-VapeLogoShadow.Visible = true
-VapeLogoShadow.ImageColor3 = Color3.new()
-VapeLogoShadow.ImageTransparency = 0.65
-VapeLogoShadow.Parent = VapeLogo
-VapeLogoShadow.Logo2.ZIndex = 0
-VapeLogoShadow.Logo2.ImageColor3 = Color3.new()
-VapeLogoShadow.Logo2.ImageTransparency = 0.65
-local VapeLogoGradient = Instance.new('UIGradient')
-VapeLogoGradient.Rotation = 90
-VapeLogoGradient.Parent = VapeLogo
-local VapeLogoGradient2 = Instance.new('UIGradient')
-VapeLogoGradient2.Rotation = 90
-VapeLogoGradient2.Parent = VapeLogoV4
-local VapeLabelCustom = Instance.new('TextLabel')
-VapeLabelCustom.Position = UDim2.fromOffset(5, 2)
-VapeLabelCustom.BackgroundTransparency = 1
-VapeLabelCustom.BorderSizePixel = 0
-VapeLabelCustom.Visible = false
-VapeLabelCustom.Text = ''
-VapeLabelCustom.TextSize = 25
-VapeLabelCustom.FontFace = textguifontcustom.Value
-VapeLabelCustom.RichText = true
-local VapeLabelCustomShadow = VapeLabelCustom:Clone()
-VapeLabelCustom:GetPropertyChangedSignal('Position'):Connect(function()
-	VapeLabelCustomShadow.Position = UDim2.new(
-		VapeLabelCustom.Position.X.Scale,
-		VapeLabelCustom.Position.X.Offset + 1,
-		0,
-		VapeLabelCustom.Position.Y.Offset + 1
-	)
-end)
-VapeLabelCustom:GetPropertyChangedSignal('FontFace'):Connect(function()
-	VapeLabelCustomShadow.FontFace = VapeLabelCustom.FontFace
-end)
-VapeLabelCustom:GetPropertyChangedSignal('Text'):Connect(function()
-	VapeLabelCustomShadow.Text = removeTags(VapeLabelCustom.Text)
-end)
-VapeLabelCustom:GetPropertyChangedSignal('Size'):Connect(function()
-	VapeLabelCustomShadow.Size = VapeLabelCustom.Size
-end)
-VapeLabelCustomShadow.TextColor3 = Color3.new()
-VapeLabelCustomShadow.TextTransparency = 0.65
-VapeLabelCustomShadow.Parent = textgui.Children
-VapeLabelCustom.Parent = textgui.Children
-local VapeLabelHolder = Instance.new('Frame')
-VapeLabelHolder.Name = 'Holder'
-VapeLabelHolder.Size = UDim2.fromScale(1, 1)
-VapeLabelHolder.Position = UDim2.fromOffset(5, 37)
-VapeLabelHolder.BackgroundTransparency = 1
-VapeLabelHolder.Parent = textgui.Children
-local VapeLabelSorter = Instance.new('UIListLayout')
-VapeLabelSorter.HorizontalAlignment = Enum.HorizontalAlignment.Right
-VapeLabelSorter.VerticalAlignment = Enum.VerticalAlignment.Top
-VapeLabelSorter.SortOrder = Enum.SortOrder.LayoutOrder
-VapeLabelSorter.Parent = VapeLabelHolder
-
---[[
-	Target Info
-]]
-
-local targetinfo
-local targetinfoobj
-local targetinfobcolor
-targetinfoobj = mainapi:CreateOverlay({
-	Name = 'Target Info',
-	Icon = getcustomasset('newvape/assets/new/targetinfoicon.png'),
-	Size = UDim2.fromOffset(14, 14),
-	Position = UDim2.fromOffset(12, 14),
-	CategorySize = 240,
-	Function = function(callback)
-		if callback then
-			task.spawn(function()
-				repeat
-					targetinfo:UpdateInfo()
-					task.wait()
-				until not targetinfoobj.Button or not targetinfoobj.Button.Enabled
-			end)
-		end
-	end
-})
-
-local targetinfobkg = Instance.new('Frame')
-targetinfobkg.Size = UDim2.fromOffset(240, 89)
-targetinfobkg.BackgroundColor3 = color.Dark(uipallet.Main, 0.1)
-targetinfobkg.BackgroundTransparency = 0.5
-targetinfobkg.Parent = targetinfoobj.Children
-local targetinfoblurobj = addBlur(targetinfobkg)
-targetinfoblurobj.Visible = false
-addCorner(targetinfobkg)
-local targetinfoshot = Instance.new('ImageLabel')
-targetinfoshot.Size = UDim2.fromOffset(26, 27)
-targetinfoshot.Position = UDim2.fromOffset(19, 17)
-targetinfoshot.BackgroundColor3 = uipallet.Main
-targetinfoshot.Image = 'rbxthumb://type=AvatarHeadShot&id=1&w=420&h=420'
-targetinfoshot.Parent = targetinfobkg
-local targetinfoshotflash = Instance.new('Frame')
-targetinfoshotflash.Size = UDim2.fromScale(1, 1)
-targetinfoshotflash.BackgroundTransparency = 1
-targetinfoshotflash.BackgroundColor3 = Color3.new(1, 0, 0)
-targetinfoshotflash.Parent = targetinfoshot
-addCorner(targetinfoshotflash)
-local targetinfoshotblur = addBlur(targetinfoshot)
-targetinfoshotblur.Visible = false
-addCorner(targetinfoshot)
-local targetinfoname = Instance.new('TextLabel')
-targetinfoname.Size = UDim2.fromOffset(145, 20)
-targetinfoname.Position = UDim2.fromOffset(54, 20)
-targetinfoname.BackgroundTransparency = 1
-targetinfoname.Text = 'Target name'
-targetinfoname.TextXAlignment = Enum.TextXAlignment.Left
-targetinfoname.TextYAlignment = Enum.TextYAlignment.Top
-targetinfoname.TextScaled = true
-targetinfoname.TextColor3 = color.Light(uipallet.Text, 0.4)
-targetinfoname.TextStrokeTransparency = 1
-targetinfoname.FontFace = uipallet.Font
-local targetinfoshadow = targetinfoname:Clone()
-targetinfoshadow.Position = UDim2.fromOffset(55, 21)
-targetinfoshadow.TextColor3 = Color3.new()
-targetinfoshadow.TextTransparency = 0.65
-targetinfoshadow.Visible = false
-targetinfoshadow.Parent = targetinfobkg
-targetinfoname:GetPropertyChangedSignal('Size'):Connect(function()
-	targetinfoshadow.Size = targetinfoname.Size
-end)
-targetinfoname:GetPropertyChangedSignal('Text'):Connect(function()
-	targetinfoshadow.Text = targetinfoname.Text
-end)
-targetinfoname:GetPropertyChangedSignal('FontFace'):Connect(function()
-	targetinfoshadow.FontFace = targetinfoname.FontFace
-end)
-targetinfoname.Parent = targetinfobkg
-local targetinfohealthbkg = Instance.new('Frame')
-targetinfohealthbkg.Name = 'HealthBKG'
-targetinfohealthbkg.Size = UDim2.fromOffset(200, 9)
-targetinfohealthbkg.Position = UDim2.fromOffset(20, 56)
-targetinfohealthbkg.BackgroundColor3 = uipallet.Main
-targetinfohealthbkg.BorderSizePixel = 0
-targetinfohealthbkg.Parent = targetinfobkg
-addCorner(targetinfohealthbkg, UDim.new(1, 0))
-local targetinfohealth = targetinfohealthbkg:Clone()
-targetinfohealth.Size = UDim2.fromScale(0.8, 1)
-targetinfohealth.Position = UDim2.new()
-targetinfohealth.BackgroundColor3 = Color3.fromHSV(1 / 2.5, 0.89, 0.75)
-targetinfohealth.Parent = targetinfohealthbkg
-targetinfohealth:GetPropertyChangedSignal('Size'):Connect(function()
-	targetinfohealth.Visible = targetinfohealth.Size.X.Scale > 0.01
-end)
-local targetinfohealthextra = targetinfohealth:Clone()
-targetinfohealthextra.Size = UDim2.new()
-targetinfohealthextra.Position = UDim2.fromScale(1, 0)
-targetinfohealthextra.AnchorPoint = Vector2.new(1, 0)
-targetinfohealthextra.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
-targetinfohealthextra.Visible = false
-targetinfohealthextra.Parent = targetinfohealthbkg
-targetinfohealthextra:GetPropertyChangedSignal('Size'):Connect(function()
-	targetinfohealthextra.Visible = targetinfohealthextra.Size.X.Scale > 0.01
-end)
-local targetinfohealthblur = addBlur(targetinfohealthbkg)
-targetinfohealthblur.SliceCenter = Rect.new(52, 31, 261, 510)
-targetinfohealthblur.ImageColor3 = Color3.new()
-targetinfohealthblur.Visible = false
-local targetinfob = Instance.new('UIStroke')
-targetinfob.Enabled = false
-targetinfob.Color = Color3.fromHSV(0.44, 1, 1)
-targetinfob.Parent = targetinfobkg
-
-targetinfoobj:CreateFont({
-	Name = 'Font',
-	Blacklist = 'Arial',
-	Function = function(val)
-		targetinfoname.FontFace = val
-	end
-})
-local targetinfobackgroundtransparency = {
-	Value = 0.5,
-	Object = {Visible = {}}
-}
-local targetinfodisplay = targetinfoobj:CreateToggle({
-	Name = 'Use Displayname',
-	Default = true
-})
-targetinfoobj:CreateToggle({
-	Name = 'Render Background',
-	Function = function(callback)
-		targetinfobkg.BackgroundTransparency = callback and targetinfobackgroundtransparency.Value or 1
-		targetinfoshadow.Visible = not callback
-		targetinfoblurobj.Visible = callback
-		targetinfohealthblur.Visible = not callback
-		targetinfoshotblur.Visible = not callback
-		targetinfobackgroundtransparency.Object.Visible = callback
-	end,
-	Default = true
-})
-targetinfobackgroundtransparency = targetinfoobj:CreateSlider({
-	Name = 'Transparency',
-	Min = 0,
-	Max = 1,
-	Default = 0.5,
-	Decimal = 10,
-	Function = function(val)
-		targetinfobkg.BackgroundTransparency = val
-	end,
-	Darker = true
-})
-local targetinfocolor
-local targetinfocolortoggle = targetinfoobj:CreateToggle({
-	Name = 'Custom Color',
-	Function = function(callback)
-		targetinfocolor.Object.Visible = callback
-		if callback then
-			targetinfobkg.BackgroundColor3 = Color3.fromHSV(targetinfocolor.Hue, targetinfocolor.Sat, targetinfocolor.Value)
-			targetinfoshot.BackgroundColor3 = Color3.fromHSV(targetinfocolor.Hue, targetinfocolor.Sat, math.max(targetinfocolor.Value - 0.1, 0.075))
-			targetinfohealthbkg.BackgroundColor3 = targetinfoshot.BackgroundColor3
-		else
-			targetinfobkg.BackgroundColor3 = color.Dark(uipallet.Main, 0.1)
-			targetinfoshot.BackgroundColor3 = uipallet.Main
-			targetinfohealthbkg.BackgroundColor3 = uipallet.Main
-		end
-	end
-})
-targetinfocolor = targetinfoobj:CreateColorSlider({
-	Name = 'Color',
-	Function = function(hue, sat, val)
-		if targetinfocolortoggle.Enabled then
-			targetinfobkg.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			targetinfoshot.BackgroundColor3 = Color3.fromHSV(hue, sat, math.max(val - 0.1, 0))
-			targetinfohealthbkg.BackgroundColor3 = targetinfoshot.BackgroundColor3
-		end
-	end,
-	Darker = true,
-	Visible = false
-})
-targetinfoobj:CreateToggle({
-	Name = 'Border',
-	Function = function(callback)
-		targetinfob.Enabled = callback
-		targetinfobcolor.Object.Visible = callback
-	end
-})
-targetinfobcolor = targetinfoobj:CreateColorSlider({
-	Name = 'Border Color',
-	Function = function(hue, sat, val, opacity)
-		targetinfob.Color = Color3.fromHSV(hue, sat, val)
-		targetinfob.Transparency = 1 - opacity
-	end,
-	Darker = true,
-	Visible = false
-})
-
-local lasthealth = 0
-local lastmaxhealth = 0
-targetinfo = {
-	Targets = {},
-	Object = targetinfobkg,
-	UpdateInfo = function(self)
-		local entitylib = mainapi.Libraries
-		if not entitylib then return end
-
-		for i, v in self.Targets do
-			if v < tick() then
-				self.Targets[i] = nil
-			end
-		end
-
-		local v, highest = nil, tick()
-		for i, check in self.Targets do
-			if check > highest then
-				v = i
-				highest = check
-			end
-		end
-
-		targetinfobkg.Visible = v ~= nil or mainapi.gui.ScaledGui.ClickGui.Visible
-		if v then
-			targetinfoname.Text = v.Player and (targetinfodisplay.Enabled and v.Player.DisplayName or v.Player.Name) or v.Character and v.Character.Name or targetinfoname.Text
-			targetinfoshot.Image = 'rbxthumb://type=AvatarHeadShot&id='..(v.Player and v.Player.UserId or 1)..'&w=420&h=420'
-
-			if not v.Character then
-				v.Health = v.Health or 0
-				v.MaxHealth = v.MaxHealth or 100
-			end
-
-			if v.Health ~= lasthealth or v.MaxHealth ~= lastmaxhealth then
-				local percent = math.max(v.Health / v.MaxHealth, 0)
-				tween:Tween(targetinfohealth, TweenInfo.new(0.3), {
-					Size = UDim2.fromScale(math.min(percent, 1), 1), BackgroundColor3 = Color3.fromHSV(math.clamp(percent / 2.5, 0, 1), 0.89, 0.75)
-				})
-				tween:Tween(targetinfohealthextra, TweenInfo.new(0.3), {
-					Size = UDim2.fromScale(math.clamp(percent - 1, 0, 0.8), 1)
-				})
-				if lasthealth > v.Health and self.LastTarget == v then
-					tween:Cancel(targetinfoshotflash)
-					targetinfoshotflash.BackgroundTransparency = 0.3
-					tween:Tween(targetinfoshotflash, TweenInfo.new(0.5), {
-						BackgroundTransparency = 1
-					})
-				end
-				lasthealth = v.Health
-				lastmaxhealth = v.MaxHealth
-			end
-
-			if not v.Character then table.clear(v) end
-			self.LastTarget = v
-		end
-		return v
-	end
-}
-mainapi.Libraries.targetinfo = targetinfo
-
-function mainapi:UpdateTextGUI(afterload)
-	if not afterload and not mainapi.Loaded then return end
-	if textgui.Button.Enabled then
-		local right = textgui.Children.AbsolutePosition.X > (gui.AbsoluteSize.X / 2)
-		VapeLogo.Visible = textguiwatermark.Enabled
-		VapeLogo.Position = right and UDim2.new(1 / VapeTextScale.Scale, -113, 0, 6) or UDim2.fromOffset(0, 6)
-		VapeLogoShadow.Visible = textguishadow.Enabled
-		VapeLabelCustom.Text = textguibox.Value
-		VapeLabelCustom.FontFace = textguifontcustom.Value
-		VapeLabelCustom.Visible = VapeLabelCustom.Text ~= '' and textguitext.Enabled
-		VapeLabelCustomShadow.Visible = VapeLabelCustom.Visible and textguishadow.Enabled
-		VapeLabelSorter.HorizontalAlignment = right and Enum.HorizontalAlignment.Right or Enum.HorizontalAlignment.Left
-		VapeLabelHolder.Size = UDim2.fromScale(1 / VapeTextScale.Scale, 1)
-		VapeLabelHolder.Position = UDim2.fromOffset(right and 3 or 0, 11 + (VapeLogo.Visible and VapeLogo.Size.Y.Offset or 0) + (VapeLabelCustom.Visible and 28 or 0) + (textguibackground.Enabled and 3 or 0))
-		if VapeLabelCustom.Visible then
-			local size = getfontsize(removeTags(VapeLabelCustom.Text), VapeLabelCustom.TextSize, VapeLabelCustom.FontFace)
-			VapeLabelCustom.Size = UDim2.fromOffset(size.X, size.Y)
-			VapeLabelCustom.Position = UDim2.new(right and 1 / VapeTextScale.Scale or 0, right and -size.X or 0, 0, (VapeLogo.Visible and 32 or 8))
-		end
-
-		local found = {}
-		for _, v in VapeLabels do
-			if v.Enabled then
-				table.insert(found, v.Object.Name)
-			end
-			v.Object:Destroy()
-		end
-		table.clear(VapeLabels)
-
-		local info = TweenInfo.new(0.3, Enum.EasingStyle.Exponential)
-		for i, v in mainapi.Modules do
-			if textguimodules.Enabled and table.find(textguimoduleslist.ListEnabled, i) then continue end
-			if textguirender.Enabled and v.Category == 'Render' then continue end
-			if v.Enabled or table.find(found, i) then
-				local holder = Instance.new('Frame')
-				holder.Name = i
-				holder.Size = UDim2.fromOffset()
-				holder.BackgroundTransparency = 1
-				holder.ClipsDescendants = true
-				holder.Parent = VapeLabelHolder
-				local holderbackground
-				local holdercolorline
-				if textguibackground.Enabled then
-					holderbackground = Instance.new('Frame')
-					holderbackground.Size = UDim2.new(1, 3, 1, 0)
-					holderbackground.BackgroundColor3 = color.Dark(uipallet.Main, 0.15)
-					holderbackground.BackgroundTransparency = textguibackgroundtransparency.Value
-					holderbackground.BorderSizePixel = 0
-					holderbackground.Parent = holder
-					local holderline = Instance.new('Frame')
-					holderline.Size = UDim2.new(1, 0, 0, 1)
-					holderline.Position = UDim2.new(0, 0, 1, -1)
-					holderline.BackgroundColor3 = Color3.new()
-					holderline.BackgroundTransparency = 0.928 + (0.072 * math.clamp((textguibackgroundtransparency.Value - 0.5) / 0.5, 0, 1))
-					holderline.BorderSizePixel = 0
-					holderline.Parent = holderbackground
-					local holderline2 = holderline:Clone()
-					holderline2.Name = 'Line'
-					holderline2.Position = UDim2.new()
-					holderline2.Parent = holderbackground
-					holdercolorline = Instance.new('Frame')
-					holdercolorline.Size = UDim2.new(0, 2, 1, 0)
-					holdercolorline.Position = right and UDim2.new(1, -5, 0, 0) or UDim2.new()
-					holdercolorline.BorderSizePixel = 0
-					holdercolorline.Parent = holderbackground
-				end
-				local holdertext = Instance.new('TextLabel')
-				holdertext.Position = UDim2.fromOffset(right and 3 or 6, 2)
-				holdertext.BackgroundTransparency = 1
-				holdertext.BorderSizePixel = 0
-				holdertext.Text = i..(v.ExtraText and " <font color='#A8A8A8'>"..v.ExtraText()..'</font>' or '')
-				holdertext.TextSize = 15
-				holdertext.FontFace = textguifont.Value
-				holdertext.RichText = true
-				local size = getfontsize(removeTags(holdertext.Text), holdertext.TextSize, holdertext.FontFace)
-				holdertext.Size = UDim2.fromOffset(size.X, size.Y)
-				if textguishadow.Enabled then
-					local holderdrop = holdertext:Clone()
-					holderdrop.Position = UDim2.fromOffset(holdertext.Position.X.Offset + 1, holdertext.Position.Y.Offset + 1)
-					holderdrop.Text = removeTags(holdertext.Text)
-					holderdrop.TextColor3 = Color3.new()
-					holderdrop.Parent = holder
-				end
-				holdertext.Parent = holder
-				local holdersize = UDim2.fromOffset(size.X + 10, size.Y + (textguibackground.Enabled and 5 or 3))
-				if textguianimations.Enabled then
-					if not table.find(found, i) then
-						tween:Tween(holder, info, {
-							Size = holdersize
-						})
-					else
-						holder.Size = holdersize
-						if not v.Enabled then
-							tween:Tween(holder, info, {
-								Size = UDim2.fromOffset()
-							})
-						end
-					end
-				else
-					holder.Size = v.Enabled and holdersize or UDim2.fromOffset()
-				end
-				table.insert(VapeLabels, {
-					Object = holder,
-					Text = holdertext,
-					Background = holderbackground,
-					Color = holdercolorline,
-					Enabled = v.Enabled
-				})
-			end
-		end
-
-		if textguisort.Value == 'Alphabetical' then
-			table.sort(VapeLabels, function(a, b)
-				return a.Text.Text < b.Text.Text
-			end)
-		else
-			table.sort(VapeLabels, function(a, b)
-				return a.Text.Size.X.Offset > b.Text.Size.X.Offset
-			end)
-		end
-
-		for i, v in VapeLabels do
-			if v.Color then
-				v.Color.Parent.Line.Visible = i ~= 1
-			end
-			v.Object.LayoutOrder = i
-		end
-	end
-
-	mainapi:UpdateGUI(mainapi.GUIColor.Hue, mainapi.GUIColor.Sat, mainapi.GUIColor.Value, true)
-end
-
-function mainapi:UpdateGUI(hue, sat, val, default)
-	if mainapi.Loaded == nil then return end
-	if not default and mainapi.GUIColor.Rainbow then return end
-	if textgui.Button.Enabled then
-		VapeLogoGradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromHSV(hue, sat, val)),
-			ColorSequenceKeypoint.new(1, textguigradient.Enabled and Color3.fromHSV(mainapi:Color((hue - 0.075) % 1)) or Color3.fromHSV(hue, sat, val))
-		})
-		VapeLogoGradient2.Color = textguigradient.Enabled and textguigradientv4.Enabled and VapeLogoGradient.Color or ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-			ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
-		})
-		VapeLabelCustom.TextColor3 = textguicolorcustomtoggle.Enabled and Color3.fromHSV(textguicolorcustom.Hue, textguicolorcustom.Sat, textguicolorcustom.Value) or VapeLogoGradient.Color.Keypoints[2].Value
-
-		local customcolor = textguicolordrop.Value == 'Custom color' and Color3.fromHSV(textguicolor.Hue, textguicolor.Sat, textguicolor.Value) or nil
-		for i, v in VapeLabels do
-			v.Text.TextColor3 = customcolor or (mainapi.GUIColor.Rainbow and Color3.fromHSV(mainapi:Color((hue - ((textguigradient and i + 2 or i) * 0.025)) % 1)) or VapeLogoGradient.Color.Keypoints[2].Value)
-			if v.Color then
-				v.Color.BackgroundColor3 = v.Text.TextColor3
-			end
-			if textguibackgroundtint.Enabled and v.Background then
-				v.Background.BackgroundColor3 = color.Dark(v.Text.TextColor3, 0.75)
-			end
-		end
-	end
-
-	if not clickgui.Visible and not mainapi.Legit.Window.Visible then return end
-	local rainbow = mainapi.GUIColor.Rainbow and mainapi.RainbowMode.Value ~= 'Retro'
-
-	for i, v in mainapi.Categories do
-		if i == 'Main' then
-			v.Object.VapeLogo.V4Logo.ImageColor3 = Color3.fromHSV(hue, sat, val)
-			for _, button in v.Buttons do
-				if button.Enabled then
-					button.Object.TextColor3 = rainbow and Color3.fromHSV(mainapi:Color((hue - (button.Index * 0.025)) % 1)) or Color3.fromHSV(hue, sat, val)
-					if button.Icon then
-						button.Icon.ImageColor3 = button.Object.TextColor3
-					end
-				end
-			end
-		end
-
-		if v.Options then
-			for _, option in v.Options do
-				if option.Color then
-					option:Color(hue, sat, val, rainbow)
-				end
-			end
-		end
-
-		if v.Type == 'CategoryList' then
-			v.Object.Children.Add.AddButton.ImageColor3 = rainbow and Color3.fromHSV(mainapi:Color(hue % 1)) or Color3.fromHSV(hue, sat, val)
-			if v.Selected then
-				v.Selected.BackgroundColor3 = rainbow and Color3.fromHSV(mainapi:Color(hue % 1)) or Color3.fromHSV(hue, sat, val)
-				v.Selected.Title.TextColor3 = mainapi.GUIColor.Rainbow and Color3.new(0.19, 0.19, 0.19) or mainapi:TextColor(hue, sat, val)
-				v.Selected.Dots.Dots.ImageColor3 = v.Selected.Title.TextColor3
-				v.Selected.Bind.Icon.ImageColor3 = v.Selected.Title.TextColor3
-				v.Selected.Bind.TextLabel.TextColor3 = v.Selected.Title.TextColor3
-			end
-		end
-	end
-
-	for _, button in mainapi.Modules do
-		if button.Enabled then
-			button.Object.BackgroundColor3 = rainbow and Color3.fromHSV(mainapi:Color((hue - (button.Index * 0.025)) % 1)) or Color3.fromHSV(hue, sat, val)
-			button.Object.TextColor3 = mainapi.GUIColor.Rainbow and Color3.new(0.19, 0.19, 0.19) or mainapi:TextColor(hue, sat, val)
-			button.Object.UIGradient.Enabled = rainbow and mainapi.RainbowMode.Value == 'Gradient'
-			if button.Object.UIGradient.Enabled then
-				button.Object.BackgroundColor3 = Color3.new(1, 1, 1)
-				button.Object.UIGradient.Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0, Color3.fromHSV(mainapi:Color((hue - (button.Index * 0.025)) % 1))),
-					ColorSequenceKeypoint.new(1, Color3.fromHSV(mainapi:Color((hue - ((button.Index + 1) * 0.025)) % 1)))
-				})
-			end
-			button.Object.Bind.Icon.ImageColor3 = button.Object.TextColor3
-			button.Object.Bind.TextLabel.TextColor3 = button.Object.TextColor3
-			button.Object.Dots.Dots.ImageColor3 = button.Object.TextColor3
-		end
-
-		for _, option in button.Options do
-			if option.Color then
-				option:Color(hue, sat, val, rainbow)
-			end
-		end
-	end
-
-	for i, v in mainapi.Overlays.Toggles do
-		if v.Enabled then
-			tween:Cancel(v.Object.Knob)
-			v.Object.Knob.BackgroundColor3 = rainbow and Color3.fromHSV(mainapi:Color((hue - (i * 0.075)) % 1)) or Color3.fromHSV(hue, sat, val)
-		end
-	end
-
-	if mainapi.Legit.Icon then
-		mainapi.Legit.Icon.ImageColor3 = Color3.fromHSV(hue, sat, val)
-	end
-
-	if mainapi.Legit.Window.Visible then
-		for _, v in mainapi.Legit.Modules do
-			if v.Enabled then
-				tween:Cancel(v.Object.Knob)
-				v.Object.Knob.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
-			end
-
-			for _, option in v.Options do
-				if option.Color then
-					option:Color(hue, sat, val, rainbow)
-				end
-			end
-		end
-	end
-end
-
-mainapi:Clean(notifications.ChildRemoved:Connect(function()
-	for i, v in notifications:GetChildren() do
-		if tween.Tween then
-			tween:Tween(v, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {
-				Position = UDim2.new(1, 0, 1, -(29 + (78 * i)))
-			})
-		end
-	end
-end))
-
-mainapi:Clean(inputService.InputBegan:Connect(function(inputObj)
-	if not inputService:GetFocusedTextBox() and inputObj.KeyCode ~= Enum.KeyCode.Unknown then
-		table.insert(mainapi.HeldKeybinds, inputObj.KeyCode.Name)
-		if mainapi.Binding then return end
-
-		if checkKeybinds(mainapi.HeldKeybinds, mainapi.Keybind, inputObj.KeyCode.Name) then
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
-			end
-			for _, v in mainapi.Windows do
-				v.Visible = false
-			end
-			clickgui.Visible = not clickgui.Visible
-			tooltip.Visible = false
-			mainapi:BlurCheck()
-		end
-
-		local toggled = false
-		for i, v in mainapi.Modules do
-			if checkKeybinds(mainapi.HeldKeybinds, v.Bind, inputObj.KeyCode.Name) then
-				toggled = true
-				if mainapi.ToggleNotifications.Enabled then
-					mainapi:CreateNotification('Module Toggled', i.."<font color='#FFFFFF'> has been </font>"..(not v.Enabled and "<font color='#5AFF5A'>Enabled</font>" or "<font color='#FF5A5A'>Disabled</font>").."<font color='#FFFFFF'>!</font>", 0.75)
-				end
-				v:Toggle(true)
-			end
-		end
-		if toggled then
-			mainapi:UpdateTextGUI()
-		end
-
-		for _, v in mainapi.Profiles do
-			if checkKeybinds(mainapi.HeldKeybinds, v.Bind, inputObj.KeyCode.Name) and v.Name ~= mainapi.Profile then
-				mainapi:Save(v.Name)
-				mainapi:Load(true)
+	local function dumpRemote(tab)
+		local ind
+		for i, v in tab do
+			if v == 'Client' then
+				ind = i
 				break
 			end
 		end
+		return ind and tab[ind + 1] or ''
 	end
-end))
 
-mainapi:Clean(inputService.InputEnded:Connect(function(inputObj)
-	if not inputService:GetFocusedTextBox() and inputObj.KeyCode ~= Enum.KeyCode.Unknown then
-		if mainapi.Binding then
-			if not mainapi.MultiKeybind.Enabled then
-				mainapi.HeldKeybinds = {inputObj.KeyCode.Name}
+	for i, v in remoteNames do
+		local remote = dumpRemote(debug.getconstants(v))
+		if remote == '' then
+			notif('Vape', 'Failed to grab remote ('..i..')', 10, 'alert')
+		end
+		remotes[i] = remote
+	end
+
+	OldBreak = bedwars.BlockController.isBlockBreakable
+
+	Client.Get = function(self, remoteName)
+		local call = OldGet(self, remoteName)
+
+		if remoteName == remotes.AckKnockback then
+			return {
+				instance = call.instance,
+				SendToServer = function(_, knockback)
+					if not StoreDamage.Enabled then
+						return call:SendToServer(knockback)
+					end
+
+					local damage = debug.getstack(3, 3)
+					if damage.knockbackId and (not damage.knockbackMultiplier or not damage.knockbackMultiplier.disabled) then
+						table.insert(store.damage, damage)
+						vapeEvents.KnockbackReceived:Fire()
+					end
+				end
+			}
+		elseif remoteName == remotes.AttackEntity then
+			return {
+				instance = call.instance,
+				SendToServer = function(_, attackTable, ...)
+					local suc, plr = pcall(function()
+						return playersService:GetPlayerFromCharacter(attackTable.entityInstance)
+					end)
+
+					local selfpos = attackTable.validate.selfPosition.value
+					local targetpos = attackTable.validate.targetPosition.value
+					store.attackReach = ((selfpos - targetpos).Magnitude * 100) // 1 / 100
+					store.attackReachUpdate = tick() + 1
+
+					if Reach.Enabled or HitBoxes.Enabled then
+						attackTable.validate.raycast = attackTable.validate.raycast or {}
+						attackTable.validate.selfPosition.value += CFrame.lookAt(selfpos, targetpos).LookVector * math.max((selfpos - targetpos).Magnitude - 14.399, 0)
+					end
+
+					if suc and plr then
+						if not select(2, whitelist:get(plr)) then return end
+					end
+
+					return call:SendToServer(attackTable, ...)
+				end
+			}
+		elseif remoteName == 'StepOnSnapTrap' and TrapDisabler.Enabled then
+			return {SendToServer = function() end}
+		end
+
+		return call
+	end
+
+	bedwars.BlockController.isBlockBreakable = function(self, breakTable, plr)
+		local obj = bedwars.BlockController:getStore():getBlockAt(breakTable.blockPosition)
+
+		if obj and obj.Name == 'bed' then
+			for _, plr in playersService:GetPlayers() do
+				if obj:GetAttribute('Team'..(plr:GetAttribute('Team') or 0)..'NoBreak') and not select(2, whitelist:get(plr)) then
+					return false
+				end
 			end
-			mainapi.Binding:SetBind(checkKeybinds(mainapi.HeldKeybinds, mainapi.Binding.Bind, inputObj.KeyCode.Name) and {} or mainapi.HeldKeybinds, true)
-			mainapi.Binding = nil
+		end
+
+		return OldBreak(self, breakTable, plr)
+	end
+
+	local cache, blockhealthbar = {}, {blockHealth = -1, breakingBlockPosition = Vector3.zero}
+	store.blockPlacer = bedwars.BlockPlacer.new(bedwars.BlockEngine, 'wool_white')
+
+	local function getBlockHealth(block, blockpos)
+		local blockdata = bedwars.BlockController:getStore():getBlockData(blockpos)
+		return (blockdata and (blockdata:GetAttribute('1') or blockdata:GetAttribute('Health')) or block:GetAttribute('Health'))
+	end
+
+	local function getBlockHits(block, blockpos)
+		if not block then return 0 end
+		local breaktype = bedwars.ItemMeta[block.Name].block.breakType
+		local tool = store.tools[breaktype]
+		tool = tool and bedwars.ItemMeta[tool.itemType].breakBlock[breaktype] or 2
+		return getBlockHealth(block, bedwars.BlockController:getBlockPosition(blockpos)) / tool
+	end
+
+	--[[
+		Pathfinding using a luau version of dijkstra's algorithm
+		Source: https://stackoverflow.com/questions/39355587/speeding-up-dijkstras-algorithm-to-solve-a-3d-maze
+	]]
+	local function calculatePath(target, blockpos)
+		if cache[blockpos] then
+			return unpack(cache[blockpos])
+		end
+		local visited, unvisited, distances, air, path = {}, {{0, blockpos}}, {[blockpos] = 0}, {}, {}
+
+		for _ = 1, 10000 do
+			local _, node = next(unvisited)
+			if not node then break end
+			table.remove(unvisited, 1)
+			visited[node[2]] = true
+
+			for _, side in sides do
+				side = node[2] + side
+				if visited[side] then continue end
+
+				local block = getPlacedBlock(side)
+				if not block or block:GetAttribute('NoBreak') or block == target then
+					if not block then
+						air[node[2]] = true
+					end
+					continue
+				end
+
+				local curdist = getBlockHits(block, side) + node[1]
+				if curdist < (distances[side] or math.huge) then
+					table.insert(unvisited, {curdist, side})
+					distances[side] = curdist
+					path[side] = node[2]
+				end
+			end
+		end
+
+		local pos, cost = nil, math.huge
+		for node in air do
+			if distances[node] < cost then
+				pos, cost = node, distances[node]
+			end
+		end
+
+		if pos then
+			cache[blockpos] = {
+				pos,
+				cost,
+				path
+			}
+			return pos, cost, path
 		end
 	end
 
-	local ind = table.find(mainapi.HeldKeybinds, inputObj.KeyCode.Name)
-	if ind then
-		table.remove(mainapi.HeldKeybinds, ind)
+	bedwars.placeBlock = function(pos, item)
+		if getItem(item) then
+			store.blockPlacer.blockType = item
+			return store.blockPlacer:placeBlock(bedwars.BlockController:getBlockPosition(pos))
+		end
 	end
-end))
 
-return mainapi
+	bedwars.breakBlock = function(block, effects, anim, customHealthbar)
+		if lplr:GetAttribute('DenyBlockBreak') or not entitylib.isAlive or InfiniteFly.Enabled then return end
+		local handler = bedwars.BlockController:getHandlerRegistry():getHandler(block.Name)
+		local cost, pos, target, path = math.huge
+
+		for _, v in (handler and handler:getContainedPositions(block) or {block.Position / 3}) do
+			local dpos, dcost, dpath = calculatePath(block, v * 3)
+			if dpos and dcost < cost then
+				cost, pos, target, path = dcost, dpos, v * 3, dpath
+			end
+		end
+
+		if pos then
+			if (entitylib.character.RootPart.Position - pos).Magnitude > 30 then return end
+			local dblock, dpos = getPlacedBlock(pos)
+			if not dblock then return end
+
+			if (workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) > 0.4 then
+				local breaktype = bedwars.ItemMeta[dblock.Name].block.breakType
+				local tool = store.tools[breaktype]
+				if tool then
+					switchItem(tool.tool)
+				end
+			end
+
+			if blockhealthbar.blockHealth == -1 or dpos ~= blockhealthbar.breakingBlockPosition then
+				blockhealthbar.blockHealth = getBlockHealth(dblock, dpos)
+				blockhealthbar.breakingBlockPosition = dpos
+			end
+
+			bedwars.ClientDamageBlock:Get('DamageBlock'):CallServerAsync({
+				blockRef = {blockPosition = dpos},
+				hitPosition = pos,
+				hitNormal = Vector3.FromNormalId(Enum.NormalId.Top)
+			}):andThen(function(result)
+				if result then
+					if result == 'cancelled' then
+						store.damageBlockFail = tick() + 1
+						return
+					end
+
+					if effects then
+						local blockdmg = (blockhealthbar.blockHealth - (result == 'destroyed' and 0 or getBlockHealth(dblock, dpos)))
+						customHealthbar = customHealthbar or bedwars.BlockBreaker.updateHealthbar
+						customHealthbar(bedwars.BlockBreaker, {blockPosition = dpos}, blockhealthbar.blockHealth, dblock:GetAttribute('MaxHealth'), blockdmg, dblock)
+						blockhealthbar.blockHealth = math.max(blockhealthbar.blockHealth - blockdmg, 0)
+
+						if blockhealthbar.blockHealth <= 0 then
+							bedwars.BlockBreaker.breakEffect:playBreak(dblock.Name, dpos, lplr)
+							bedwars.BlockBreaker.healthbarMaid:DoCleaning()
+							blockhealthbar.breakingBlockPosition = Vector3.zero
+						else
+							bedwars.BlockBreaker.breakEffect:playHit(dblock.Name, dpos, lplr)
+						end
+					end
+
+					if anim then
+						local animation = bedwars.AnimationUtil:playAnimation(lplr, bedwars.BlockController:getAnimationController():getAssetId(1))
+						bedwars.ViewmodelController:playAnimation(15)
+						task.wait(0.3)
+						animation:Stop()
+						animation:Destroy()
+					end
+				end
+			end)
+
+			if effects then
+				return pos, path, target
+			end
+		end
+	end
+
+	for _, v in Enum.NormalId:GetEnumItems() do
+		table.insert(sides, Vector3.FromNormalId(v) * 3)
+	end
+
+	local function updateStore(new, old)
+		if new.Bedwars ~= old.Bedwars then
+			store.equippedKit = new.Bedwars.kit ~= 'none' and new.Bedwars.kit or ''
+		end
+
+		if new.Game ~= old.Game then
+			store.matchState = new.Game.matchState
+			store.queueType = new.Game.queueType or 'bedwars_test'
+		end
+
+		if new.Inventory ~= old.Inventory then
+			local newinv = (new.Inventory and new.Inventory.observedInventory or {inventory = {}})
+			local oldinv = (old.Inventory and old.Inventory.observedInventory or {inventory = {}})
+			store.inventory = newinv
+
+			if newinv ~= oldinv then
+				vapeEvents.InventoryChanged:Fire()
+			end
+
+			if newinv.inventory.items ~= oldinv.inventory.items then
+				vapeEvents.InventoryAmountChanged:Fire()
+				store.tools.sword = getSword()
+				for _, v in {'stone', 'wood', 'wool'} do
+					store.tools[v] = getTool(v)
+				end
+			end
+
+			if newinv.inventory.hand ~= oldinv.inventory.hand then
+				local currentHand, toolType = new.Inventory.observedInventory.inventory.hand, ''
+				if currentHand then
+					local handData = bedwars.ItemMeta[currentHand.itemType]
+					toolType = handData.sword and 'sword' or handData.block and 'block' or currentHand.itemType:find('bow') and 'bow'
+				end
+
+				store.hand = {
+					tool = currentHand and currentHand.tool,
+					amount = currentHand and currentHand.amount or 0,
+					toolType = toolType
+				}
+			end
+		end
+	end
+
+	local storeChanged = bedwars.Store.changed:connect(updateStore)
+	updateStore(bedwars.Store:getState(), {})
+
+	for _, event in {'MatchEndEvent', 'EntityDeathEvent', 'EntityDamageEvent', 'BedwarsBedBreak', 'BalloonPopped', 'AngelProgress', 'GrapplingHookFunctions'} do
+		if not vape.Connections then return end
+		bedwars.Client:WaitFor(event):andThen(function(connection)
+			vape:Clean(connection:Connect(function(...)
+				vapeEvents[event]:Fire(...)
+			end))
+		end)
+	end
+
+	for _, event in {'PlaceBlockEvent', 'BreakBlockEvent'} do
+		bedwars.ClientDamageBlock:WaitFor(event):andThen(function(connection)
+			if not vape.Connections then return end
+			vape:Clean(connection:Connect(function(data)
+				for i, v in cache do
+					if ((data.blockRef.blockPosition * 3) - v[1]).Magnitude <= 30 then
+						table.clear(v[3])
+						table.clear(v)
+						cache[i] = nil
+					end
+				end
+				vapeEvents[event]:Fire(data)
+			end))
+		end)
+	end
+
+	vape:Clean(vapeEvents.KnockbackReceived.Event:Connect(function()
+		notif('StoreDamage', 'Added damage packet: '..#store.damage, 3)
+	end))
+
+	store.blocks = collection('block', gui)
+	store.shop = collection({'BedwarsItemShop', 'TeamUpgradeShopkeeper'}, gui, function(tab, obj)
+		table.insert(tab, {
+			Id = obj.Name,
+			RootPart = obj,
+			Shop = obj:HasTag('BedwarsItemShop'),
+			Upgrades = obj:HasTag('TeamUpgradeShopkeeper')
+		})
+	end)
+	store.enchant = collection({'enchant-table', 'broken-enchant-table'}, gui, nil, function(tab, obj, tag)
+		if obj:HasTag('enchant-table') and tag == 'broken-enchant-table' then return end
+		obj = table.find(tab, obj)
+		if obj then
+			table.remove(tab, obj)
+		end
+	end)
+
+	local kills = sessioninfo:AddItem('Kills')
+	local beds = sessioninfo:AddItem('Beds')
+	local wins = sessioninfo:AddItem('Wins')
+	local games = sessioninfo:AddItem('Games')
+	sessioninfo:AddItem('Packets', 0, function()
+		return #store.damage
+	end, false)
+
+	local mapname = 'Unknown'
+	sessioninfo:AddItem('Map', 0, function()
+		return mapname
+	end, false)
+
+	task.delay(1, function()
+		games:Increment()
+	end)
+
+	task.spawn(function()
+		pcall(function()
+			repeat task.wait() until store.matchState ~= 0 or vape.Loaded == nil
+			if vape.Loaded == nil then return end
+			mapname = workspace:WaitForChild('Map', 5):WaitForChild('Worlds', 5):GetChildren()[1].Name
+			mapname = string.gsub(string.split(mapname, '_')[2] or mapname, '-', '') or 'Blank'
+		end)
+	end)
+
+	vape:Clean(vapeEvents.BedwarsBedBreak.Event:Connect(function(bedTable)
+		if bedTable.player and bedTable.player.UserId == lplr.UserId then
+			beds:Increment()
+		end
+	end))
+
+	vape:Clean(vapeEvents.MatchEndEvent.Event:Connect(function(winTable)
+		if (bedwars.Store:getState().Game.myTeam or {}).id == winTable.winningTeamId or lplr.Neutral then
+			wins:Increment()
+		end
+	end))
+
+	vape:Clean(vapeEvents.EntityDeathEvent.Event:Connect(function(deathTable)
+		local killer = playersService:GetPlayerFromCharacter(deathTable.fromEntity)
+		local killed = playersService:GetPlayerFromCharacter(deathTable.entityInstance)
+		if not killed or not killer then return end
+
+		if killed ~= lplr and killer == lplr then
+			kills:Increment()
+		end
+	end))
+
+	task.spawn(function()
+		repeat
+			if entitylib.isAlive then
+				entitylib.character.AirTime = entitylib.character.Humanoid.FloorMaterial ~= Enum.Material.Air and tick() or entitylib.character.AirTime
+			end
+
+			for _, v in entitylib.List do
+				v.LandTick = math.abs(v.RootPart.Velocity.Y) < 0.1 and v.LandTick or tick()
+				if (tick() - v.LandTick) > 0.2 and v.Jumps ~= 0 then
+					v.Jumps = 0
+					v.Jumping = false
+				end
+			end
+			task.wait()
+		until vape.Loaded == nil
+	end)
+
+	pcall(function()
+		if getthreadidentity and setthreadidentity then
+			local old = getthreadidentity()
+			setthreadidentity(2)
+			bedwars.Shop.getShopItem('iron_sword', lplr)
+			setthreadidentity(old)
+			store.shopLoaded = true
+		else
+			task.spawn(function()
+				repeat
+					task.wait(0.1)
+				until vape.Loaded == nil or bedwars.AppController:isAppOpen('BedwarsItemShopApp')
+				store.shopLoaded = true
+			end)
+		end
+	end)
+
+	vape:Clean(function()
+		Client.Get = OldGet
+		bedwars.BlockController.isBlockBreakable = OldBreak
+		store.blockPlacer:disable()
+		for _, v in vapeEvents do
+			v:Destroy()
+		end
+		for _, v in cache do
+			table.clear(v[3])
+			table.clear(v)
+		end
+		table.clear(store.blockPlacer)
+		table.clear(vapeEvents)
+		table.clear(bedwars)
+		table.clear(store)
+		table.clear(cache)
+		table.clear(sides)
+		table.clear(remotes)
+		storeChanged:disconnect()
+		storeChanged = nil
+	end)
+end)
+
+for _, v in {'AntiRagdoll', 'TriggerBot', 'SilentAim', 'AutoRejoin', 'Rejoin', 'Disabler', 'Timer', 'ServerHop', 'MouseTP', 'MurderMystery'} do
+	vape:Remove(v)
+end
+run(function()
+	local AimAssist
+	local Targets
+	local Sort
+	local AimSpeed
+	local Distance
+	local AngleSlider
+	local StrafeIncrease
+	local KillauraTarget
+	local ClickAim
+	
+	AimAssist = vape.Categories.Combat:CreateModule({
+		Name = 'AimAssist',
+		Function = function(callback)
+			if callback then
+				AimAssist:Clean(runService.Heartbeat:Connect(function(dt)
+					if entitylib.isAlive and store.hand.toolType == 'sword' and ((not ClickAim.Enabled) or (tick() - bedwars.SwordController.lastSwing) < 0.4) then
+						local ent = KillauraTarget.Enabled and store.KillauraTarget or entitylib.EntityPosition({
+							Range = Distance.Value,
+							Part = 'RootPart',
+							Wallcheck = Targets.Walls.Enabled,
+							Players = Targets.Players.Enabled,
+							NPCs = Targets.NPCs.Enabled,
+							Sort = sortmethods[Sort.Value]
+						})
+	
+						if ent then
+							local delta = (ent.RootPart.Position - entitylib.character.RootPart.Position)
+							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
+							local angle = math.acos(localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))
+							if angle >= (math.rad(AngleSlider.Value) / 2) then return end
+							targetinfo.Targets[ent] = tick() + 1
+							gameCamera.CFrame = gameCamera.CFrame:Lerp(CFrame.lookAt(gameCamera.CFrame.p, ent.RootPart.Position), (AimSpeed.Value + (StrafeIncrease.Enabled and (inputService:IsKeyDown(Enum.KeyCode.A) or inputService:IsKeyDown(Enum.KeyCode.D)) and 10 or 0)) * dt)
+						end
+					end
+				end))
+			end
+		end,
+		Tooltip = 'Smoothly aims to closest valid target with sword'
+	})
+	Targets = AimAssist:CreateTargets({
+		Players = true, 
+		Walls = true
+	})
+	local methods = {'Damage', 'Distance'}
+	for i in sortmethods do
+		if not table.find(methods, i) then
+			table.insert(methods, i)
+		end
+	end
+	Sort = AimAssist:CreateDropdown({
+		Name = 'Target Mode',
+		List = methods
+	})
+	AimSpeed = AimAssist:CreateSlider({
+		Name = 'Aim Speed',
+		Min = 1,
+		Max = 20,
+		Default = 6
+	})
+	Distance = AimAssist:CreateSlider({
+		Name = 'Distance',
+		Min = 1,
+		Max = 30,
+		Default = 30,
+		Suffx = function(val) 
+			return val == 1 and 'stud' or 'studs' 
+		end
+	})
+	AngleSlider = AimAssist:CreateSlider({
+		Name = 'Max angle',
+		Min = 1,
+		Max = 360,
+		Default = 70
+	})
+	ClickAim = AimAssist:CreateToggle({
+		Name = 'Click Aim',
+		Default = true
+	})
+	KillauraTarget = AimAssist:CreateToggle({
+		Name = 'Use killaura target'
+	})
+	StrafeIncrease = AimAssist:CreateToggle({Name = 'Strafe increase'})
+end)
+	
+run(function()
+	local AutoClicker
+	local CPS
+	local BlockCPS = {}
+	local Thread
+	
+	local function AutoClick()
+		Thread = task.delay(1 / 7, function()
+			repeat
+				if not bedwars.AppController:isLayerOpen(bedwars.UILayers.MAIN) then
+					local blockPlacer = bedwars.BlockPlacementController.blockPlacer
+					if store.hand.toolType == 'block' and blockPlacer then
+						if (workspace:GetServerTimeNow() - bedwars.BlockCpsController.lastPlaceTimestamp) >= ((1 / 12) * 0.5) then
+							local mouseinfo = blockPlacer.clientManager:getBlockSelector():getMouseInfo(0)
+							if mouseinfo and mouseinfo.placementPosition == mouseinfo.placementPosition then
+								task.spawn(blockPlacer.placeBlock, blockPlacer, mouseinfo.placementPosition)
+							end
+						end
+					elseif store.hand.toolType == 'sword' and bedwars.DaoController.chargingMaid == nil then
+						bedwars.SwordController:swingSwordAtMouse()
+					end
+				end
+	
+				task.wait(1 / (store.hand.toolType == 'block' and BlockCPS or CPS).GetRandomValue())
+			until not AutoClicker.Enabled
+		end)
+	end
+	
+	AutoClicker = vape.Categories.Combat:CreateModule({
+		Name = 'AutoClicker',
+		Function = function(callback)
+			if callback then
+				AutoClicker:Clean(inputService.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then 
+						AutoClick() 
+					end
+				end))
+				AutoClicker:Clean(inputService.InputEnded:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 and Thread then
+						task.cancel(Thread)
+						Thread = nil
+					end
+				end))
+	
+				if inputService.TouchEnabled then
+					pcall(function()
+						AutoClicker:Clean(lplr.PlayerGui.MobileUI['2'].MouseButton1Down:Connect(AutoClick))
+						AutoClicker:Clean(lplr.PlayerGui.MobileUI['2'].MouseButton1Up:Connect(function()
+							if Thread then
+								task.cancel(Thread)
+								Thread = nil
+							end
+						end))
+					end)
+				end
+			else
+				if Thread then 
+					task.cancel(Thread)
+					Thread = nil
+				end
+			end
+		end,
+		Tooltip = 'Hold attack button to automatically click'
+	})
+	CPS = AutoClicker:CreateTwoSlider({
+		Name = 'CPS',
+		Min = 1,
+		Max = 9,
+		DefaultMin = 7,
+		DefaultMax = 7
+	})
+	AutoClicker:CreateToggle({
+		Name = 'Place Blocks',
+		Default = true,
+		Function = function(callback)
+			if BlockCPS.Object then 
+				BlockCPS.Object.Visible = callback 
+			end
+		end
+	})
+	BlockCPS = AutoClicker:CreateTwoSlider({
+		Name = 'Block CPS',
+		Min = 1,
+		Max = 12,
+		DefaultMin = 12,
+		DefaultMax = 12,
+		Darker = true
+	})
+end)
+	
+run(function()
+	local old
+	
+	vape.Categories.Combat:CreateModule({
+		Name = 'NoClickDelay',
+		Function = function(callback)
+			if callback then
+				old = bedwars.SwordController.isClickingTooFast
+				bedwars.SwordController.isClickingTooFast = function(self)
+					self.lastSwing = tick()
+					return false
+				end
+			else
+				bedwars.SwordController.isClickingTooFast = old
+			end
+		end,
+		Tooltip = 'Remove the CPS cap'
+	})
+end)
+	
+run(function()
+	local Value
+	
+	Reach = vape.Categories.Combat:CreateModule({
+		Name = 'Reach',
+		Function = function(callback)
+			bedwars.CombatConstant.RAYCAST_SWORD_CHARACTER_DISTANCE = callback and Value.Value + 2 or 14.4
+		end,
+		Tooltip = 'Extends attack reach'
+	})
+	Value = Reach:CreateSlider({
+		Name = 'Range',
+		Min = 0,
+		Max = 18,
+		Default = 18,
+		Function = function(val)
+			if Reach.Enabled then
+				bedwars.CombatConstant.RAYCAST_SWORD_CHARACTER_DISTANCE = val + 2
+			end
+		end,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+end)
+	
+run(function()
+	local Sprint
+	local old
+	
+	Sprint = vape.Categories.Combat:CreateModule({
+		Name = 'Sprint',
+		Function = function(callback)
+			if callback then
+				if inputService.TouchEnabled then 
+					pcall(function() 
+						lplr.PlayerGui.MobileUI['4'].Visible = false 
+					end) 
+				end
+				old = bedwars.SprintController.stopSprinting
+				bedwars.SprintController.stopSprinting = function(...)
+					local call = old(...)
+					bedwars.SprintController:startSprinting()
+					return call
+				end
+				Sprint:Clean(entitylib.Events.LocalAdded:Connect(function() 
+					task.delay(0.1, function() 
+						bedwars.SprintController:stopSprinting() 
+					end) 
+				end))
+				bedwars.SprintController:stopSprinting()
+			else
+				if inputService.TouchEnabled then 
+					pcall(function() 
+						lplr.PlayerGui.MobileUI['4'].Visible = true 
+					end) 
+				end
+				bedwars.SprintController.stopSprinting = old
+				bedwars.SprintController:stopSprinting()
+			end
+		end,
+		Tooltip = 'Sets your sprinting to true.'
+	})
+end)
+	
+run(function()
+	local TriggerBot
+	local CPS
+	local rayParams = RaycastParams.new()
+	
+	TriggerBot = vape.Categories.Combat:CreateModule({
+		Name = 'TriggerBot',
+		Function = function(callback)
+			if callback then 
+				repeat
+					local doAttack
+					if not bedwars.AppController:isLayerOpen(bedwars.UILayers.MAIN) then
+						if entitylib.isAlive and store.hand.toolType == 'sword' and bedwars.DaoController.chargingMaid == nil then
+							local attackRange = bedwars.ItemMeta[store.hand.tool.Name].sword.attackRange
+							rayParams.FilterDescendantsInstances = {lplr.Character}
+							
+							local unit = lplr:GetMouse().UnitRay
+							local localPos = entitylib.character.RootPart.Position
+							local rayRange = (attackRange or 14.4)
+							local ray = bedwars.QueryUtil:raycast(unit.Origin, unit.Direction * 200, rayParams)
+							if ray and (localPos - ray.Instance.Position).Magnitude <= rayRange then 
+								local limit = (attackRange)
+								for _, ent in entitylib.List do 
+									doAttack = ray.Instance:IsDescendantOf(ent.Character) and (localPos - ent.RootPart.Position).Magnitude <= rayRange
+									if doAttack then 
+										break
+									end
+								end
+							end
+	
+							doAttack = doAttack or bedwars.SwordController:getTargetInRegion(attackRange or 3.8 * 3, 0)
+							if doAttack then 
+								bedwars.SwordController:swingSwordAtMouse()
+							end
+						end
+					end
+	
+					task.wait(doAttack and 1 / CPS.GetRandomValue() or 0.016)
+				until not TriggerBot.Enabled
+			end
+		end,
+		Tooltip = 'Automatically swings when hovering over a entity'
+	})
+	CPS = TriggerBot:CreateTwoSlider({
+		Name = 'CPS',
+		Min = 1,
+		Max = 9,
+		DefaultMin = 7,
+		DefaultMax = 7
+	})
+end)
+	
+run(function()
+	local Velocity
+	local Horizontal
+	local Vertical
+	local Chance
+	local TargetCheck
+	local rand, old = Random.new()
+	
+	Velocity = vape.Categories.Combat:CreateModule({
+		Name = 'Velocity',
+		Function = function(callback)
+			if callback then
+				old = bedwars.KnockbackUtil.applyKnockback
+				bedwars.KnockbackUtil.applyKnockback = function(root, mass, dir, knockback, ...)
+					if rand:NextNumber(0, 100) > Chance.Value then return end
+					local check = (not TargetCheck.Enabled) or entitylib.EntityPosition({
+						Range = 50,
+						Part = 'RootPart',
+						Players = true
+					})
+	
+					if check then
+						knockback = knockback or {}
+						if Horizontal.Value == 0 and Vertical.Value == 0 then return end
+						knockback.horizontal = (knockback.horizontal or 1) * (Horizontal.Value / 100)
+						knockback.vertical = (knockback.vertical or 1) * (Vertical.Value / 100)
+					end
+					
+					return old(root, mass, dir, knockback, ...)
+				end
+			else
+				bedwars.KnockbackUtil.applyKnockback = old
+			end
+		end,
+		Tooltip = 'Reduces knockback taken'
+	})
+	Horizontal = Velocity:CreateSlider({
+		Name = 'Horizontal',
+		Min = 0,
+		Max = 100,
+		Default = 0,
+		Suffix = '%'
+	})
+	Vertical = Velocity:CreateSlider({
+		Name = 'Vertical',
+		Min = 0,
+		Max = 100,
+		Default = 0,
+		Suffix = '%'
+	})
+	Chance = Velocity:CreateSlider({
+		Name = 'Chance',
+		Min = 0,
+		Max = 100,
+		Default = 100,
+		Suffix = '%'
+	})
+	TargetCheck = Velocity:CreateToggle({Name = 'Only when targeting'})
+end)
+	
+local AntiFallDirection
+run(function()
+	local AntiFall
+	local Mode
+	local Material
+	local Color
+	local rayCheck = RaycastParams.new()
+	rayCheck.RespectCanCollide = true
+
+	local function getNearGround()
+		local localPosition, mag, closest = entitylib.character.RootPart.Position, 60
+		local blocks = getBlocksInPoints(bedwars.BlockController:getBlockPosition(localPosition - Vector3.new(30, 30, 30)), bedwars.BlockController:getBlockPosition(localPosition + Vector3.new(30, 30, 30)))
+
+		for _, v in blocks do
+			if not getPlacedBlock(v + Vector3.new(0, 3, 0)) then
+				local newmag = (localPosition - v).Magnitude
+				if newmag < mag then
+					mag, closest = newmag, v + Vector3.new(0, 3, 0)
+				end
+			end
+		end
+
+		table.clear(blocks)
+		return closest
+	end
+
+	local function getLowGround()
+		local mag = math.huge
+		for _, pos in bedwars.BlockController:getStore():getAllBlockPositions() do
+			pos = pos * 3
+			if pos.Y < mag and not getPlacedBlock(pos + Vector3.new(0, 3, 0)) then
+				mag = pos.Y
+			end
+		end
+		return mag
+	end
+
+	AntiFall = vape.Categories.Blatant:CreateModule({
+		Name = 'AntiFall',
+		Function = function(callback)
+			if callback then
+				repeat task.wait() until store.matchState ~= 0 or (not AntiFall.Enabled)
+				if not AntiFall.Enabled then return end
+
+				local pos, debounce = getLowGround(), tick()
+				if pos ~= math.huge then
+					AntiFallPart = Instance.new('Part')
+					AntiFallPart.Size = Vector3.new(10000, 1, 10000)
+					AntiFallPart.Transparency = 1 - Color.Opacity
+					AntiFallPart.Material = Enum.Material[Material.Value]
+					AntiFallPart.Color = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+					AntiFallPart.Position = Vector3.new(0, pos - 2, 0)
+					AntiFallPart.CanCollide = Mode.Value == 'Collide'
+					AntiFallPart.Anchored = true
+					AntiFallPart.CanQuery = false
+					AntiFallPart.Parent = workspace
+					AntiFall:Clean(AntiFallPart)
+					AntiFall:Clean(AntiFallPart.Touched:Connect(function(touched)
+						if touched.Parent == lplr.Character and entitylib.isAlive and debounce < tick() then
+							debounce = tick() + 0.1
+							if Mode.Value == 'Normal' then
+								local top = getNearGround()
+								if top then
+									local lastTeleport = lplr:GetAttribute('LastTeleported')
+									local connection
+									connection = runService.PreSimulation:Connect(function()
+										if vape.Modules.Fly.Enabled or vape.Modules.InfiniteFly.Enabled or vape.Modules.LongJump.Enabled then
+											connection:Disconnect()
+											AntiFallDirection = nil
+											return
+										end
+
+										if entitylib.isAlive and lplr:GetAttribute('LastTeleported') == lastTeleport then
+											local delta = ((top - entitylib.character.RootPart.Position) * Vector3.new(1, 0, 1))
+											local root = entitylib.character.RootPart
+											AntiFallDirection = delta.Unit == delta.Unit and delta.Unit or Vector3.zero
+											root.Velocity *= Vector3.new(1, 0, 1)
+											rayCheck.FilterDescendantsInstances = {gameCamera, lplr.Character}
+											rayCheck.CollisionGroup = root.CollisionGroup
+
+											local ray = workspace:Raycast(root.Position, AntiFallDirection, rayCheck)
+											if ray then
+												for _ = 1, 10 do
+													local dpos = roundPos(ray.Position + ray.Normal * 1.5) + Vector3.new(0, 3, 0)
+													if not getPlacedBlock(dpos) then
+														top = Vector3.new(top.X, pos.Y, top.Z)
+														break
+													end
+												end
+											end
+
+											root.CFrame += Vector3.new(0, top.Y - root.Position.Y, 0)
+											if not frictionTable.Speed then
+												root.AssemblyLinearVelocity = (AntiFallDirection * getSpeed()) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+											end
+
+											if delta.Magnitude < 1 then
+												connection:Disconnect()
+												AntiFallDirection = nil
+											end
+										else
+											connection:Disconnect()
+											AntiFallDirection = nil
+										end
+									end)
+									AntiFall:Clean(connection)
+								end
+							elseif Mode.Value == 'Velocity' then
+								entitylib.character.RootPart.Velocity = Vector3.new(entitylib.character.RootPart.Velocity.X, 100, entitylib.character.RootPart.Velocity.Z)
+							end
+						end
+					end))
+				end
+			else
+				AntiFallDirection = nil
+			end
+		end,
+		Tooltip = 'Help\'s you with your Parkinson\'s\nPrevents you from falling into the void.'
+	})
+	Mode = AntiFall:CreateDropdown({
+		Name = 'Move Mode',
+		List = {'Normal', 'Collide', 'Velocity'},
+		Function = function(val)
+			if AntiFallPart then
+				AntiFallPart.CanCollide = val == 'Collide'
+			end
+		end,
+	Tooltip = 'Normal - Smoothly moves you towards the nearest safe point\nVelocity - Launches you upward after touching\nCollide - Allows you to walk on the part'
+	})
+	local materials = {'ForceField'}
+	for _, v in Enum.Material:GetEnumItems() do
+		if v.Name ~= 'ForceField' then
+			table.insert(materials, v.Name)
+		end
+	end
+	Material = AntiFall:CreateDropdown({
+		Name = 'Material',
+		List = materials,
+		Function = function(val)
+			if AntiFallPart then
+				AntiFallPart.Material = Enum.Material[val]
+			end
+		end
+	})
+	Color = AntiFall:CreateColorSlider({
+		Name = 'Color',
+		DefaultOpacity = 0.5,
+		Function = function(h, s, v, o)
+			if AntiFallPart then
+				AntiFallPart.Color = Color3.fromHSV(h, s, v)
+				AntiFallPart.Transparency = 1 - o
+			end
+		end
+	})
+end)
+	
+local Fly
+local LongJump
+run(function()
+	local Value
+	local VerticalValue
+	local WallCheck
+	local PopBalloons
+	local TP
+	local DamageBoost
+	local rayCheck = RaycastParams.new()
+	rayCheck.RespectCanCollide = true
+	local knockbackRemote = {FireServer = function() end}
+	task.spawn(function()
+		knockbackRemote = bedwars.Client:Get(remotes.AckKnockback).instance
+	end)
+	local up, down, old = 0, 0
+	local boostTick, boostAmount = tick(), 0
+
+	Fly = vape.Categories.Blatant:CreateModule({
+		Name = 'Fly',
+		Function = function(callback)
+			frictionTable.Fly = callback or nil
+			updateVelocity()
+			if callback then
+				up, down, old = 0, 0, bedwars.BalloonController.deflateBalloon
+				bedwars.BalloonController.deflateBalloon = function() end
+				local tpTick, tpToggle, oldy = tick(), true
+
+				if lplr.Character and (lplr.Character:GetAttribute('InflatedBalloons') or 0) == 0 and getItem('balloon') then
+					bedwars.BalloonController:inflateBalloon()
+				end
+				Fly:Clean(vapeEvents.AttributeChanged.Event:Connect(function(changed)
+					if changed == 'InflatedBalloons' and (lplr.Character:GetAttribute('InflatedBalloons') or 0) == 0 and getItem('balloon') then
+						bedwars.BalloonController:inflateBalloon()
+					end
+				end))
+				Fly:Clean(runService.PreSimulation:Connect(function(dt)
+					if entitylib.isAlive and not InfiniteFly.Enabled and isnetworkowner(entitylib.character.RootPart) then
+						local flyAllowed = (lplr.Character:GetAttribute('InflatedBalloons') and lplr.Character:GetAttribute('InflatedBalloons') > 0) or store.matchState == 2
+						local mass = (1.5 + (flyAllowed and 6 or 0) * (tick() % 0.4 < 0.2 and -1 or 1)) + ((up + down) * VerticalValue.Value)
+						local root, moveDirection = entitylib.character.RootPart, entitylib.character.Humanoid.MoveDirection
+						local velo = getSpeed() + (boostTick > tick() and boostAmount or 0)
+						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
+						rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera, AntiFallPart}
+						rayCheck.CollisionGroup = root.CollisionGroup
+
+						if WallCheck.Enabled then
+							local ray = workspace:Raycast(root.Position, destination, rayCheck)
+							if ray then
+								destination = ((ray.Position + ray.Normal) - root.Position)
+							end
+						end
+
+						if not flyAllowed then
+							if tpToggle then
+								local airleft = (tick() - entitylib.character.AirTime)
+								if airleft > 2 then
+									if not oldy then
+										local ray = workspace:Raycast(root.Position, Vector3.new(0, -1000, 0), rayCheck)
+										if ray and TP.Enabled then
+											tpToggle = false
+											oldy = root.Position.Y
+											tpTick = tick() + 0.11
+											root.CFrame = CFrame.lookAlong(Vector3.new(root.Position.X, ray.Position.Y + entitylib.character.HipHeight, root.Position.Z), root.CFrame.LookVector)
+										elseif airleft > 2 then
+											local packet = store.damage[1]
+											if packet then
+												table.remove(store.damage, 1)
+												notif('Fly', 'Damage packets left: '..#store.damage, 2)
+												knockbackRemote:FireServer({
+													knockbackId = packet.knockbackId,
+													playerPosition = entitylib.character.RootPart.Position
+												})
+												entitylib.character.AirTime = tick()
+												if DamageBoost.Enabled then
+													boostTick, boostAmount = tick() + 0.4, 36 * (packet.knockbackMultiplier and packet.knockbackMultiplier.horizontal or 1)
+												end
+											end
+										end
+									end
+								end
+							else
+								if oldy then
+									if tpTick < tick() then
+										local newpos = Vector3.new(root.Position.X, oldy, root.Position.Z)
+										root.CFrame = CFrame.lookAlong(newpos, root.CFrame.LookVector)
+										tpToggle = true
+										oldy = nil
+									else
+										mass = 0
+									end
+								end
+							end
+						end
+
+						root.CFrame += destination
+						root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, mass, 0)
+					end
+				end))
+				Fly:Clean(inputService.InputBegan:Connect(function(input)
+					if not inputService:GetFocusedTextBox() then
+						if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
+							up = 1
+						elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.ButtonL2 then
+							down = -1
+						end
+					end
+				end))
+				Fly:Clean(inputService.InputEnded:Connect(function(input)
+					if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
+						up = 0
+					elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.ButtonL2 then
+						down = 0
+					end
+				end))
+				if inputService.TouchEnabled then
+					pcall(function()
+						local jumpButton = lplr.PlayerGui.TouchGui.TouchControlFrame.JumpButton
+						Fly:Clean(jumpButton:GetPropertyChangedSignal('ImageRectOffset'):Connect(function()
+							up = jumpButton.ImageRectOffset.X == 146 and 1 or 0
+						end))
+					end)
+				end
+			else
+				bedwars.BalloonController.deflateBalloon = old
+				if PopBalloons.Enabled and entitylib.isAlive and (lplr.Character:GetAttribute('InflatedBalloons') or 0) > 0 then
+					for _ = 1, 3 do
+						bedwars.BalloonController:deflateBalloon()
+					end
+				end
+			end
+		end,
+		ExtraText = function()
+			return 'Heatseeker'
+		end,
+		Tooltip = 'Makes you go zoom.'
+	})
+	Value = Fly:CreateSlider({
+		Name = 'Speed',
+		Min = 1,
+		Max = 23,
+		Default = 23,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+	VerticalValue = Fly:CreateSlider({
+		Name = 'Vertical Speed',
+		Min = 1,
+		Max = 150,
+		Default = 50,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+	WallCheck = Fly:CreateToggle({
+		Name = 'Wall Check',
+		Default = true
+	})
+	PopBalloons = Fly:CreateToggle({
+		Name = 'Pop Balloons',
+		Default = true
+	})
+	TP = Fly:CreateToggle({
+		Name = 'TP Down',
+		Default = true
+	})
+	DamageBoost = Fly:CreateToggle({Name = 'Damage Boost'})
+end)
+	
+run(function()
+	local Expand
+	
+	HitBoxes = vape.Categories.Blatant:CreateModule({
+		Name = 'HitBoxes',
+		Function = function(callback)
+			debug.setconstant(bedwars.SwordController.swingSwordInRegion, 6, callback and (Expand.Value / 3) or 3.8)
+		end,
+		Tooltip = 'Expands attack hitbox'
+	})
+	Expand = HitBoxes:CreateSlider({
+		Name = 'Expand amount',
+		Min = 0,
+		Max = 14.4,
+		Default = 14.4,
+		Decimal = 10,
+		Function = function(val)
+			if HitBoxes.Enabled then
+				debug.setconstant(bedwars.SwordController.swingSwordInRegion, 6, (val / 3))
+			end
+		end,
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
+		end
+	})
+end)
+	
+run(function()
+	local Value
+	local VerticalValue
+	local WallCheck
+	local rayCheck = RaycastParams.new()
+	rayCheck.RespectCanCollide = true
+	local overlapCheck = OverlapParams.new()
+	overlapCheck.RespectCanCollide = true
+	local up, down = 0, 0
+	local success, proper = false, true
+	local clone, oldroot, hip, valid
+	
+	local function doClone()
+		if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 then
+			hip = entitylib.character.Humanoid.HipHeight
+			oldroot = entitylib.character.HumanoidRootPart
+			if not lplr.Character.Parent then return false end
+			lplr.Character.Parent = game
+			clone = oldroot:Clone()
+			clone.Parent = lplr.Character
+			oldroot.Parent = gameCamera
+			bedwars.QueryUtil:setQueryIgnored(oldroot, true)
+			clone.CFrame = oldroot.CFrame
+			lplr.Character.PrimaryPart = clone
+			lplr.Character.Parent = workspace
+			for _, v in lplr.Character:GetDescendants() do
+				if v:IsA('Weld') or v:IsA('Motor6D') then
+					if v.Part0 == oldroot then v.Part0 = clone end
+					if v.Part1 == oldroot then v.Part1 = clone end
+				end
+			end
+			return true
+		end
+		return false
+	end
+	
+	local function revertClone()
+		if not oldroot or not oldroot.Parent or not entitylib.isAlive then return false end
+		lplr.Character.Parent = game
+		oldroot.Parent = lplr.Character
+		lplr.Character.PrimaryPart = oldroot
+		lplr.Character.Parent = workspace
+		oldroot.CanCollide = true
+		for _, v in lplr.Character:GetDescendants() do
+			if v:IsA('Weld') or v:IsA('Motor6D') then
+				if v.Part0 == clone then v.Part0 = oldroot end
+				if v.Part1 == clone then v.Part1 = oldroot end
+			end
+		end
+		local oldclonepos = clone.Position.Y
+		if clone then
+			clone:Destroy()
+			clone = nil
+		end
+		local origcf = {oldroot.CFrame:GetComponents()}
+		if valid then origcf[2] = oldclonepos end
+		oldroot.CFrame = CFrame.new(unpack(origcf))
+		oldroot.Transparency = 1
+		oldroot = nil
+		entitylib.character.Humanoid.HipHeight = hip or 2
+	end
+	
+	InfiniteFly = vape.Categories.Blatant:CreateModule({
+		Name = 'InfiniteFly',
+		Function = function(callback)
+			frictionTable.InfiniteFly = callback or nil
+			updateVelocity()
+			if callback then
+				if vape.Modules.Invisible and vape.Modules.Invisible.Enabled then
+					vape.Modules.Invisible:Toggle()
+					notif('InfiniteFly', 'Invisible cannot be used with InfiniteFly', 3, 'warning')
+				end
+	
+				if not proper then
+					notif('InfiniteFly', 'Broken state detected', 3, 'alert')
+					InfiniteFly:Toggle()
+					return
+				end
+	
+				success = doClone()
+				if not success then
+					InfiniteFly:Toggle()
+					return
+				end
+	
+				InfiniteFly:Clean(runService.PreSimulation:Connect(function(dt)
+					if entitylib.isAlive then
+						local mass = 1.5 + ((up + down) * VerticalValue.Value)
+						local root = entitylib.character.RootPart
+						local moveDirection = entitylib.character.Humanoid.MoveDirection
+						local velo = getSpeed()
+						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
+						rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
+						if WallCheck.Enabled then
+							local ray = workspace:Raycast(root.Position, destination, rayCheck)
+							if ray then 
+								destination = ((ray.Position + ray.Normal) - root.Position) 
+							end
+						end
+						root.CFrame += destination
+						root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, mass, 0)
+	
+						local speedCFrame = {oldroot.CFrame:GetComponents()}
+						if isnetworkowner(oldroot) then
+							speedCFrame[1] = clone.CFrame.X
+							speedCFrame[3] = clone.CFrame.Z
+							if speedCFrame[2] < 2000 then speedCFrame[2] = 100000 end
+							oldroot.CFrame = CFrame.new(unpack(speedCFrame))
+							oldroot.Velocity = Vector3.new(clone.Velocity.X, oldroot.Velocity.Y, clone.Velocity.Z)
+						else
+							speedCFrame[2] = clone.CFrame.Y
+							clone.CFrame = CFrame.new(unpack(speedCFrame))
+						end
+					end
+				end))
+				up, down = 0, 0
+				InfiniteFly:Clean(inputService.InputBegan:Connect(function(input)
+					if not inputService:GetFocusedTextBox() then
+						if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
+							up = 1
+						elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.ButtonL2 then
+							down = -1
+						end
+					end
+				end))
+				InfiniteFly:Clean(inputService.InputEnded:Connect(function(input)
+					if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
+						up = 0
+					elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.ButtonL2 then
+						down = 0
+					end
+				end))
+				if inputService.TouchEnabled then
+					pcall(function()
+						local jumpButton = lplr.PlayerGui.TouchGui.TouchControlFrame.JumpButton
+						InfiniteFly:Clean(jumpButton:GetPropertyChangedSignal('ImageRectOffset'):Connect(function()
+							up = jumpButton.ImageRectOffset.X == 146 and 1 or 0
+						end))
+					end)
+				end
+			else
+				if success and clone and oldroot and proper then
+					proper = false
+					overlapCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
+					overlapCheck.CollisionGroup = oldroot.CollisionGroup
+					local ray = workspace:Blockcast(CFrame.new(oldroot.Position.X, clone.CFrame.p.Y, oldroot.Position.Z), Vector3.new(3, entitylib.character.HipHeight, 3), Vector3.new(0, -1000, 0), rayCheck)
+					local origcf = {clone.CFrame:GetComponents()}
+					origcf[1] = oldroot.Position.X
+					origcf[2] = ray and ray.Position.Y + entitylib.character.HipHeight or clone.CFrame.p.Y
+					origcf[3] = oldroot.Position.Z
+					oldroot.CanCollide = true
+					oldroot.Transparency = 0
+					oldroot.Velocity = clone.Velocity * Vector3.new(1, 0, 1)
+					oldroot.CFrame = CFrame.new(unpack(origcf))
+	
+					local touched = false
+					local connection = runService.PreSimulation:Connect(function()
+						if oldroot then
+							oldroot.Velocity = Vector3.zero
+							valid = false
+							if touched then return end
+							local cf = {clone.CFrame:GetComponents()}
+							cf[2] = oldroot.CFrame.Y
+							local newcf = CFrame.new(unpack(cf))
+							for _, v in workspace:GetPartBoundsInBox(newcf, oldroot.Size, overlapCheck) do
+								if (v.Position.Y + (v.Size.Y / 2)) > (newcf.p.Y + 0.5) then
+									touched = true
+									return
+								end
+							end
+							if not workspace:Raycast(newcf.Position, Vector3.new(0, -entitylib.character.HipHeight, 0), rayCheck) then return end
+							oldroot.CFrame = newcf
+							oldroot.Velocity = (clone.Velocity * Vector3.new(1, 0, 1))
+							valid = true
+						end
+					end)
+	
+					notif('InfiniteFly', 'Waiting 1.1s to land', 1.1)
+					task.delay(1.1, function()
+						notif('InfiniteFly', 'Landed!', 1)
+						connection:Disconnect()
+						proper = true
+						if oldroot and clone then 
+							revertClone() 
+						end
+					end)
+				end
+			end
+		end,
+		ExtraText = function() 
+			return 'Heatseeker' 
+		end,
+		Tooltip = 'Makes you go zoom.'
+	})
+	Value = InfiniteFly:CreateSlider({
+		Name = 'Speed',
+		Min = 1,
+		Max = 23,
+		Default = 23,
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
+		end
+	})
+	VerticalValue = InfiniteFly:CreateSlider({
+		Name = 'Vertical Speed',
+		Min = 1,
+		Max = 150,
+		Default = 50,
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
+		end
+	})
+	WallCheck = InfiniteFly:CreateToggle({
+		Name = 'Wall Check',
+		Default = true
+	})
+end)
+	
+run(function()
+	vape.Categories.Blatant:CreateModule({
+		Name = 'KeepSprint',
+		Function = function(callback)
+			debug.setconstant(bedwars.SprintController.startSprinting, 5, callback and 'blockSprinting' or 'blockSprint')
+			bedwars.SprintController:stopSprinting()
+		end,
+		Tooltip = 'Lets you sprint with a speed potion.'
+	})
+end)
+	
+local Attacking
+run(function()
+	local Killaura
+	local Targets
+	local Sort
+	local Range
+	local UpdateRate
+	local AngleSlider
+	local MaxTargets
+	local Mouse
+	local Swing
+	local GUI
+	local BoxColor
+	local ParticleTexture
+	local ParticleColor1
+	local ParticleColor2
+	local ParticleSize
+	local Face
+	local Animation
+	local AnimationMode
+	local AnimationSpeed
+	local AnimationTween
+	local Limit
+	local LegitAura
+	local Particles, Boxes = {}, {}
+	local anims, AnimDelay, AnimTween, armC0 = vape.Libraries.auraanims, tick()
+	local AttackRemote = {FireServer = function() end}
+	task.spawn(function()
+		AttackRemote = bedwars.Client:Get(remotes.AttackEntity).instance
+	end)
+
+	local function getAttackData()
+		if Mouse.Enabled then
+			if not inputService:IsMouseButtonPressed(0) then return false end
+		end
+
+		if GUI.Enabled then
+			if bedwars.AppController:isLayerOpen(bedwars.UILayers.MAIN) then return false end
+		end
+
+		local sword = Limit.Enabled and store.hand or store.tools.sword
+		if not sword or not sword.tool then return false end
+
+		local meta = bedwars.ItemMeta[sword.tool.Name]
+		if Limit.Enabled then
+			if store.hand.toolType ~= 'sword' or bedwars.DaoController.chargingMaid then return false end
+		end
+
+		if LegitAura.Enabled then
+			if (tick() - bedwars.SwordController.lastSwing) > 0.1 then return false end
+		end
+
+		return sword, meta
+	end
+
+	Killaura = vape.Categories.Blatant:CreateModule({
+		Name = 'Killaura',
+		Function = function(callback)
+			if callback then
+				if inputService.TouchEnabled then
+					pcall(function()
+						lplr.PlayerGui.MobileUI['2'].Visible = Limit.Enabled
+					end)
+				end
+
+				if Animation.Enabled then
+					local fake = {
+						Controllers = {
+							ViewmodelController = {
+								isVisible = function()
+									return not Attacking
+								end,
+								playAnimation = function(...)
+									if not Attacking then
+										bedwars.ViewmodelController:playAnimation(select(2, ...))
+									end
+								end
+							}
+						}
+					}
+					debug.setupvalue(bedwars.SwordController.playSwordEffect, 6, fake)
+					debug.setupvalue(bedwars.ScytheController.playLocalAnimation, 3, fake)
+
+					task.spawn(function()
+						local started = false
+						repeat
+							if Attacking then
+								if not armC0 then
+									armC0 = gameCamera.Viewmodel.RightHand.RightWrist.C0
+								end
+								local first = not started
+								started = true
+
+								if AnimationMode.Value == 'Random' then
+									anims.Random = {{CFrame = CFrame.Angles(math.rad(math.random(1, 360)), math.rad(math.random(1, 360)), math.rad(math.random(1, 360))), Time = 0.12}}
+								end
+
+								for _, v in anims[AnimationMode.Value] do
+									AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(first and (AnimationTween.Enabled and 0.001 or 0.1) or v.Time / AnimationSpeed.Value, Enum.EasingStyle.Linear), {
+										C0 = armC0 * v.CFrame
+									})
+									AnimTween:Play()
+									AnimTween.Completed:Wait()
+									first = false
+									if (not Killaura.Enabled) or (not Attacking) then break end
+								end
+							elseif started then
+								started = false
+								AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(AnimationTween.Enabled and 0.001 or 0.3, Enum.EasingStyle.Exponential), {
+									C0 = armC0
+								})
+								AnimTween:Play()
+							end
+
+							if not started then
+								task.wait(1 / UpdateRate.Value)
+							end
+						until (not Killaura.Enabled) or (not Animation.Enabled)
+					end)
+				end
+
+				repeat
+					local attacked, sword, meta = {}, getAttackData()
+					Attacking = false
+					store.KillauraTarget = nil
+					if sword then
+						local plrs = entitylib.AllPosition({
+							Range = Range.Value,
+							Wallcheck = Targets.Walls.Enabled or nil,
+							Part = 'RootPart',
+							Players = Targets.Players.Enabled,
+							NPCs = Targets.NPCs.Enabled,
+							Limit = MaxTargets.Value,
+							Sort = sortmethods[Sort.Value]
+						})
+
+						if #plrs > 0 then
+							switchItem(sword.tool, 0)
+							local selfpos = entitylib.character.RootPart.Position
+							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
+
+							for _, v in plrs do
+								local delta = (v.RootPart.Position - selfpos)
+								local angle = math.acos(localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))
+								if angle > (math.rad(AngleSlider.Value) / 2) then continue end
+
+								table.insert(attacked, v)
+								targetinfo.Targets[v] = tick() + 1
+
+								if not Attacking then
+									Attacking = true
+									store.KillauraTarget = v
+									if not Swing.Enabled and AnimDelay <= tick() and not LegitAura.Enabled then
+										AnimDelay = tick() + (meta.sword.respectAttackSpeedForEffects and meta.sword.attackSpeed or 0.14)
+										bedwars.SwordController:playSwordEffect(meta, 0)
+										if meta.displayName:find(' Scythe') then
+											bedwars.ScytheController:playLocalAnimation()
+										end
+
+										if vape.ThreadFix then
+											setthreadidentity(8)
+										end
+									end
+								end
+
+								local actualRoot = v.Character.PrimaryPart
+								if actualRoot then
+									local dir = CFrame.lookAt(selfpos, actualRoot.Position).LookVector
+									local pos = selfpos + dir * math.max(delta.Magnitude - 14.399, 0)
+									bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
+									store.attackReach = (delta.Magnitude * 100) // 1 / 100
+									store.attackReachUpdate = tick() + 1
+									AttackRemote:FireServer({
+										weapon = sword.tool,
+										chargedAttack = {chargeRatio = meta.sword.chargedAttack and not meta.sword.chargedAttack.disableOnGrounded and 0.999 or 0},
+										entityInstance = v.Character,
+										validate = {
+											raycast = {
+												cameraPosition = {value = pos},
+												cursorDirection = {value = dir}
+											},
+											targetPosition = {value = actualRoot.Position},
+											selfPosition = {value = pos}
+										}
+									})
+								end
+							end
+						end
+					end
+
+					for i, v in Boxes do
+						v.Adornee = attacked[i] and attacked[i].RootPart or nil
+						if v.Adornee then
+							v.Color3 = Color3.fromHSV(BoxColor.Hue, BoxColor.Sat, BoxColor.Value)
+							v.Transparency = 1 - BoxColor.Opacity
+						end
+					end
+
+					for i, v in Particles do
+						v.Position = attacked[i] and attacked[i].RootPart.Position or Vector3.new(9e9, 9e9, 9e9)
+						v.Parent = attacked[i] and gameCamera or nil
+					end
+
+					if Face.Enabled and attacked[1] then
+						local vec = attacked[1].RootPart.Position * Vector3.new(1, 0, 1)
+						entitylib.character.RootPart.CFrame = CFrame.lookAt(entitylib.character.RootPart.Position, Vector3.new(vec.X, entitylib.character.RootPart.Position.Y, vec.Z))
+					end
+
+					task.wait(#attacked > 0 and #attacked * 0.02 or 1 / UpdateRate.Value)
+				until not Killaura.Enabled
+			else
+				store.KillauraTarget = nil
+				for _, v in Boxes do
+					v.Adornee = nil
+				end
+				for _, v in Particles do
+					v.Parent = nil
+				end
+				if inputService.TouchEnabled then
+					pcall(function()
+						lplr.PlayerGui.MobileUI['2'].Visible = true
+					end)
+				end
+				debug.setupvalue(bedwars.SwordController.playSwordEffect, 6, bedwars.Knit)
+				debug.setupvalue(bedwars.ScytheController.playLocalAnimation, 3, bedwars.Knit)
+				Attacking = false
+				if armC0 then
+					AnimTween = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(AnimationTween.Enabled and 0.001 or 0.3, Enum.EasingStyle.Exponential), {
+						C0 = armC0
+					})
+					AnimTween:Play()
+				end
+			end
+		end,
+		Tooltip = 'Attack players around you\nwithout aiming at them.'
+	})
+	Targets = Killaura:CreateTargets({
+		Players = true,
+		NPCs = true
+	})
+	local methods = {'Damage', 'Distance'}
+	for i in sortmethods do
+		if not table.find(methods, i) then
+			table.insert(methods, i)
+		end
+	end
+	Range = Killaura:CreateSlider({
+		Name = 'Attack range',
+		Min = 1,
+		Max = 18,
+		Default = 18,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+	AngleSlider = Killaura:CreateSlider({
+		Name = 'Max angle',
+		Min = 1,
+		Max = 360,
+		Default = 360
+	})
+	UpdateRate = Killaura:CreateSlider({
+		Name = 'Update rate',
+		Min = 1,
+		Max = 120,
+		Default = 60,
+		Suffix = 'hz'
+	})
+	MaxTargets = Killaura:CreateSlider({
+		Name = 'Max targets',
+		Min = 1,
+		Max = 5,
+		Default = 5
+	})
+	Sort = Killaura:CreateDropdown({
+		Name = 'Target Mode',
+		List = methods
+	})
+	Mouse = Killaura:CreateToggle({Name = 'Require mouse down'})
+	Swing = Killaura:CreateToggle({Name = 'No Swing'})
+	GUI = Killaura:CreateToggle({Name = 'GUI check'})
+	Killaura:CreateToggle({
+		Name = 'Show target',
+		Function = function(callback)
+			BoxColor.Object.Visible = callback
+			if callback then
+				for i = 1, 10 do
+					local box = Instance.new('BoxHandleAdornment')
+					box.Adornee = nil
+					box.AlwaysOnTop = true
+					box.Size = Vector3.new(3, 5, 3)
+					box.CFrame = CFrame.new(0, -0.5, 0)
+					box.ZIndex = 0
+					box.Parent = vape.gui
+					Boxes[i] = box
+				end
+			else
+				for _, v in Boxes do
+					v:Destroy()
+				end
+				table.clear(Boxes)
+			end
+		end
+	})
+	BoxColor = Killaura:CreateColorSlider({
+		Name = 'Attack Color',
+		Darker = true,
+		DefaultOpacity = 0.5,
+		Visible = false
+	})
+	Killaura:CreateToggle({
+		Name = 'Target particles',
+		Function = function(callback)
+			ParticleTexture.Object.Visible = callback
+			ParticleColor1.Object.Visible = callback
+			ParticleColor2.Object.Visible = callback
+			ParticleSize.Object.Visible = callback
+			if callback then
+				for i = 1, 10 do
+					local part = Instance.new('Part')
+					part.Size = Vector3.new(2, 4, 2)
+					part.Anchored = true
+					part.CanCollide = false
+					part.Transparency = 1
+					part.CanQuery = false
+					part.Parent = Killaura.Enabled and gameCamera or nil
+					local particles = Instance.new('ParticleEmitter')
+					particles.Brightness = 1.5
+					particles.Size = NumberSequence.new(ParticleSize.Value)
+					particles.Shape = Enum.ParticleEmitterShape.Sphere
+					particles.Texture = ParticleTexture.Value
+					particles.Transparency = NumberSequence.new(0)
+					particles.Lifetime = NumberRange.new(0.4)
+					particles.Speed = NumberRange.new(16)
+					particles.Rate = 128
+					particles.Drag = 16
+					particles.ShapePartial = 1
+					particles.Color = ColorSequence.new({
+						ColorSequenceKeypoint.new(0, Color3.fromHSV(ParticleColor1.Hue, ParticleColor1.Sat, ParticleColor1.Value)),
+						ColorSequenceKeypoint.new(1, Color3.fromHSV(ParticleColor2.Hue, ParticleColor2.Sat, ParticleColor2.Value))
+					})
+					particles.Parent = part
+					Particles[i] = part
+				end
+			else
+				for _, v in Particles do
+					v:Destroy()
+				end
+				table.clear(Particles)
+			end
+		end
+	})
+	ParticleTexture = Killaura:CreateTextBox({
+		Name = 'Texture',
+		Default = 'rbxassetid://14736249347',
+		Function = function()
+			for _, v in Particles do
+				v.ParticleEmitter.Texture = ParticleTexture.Value
+			end
+		end,
+		Darker = true,
+		Visible = false
+	})
+	ParticleColor1 = Killaura:CreateColorSlider({
+		Name = 'Color Begin',
+		Function = function(hue, sat, val)
+			for _, v in Particles do
+				v.ParticleEmitter.Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0, Color3.fromHSV(hue, sat, val)),
+					ColorSequenceKeypoint.new(1, Color3.fromHSV(ParticleColor2.Hue, ParticleColor2.Sat, ParticleColor2.Value))
+				})
+			end
+		end,
+		Darker = true,
+		Visible = false
+	})
+	ParticleColor2 = Killaura:CreateColorSlider({
+		Name = 'Color End',
+		Function = function(hue, sat, val)
+			for _, v in Particles do
+				v.ParticleEmitter.Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0, Color3.fromHSV(ParticleColor1.Hue, ParticleColor1.Sat, ParticleColor1.Value)),
+					ColorSequenceKeypoint.new(1, Color3.fromHSV(hue, sat, val))
+				})
+			end
+		end,
+		Darker = true,
+		Visible = false
+	})
+	ParticleSize = Killaura:CreateSlider({
+		Name = 'Size',
+		Min = 0,
+		Max = 1,
+		Default = 0.2,
+		Decimal = 100,
+		Function = function(val)
+			for _, v in Particles do
+				v.ParticleEmitter.Size = NumberSequence.new(val)
+			end
+		end,
+		Darker = true,
+		Visible = false
+	})
+	Face = Killaura:CreateToggle({Name = 'Face target'})
+	Animation = Killaura:CreateToggle({
+		Name = 'Custom Animation',
+		Function = function(callback)
+			AnimationMode.Object.Visible = callback
+			AnimationTween.Object.Visible = callback
+			AnimationSpeed.Object.Visible = callback
+			if Killaura.Enabled then
+				Killaura:Toggle()
+				Killaura:Toggle()
+			end
+		end
+	})
+	local animnames = {}
+	for i in anims do
+		table.insert(animnames, i)
+	end
+	AnimationMode = Killaura:CreateDropdown({
+		Name = 'Animation Mode',
+		List = animnames,
+		Darker = true,
+		Visible = false
+	})
+	AnimationSpeed = Killaura:CreateSlider({
+		Name = 'Animation Speed',
+		Min = 0,
+		Max = 2,
+		Default = 1,
+		Decimal = 10,
+		Darker = true,
+		Visible = false
+	})
+	AnimationTween = Killaura:CreateToggle({
+		Name = 'No Tween',
+		Darker = true,
+		Visible = false
+	})
+	Limit = Killaura:CreateToggle({
+		Name = 'Limit to items',
+		Function = function(callback)
+			if inputService.TouchEnabled and Killaura.Enabled then
+				pcall(function()
+					lplr.PlayerGui.MobileUI['2'].Visible = callback
+				end)
+			end
+		end,
+		Tooltip = 'Only attacks when the sword is held'
+	})
+	LegitAura = Killaura:CreateToggle({
+		Name = 'Swing only',
+		Tooltip = 'Only attacks while swinging manually'
+	})
+end)
+	
+run(function()
+	local Value
+	local start
+	local JumpTick, JumpSpeed, Extend, Direction = tick(), 0, false
+	local projectileRemote = {InvokeServer = function() end}
+	local knockbackRemote = {FireServer = function() end}
+	task.spawn(function()
+		projectileRemote = bedwars.Client:Get(remotes.FireProjectile).instance
+		knockbackRemote = bedwars.Client:Get(remotes.AckKnockback).instance
+	end)
+	
+	local function launchProjectile(item, pos, proj, speed)
+		if not pos then return end
+	
+		pos = pos - entitylib.character.RootPart.CFrame.LookVector * 0.1
+		local shootPosition = (CFrame.lookAlong(pos, Vector3.new(0, -speed, 0)) * CFrame.new(Vector3.new(-bedwars.BowConstantsTable.RelX, -bedwars.BowConstantsTable.RelY, -bedwars.BowConstantsTable.RelZ)))
+		switchItem(item.tool, 0)
+		task.wait(0.1)
+		bedwars.ProjectileController:createLocalProjectile(bedwars.ProjectileMeta[proj], proj, proj, shootPosition.Position, '', shootPosition.LookVector * speed, {drawDurationSeconds = 1})
+		if projectileRemote:InvokeServer(item.tool, proj, proj, shootPosition.Position, pos, shootPosition.LookVector * speed, httpService:GenerateGUID(true), {drawDurationSeconds = 1}, workspace:GetServerTimeNow() - 0.045) then
+			local shoot = bedwars.ItemMeta[item.itemType].projectileSource.launchSound
+			shoot = shoot and shoot[math.random(1, #shoot)] or nil
+			if shoot then
+				bedwars.SoundManager:playSound(shoot)
+			end
+		end
+	end
+	
+	local LongJumpMethods = {
+		cannon = function(_, pos)
+			pos = pos - Vector3.new(0, (entitylib.character.HipHeight + (entitylib.character.RootPart.Size.Y / 2)) - 3, 0)
+			local rounded = Vector3.new(math.round(pos.X / 3) * 3, math.round(pos.Y / 3) * 3, math.round(pos.Z / 3) * 3)
+			bedwars.placeBlock(rounded, 'cannon', false)
+	
+			task.delay(0, function()
+				local block, blockpos = getPlacedBlock(rounded)
+				if block and block.Name == 'cannon' and (entitylib.character.HumanoidRootPart.CFrame.p - block.Position).Magnitude < 20 then
+					local vec = entitylib.character.HumanoidRootPart.CFrame.LookVector
+					local breaktype = bedwars.ItemMeta[block.Name].block.breakType
+					local tool = store.tools[breaktype]
+					if tool then
+						switchItem(tool.tool)
+					end
+	
+					bedwars.Client:Get(remotes.CannonAim):SendToServer({
+						cannonBlockPos = blockpos,
+						lookVector = vec
+					})
+	
+					local broken = 0.1
+					if bedwars.BlockController:calculateBlockDamage(lplr, {blockPosition = blockpos}) < block:GetAttribute('Health') then
+						broken = 0.4
+						bedwars.breakBlock(block, true, true)
+					end
+	
+					task.delay(broken, function()
+						for _ = 1, 3 do
+							local call = bedwars.Client:Get(remotes.CannonLaunch):CallServer({cannonBlockPos = blockpos})
+							if call then
+								bedwars.breakBlock(block, true, true)
+								JumpSpeed = 5.25 * Value.Value
+								JumpTick = tick() + 2.3
+								Direction = Vector3.new(vec.X, 0, vec.Z).Unit
+								break
+							end
+							task.wait(0.1)
+						end
+					end)
+				end
+			end)
+		end,
+		fireball = function(item, pos)
+			launchProjectile(item, pos, 'fireball', 60)
+		end,
+		grappling_hook = function(item, pos)
+			launchProjectile(item, pos, 'grappling_hook_projectile', 140)
+		end,
+		jade_hammer = function(item)
+			if not bedwars.AbilityController:canUseAbility(item.itemType..'_jump') then
+				repeat task.wait() until bedwars.AbilityController:canUseAbility(item.itemType..'_jump') or not LongJump.Enabled
+			end
+	
+			if bedwars.AbilityController:canUseAbility(item.itemType..'_jump') and LongJump.Enabled then
+				bedwars.AbilityController:useAbility(item.itemType..'_jump')
+				local vec = entitylib.character.RootPart.CFrame.LookVector
+				JumpSpeed = 2.5 * Value.Value
+				JumpTick = tick() + 2.5
+				Direction = Vector3.new(vec.X, 0, vec.Z).Unit
+			end
+		end,
+		tnt = function(item, pos)
+			pos = pos - Vector3.new(0, (entitylib.character.HipHeight + (entitylib.character.RootPart.Size.Y / 2)) - 3, 0)
+			local rounded = Vector3.new(math.round(pos.X / 3) * 3, math.round(pos.Y / 3) * 3, math.round(pos.Z / 3) * 3)
+			start = Vector3.new(rounded.X, start.Y, rounded.Z) + (entitylib.character.RootPart.CFrame.LookVector * (item.itemType == 'pirate_gunpowder_barrel' and 2.6 or 0.2))
+			bedwars.placeBlock(rounded, item.itemType, false)
+		end,
+		wood_dao = function(item, pos)
+			if (lplr.Character:GetAttribute('CanDashNext') or 0) > workspace:GetServerTimeNow() or not bedwars.AbilityController:canUseAbility('dash') then
+				repeat task.wait() until (lplr.Character:GetAttribute('CanDashNext') or 0) < workspace:GetServerTimeNow() and bedwars.AbilityController:canUseAbility('dash') or not LongJump.Enabled
+			end
+	
+			if LongJump.Enabled then
+				bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
+				switchItem(item.tool, 0.1)
+				local vec = entitylib.character.RootPart.CFrame.LookVector
+				replicatedStorage['events-@easy-games/game-core:shared/game-core-networking@getEvents.Events'].useAbility:FireServer('dash', {
+					direction = vec,
+					origin = pos,
+					weapon = item.itemType
+				})
+				JumpSpeed = 4.5 * Value.Value
+				JumpTick = tick() + 2.4
+				Direction = Vector3.new(vec.X, 0, vec.Z).Unit
+			end
+		end
+	}
+	for _, v in {'stone_dao', 'iron_dao', 'diamond_dao', 'emerald_dao'} do
+		LongJumpMethods[v] = LongJumpMethods.wood_dao
+	end
+	LongJumpMethods.void_axe = LongJumpMethods.jade_hammer
+	LongJumpMethods.siege_tnt = LongJumpMethods.tnt
+	LongJumpMethods.pirate_gunpowder_barrel = LongJumpMethods.tnt
+	
+	LongJump = vape.Categories.Blatant:CreateModule({
+		Name = 'LongJump',
+		Function = function(callback)
+			frictionTable.LongJump = callback or nil
+			updateVelocity()
+			if callback then
+				LongJump:Clean(vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
+					if damageTable.entityInstance == lplr.Character and damageTable.fromEntity == lplr.Character and (not damageTable.knockbackMultiplier or not damageTable.knockbackMultiplier.disabled) then
+						local knockbackBoost = Value.Value * (damageTable.knockbackMultiplier and damageTable.knockbackMultiplier.horizontal or 1)
+						if knockbackBoost >= JumpSpeed then
+							local pos = damageTable.fromPosition and Vector3.new(damageTable.fromPosition.X, damageTable.fromPosition.Y, damageTable.fromPosition.Z) or damageTable.fromEntity and damageTable.fromEntity.PrimaryPart.Position
+							if not pos then return end
+							local vec = (entitylib.character.RootPart.Position - pos)
+							Extend = StoreDamage.Enabled
+							JumpSpeed = knockbackBoost
+							JumpTick = tick() + (StoreDamage.Enabled and 4.3 or 2.5)
+							Direction = Vector3.new(vec.X, 0, vec.Z).Unit
+							if not StoreDamage.Enabled then return end
+							task.delay(0.1, function()
+								for i, v in store.damage do
+									if v.knockbackId == damageTable.knockbackId then
+										table.remove(store.damage, i)
+										break
+									end
+								end
+							end)
+							task.wait(1.6)
+							knockbackRemote:FireServer({
+								knockbackId = damageTable.knockbackId,
+								playerPosition = entitylib.character.RootPart.Position
+							})
+						end
+					end
+				end))
+				LongJump:Clean(vapeEvents.GrapplingHookFunctions.Event:Connect(function(dataTable)
+					if dataTable.hookFunction == 'PLAYER_IN_TRANSIT' then
+						local vec = entitylib.character.RootPart.CFrame.LookVector
+						JumpSpeed = 2.5 * Value.Value
+						JumpTick = tick() + 3.5
+						Direction = Vector3.new(vec.X, 0, vec.Z).Unit
+					end
+				end))
+	
+				start = entitylib.isAlive and entitylib.character.RootPart.Position or nil
+	
+				LongJump:Clean(runService.PreSimulation:Connect(function(dt)
+					local root = entitylib.isAlive and entitylib.character.RootPart or nil
+					if root and isnetworkowner(root) then
+						if JumpTick > tick() then
+							root.AssemblyLinearVelocity = Direction * (getSpeed() + ((JumpTick - tick()) > 1.1 and JumpSpeed or 0)) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+							if entitylib.character.Humanoid.FloorMaterial == Enum.Material.Air and not start then
+								root.AssemblyLinearVelocity += Vector3.new(0, dt * (workspace.Gravity - (Extend and 6 or 23)), 0)
+							else
+								root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, (Extend and 10 or 15), root.AssemblyLinearVelocity.Z)
+							end
+							start = nil
+						else
+							root.AssemblyLinearVelocity = Vector3.zero
+							if start then
+								root.CFrame = CFrame.lookAlong(start, root.CFrame.LookVector)
+							end
+							JumpSpeed = 0
+						end
+					else
+						start = nil
+					end
+				end))
+	
+				for i, v in LongJumpMethods do
+					local item = getItem(i)
+					if item then
+						task.spawn(v, item, start)
+						break
+					end
+				end
+			else
+				JumpTick = tick()
+				Direction = nil
+				JumpSpeed = 0
+				Extend = false
+			end
+		end,
+		ExtraText = function()
+			return 'Heatseeker'
+		end,
+		Tooltip = 'Lets you jump farther'
+	})
+	Value = LongJump:CreateSlider({
+		Name = 'Speed',
+		Min = 1,
+		Max = 37,
+		Default = 37,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+end)
+	
+run(function()
+	vape.Categories.Blatant:CreateModule({
+		Name = 'NoFall',
+		Function = function(callback)
+			if callback then 
+				bedwars.Client:Get(remotes.GroundHit):SendToServer() 
+			end
+		end,
+		Tooltip = 'Prevents taking fall damage.'
+	})
+end)
+	
+run(function()
+	local old
+	
+	vape.Categories.Blatant:CreateModule({
+		Name = 'NoSlowdown',
+		Function = function(callback)
+			local modifier = bedwars.SprintController:getMovementStatusModifier()
+			if callback then
+				old = modifier.addModifier
+				modifier.addModifier = function(self, tab)
+					if tab.moveSpeedMultiplier then
+						tab.moveSpeedMultiplier = math.max(tab.moveSpeedMultiplier, 1)
+					end
+					return old(self, tab)
+				end
+	
+				for i in modifier.modifiers do
+					if (i.moveSpeedMultiplier or 1) < 1 then
+						modifier:removeModifier(i)
+					end
+				end
+			else
+				modifier.addModifier = old
+				old = nil
+			end
+		end,
+		Tooltip = 'Prevents slowing down when using items.'
+	})
+end)
+	
+run(function()
+	local TargetPart
+	local Targets
+	local FOV
+	local OtherProjectiles
+	local rayCheck = RaycastParams.new()
+	rayCheck.FilterType = Enum.RaycastFilterType.Include
+	rayCheck.FilterDescendantsInstances = {workspace:FindFirstChild('Map')}
+	local old
+	
+	local ProjectileAimbot = vape.Categories.Blatant:CreateModule({
+		Name = 'ProjectileAimbot',
+		Function = function(callback)
+			if callback then
+				old = bedwars.ProjectileController.calculateImportantLaunchValues
+				bedwars.ProjectileController.calculateImportantLaunchValues = function(...)
+					local self, projmeta, worldmeta, origin, shootpos = ...
+					local plr = entitylib.EntityMouse({
+						Part = 'RootPart',
+						Range = FOV.Value,
+						Players = Targets.Players.Enabled,
+						NPCs = Targets.NPCs.Enabled,
+						Wallcheck = Targets.Walls.Enabled,
+						Origin = entitylib.isAlive and entitylib.character.RootPart.Position or Vector3.zero
+					})
+	
+					if plr then
+						local pos = shootpos or self:getLaunchPosition(origin)
+						if not pos then
+							return old(...)
+						end
+	
+						if (not OtherProjectiles.Enabled) and not projmeta.projectile:find('arrow') then
+							return old(...)
+						end
+	
+						local meta = projmeta:getProjectileMeta()
+						local lifetime = (worldmeta and meta.predictionLifetimeSec or meta.lifetimeSec or 3)
+						local gravity = (meta.gravitationalAcceleration or 196.2) * projmeta.gravityMultiplier
+						local projSpeed = (meta.launchVelocity or 100)
+						local offsetpos = pos + (projmeta.projectile == 'owl_projectile' and Vector3.zero or projmeta.fromPositionOffset)
+						local balloons = plr.Character:GetAttribute('InflatedBalloons')
+						local playerGravity = workspace.Gravity
+	
+						if balloons and balloons > 0 then
+							playerGravity = (workspace.Gravity * (1 - ((balloons >= 4 and 1.2 or balloons >= 3 and 1 or 0.975))))
+						end
+	
+						if plr.Character.PrimaryPart:FindFirstChild('rbxassetid://8200754399') then
+							playerGravity = 6
+						end
+	
+						local newlook = CFrame.new(offsetpos, plr[TargetPart.Value].Position) * CFrame.new(projmeta.projectile == 'owl_projectile' and Vector3.zero or Vector3.new(bedwars.BowConstantsTable.RelX, bedwars.BowConstantsTable.RelY, bedwars.BowConstantsTable.RelZ))
+						local calc = prediction.SolveTrajectory(newlook.p, projSpeed, gravity, plr[TargetPart.Value].Position, projmeta.projectile == 'telepearl' and Vector3.zero or plr[TargetPart.Value].Velocity, playerGravity, plr.HipHeight, plr.Jumping and 42.6 or nil, rayCheck)
+						if calc then
+							targetinfo.Targets[plr] = tick() + 1
+							return {
+								initialVelocity = CFrame.new(newlook.Position, calc).LookVector * projSpeed,
+								positionFrom = offsetpos,
+								deltaT = lifetime,
+								gravitationalAcceleration = gravity,
+								drawDurationSeconds = 5
+							}
+						end
+					end
+	
+					return old(...)
+				end
+			else
+				bedwars.ProjectileController.calculateImportantLaunchValues = old
+			end
+		end,
+		Tooltip = 'Silently adjusts your aim towards the enemy'
+	})
+	Targets = ProjectileAimbot:CreateTargets({
+		Players = true,
+		Walls = true
+	})
+	TargetPart = ProjectileAimbot:CreateDropdown({
+		Name = 'Part',
+		List = {'RootPart', 'Head'}
+	})
+	FOV = ProjectileAimbot:CreateSlider({
+		Name = 'FOV',
+		Min = 1,
+		Max = 1000,
+		Default = 1000
+	})
+	OtherProjectiles = ProjectileAimbot:CreateToggle({
+		Name = 'Other Projectiles',
+		Default = true
+	})
+end)
+	
+run(function()
+	local ProjectileAura
+	local Targets
+	local Range
+	local List
+	local rayCheck = RaycastParams.new()
+	rayCheck.FilterType = Enum.RaycastFilterType.Include
+	local projectileRemote = {InvokeServer = function() end}
+	local FireDelays = {}
+	task.spawn(function()
+		projectileRemote = bedwars.Client:Get(remotes.FireProjectile).instance
+	end)
+	
+	local function getAmmo(check)
+		for _, item in store.inventory.inventory.items do
+			if check.ammoItemTypes and table.find(check.ammoItemTypes, item.itemType) then
+				return item.itemType
+			end
+		end
+	end
+	
+	local function getProjectiles()
+		local items = {}
+		for _, item in store.inventory.inventory.items do
+			local proj = bedwars.ItemMeta[item.itemType].projectileSource
+			local ammo = proj and getAmmo(proj)
+			if ammo and table.find(List.ListEnabled, ammo) then
+				table.insert(items, {
+					item, 
+					ammo, 
+					proj.projectileType(ammo), 
+					proj
+				})
+			end
+		end
+		return items
+	end
+	
+	ProjectileAura = vape.Categories.Blatant:CreateModule({
+		Name = 'ProjectileAura',
+		Function = function(callback)
+			if callback then
+				repeat
+					if (workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) > 0.5 then
+						local ent = entitylib.EntityPosition({
+							Part = 'RootPart',
+							Range = Range.Value,
+							Players = Targets.Players.Enabled,
+							NPCs = Targets.NPCs.Enabled,
+							Wallcheck = Targets.Walls.Enabled
+						})
+	
+						if ent then
+							local pos = entitylib.character.RootPart.Position
+							for _, data in getProjectiles() do
+								local item, ammo, projectile, itemMeta = unpack(data)
+								if (FireDelays[item.itemType] or 0) < tick() then
+									rayCheck.FilterDescendantsInstances = {workspace.Map}
+									local meta = bedwars.ProjectileMeta[projectile]
+									local projSpeed, gravity = meta.launchVelocity, meta.gravitationalAcceleration or 196.2
+									local calc = prediction.SolveTrajectory(pos, projSpeed, gravity, ent.RootPart.Position, ent.RootPart.Velocity, workspace.Gravity, ent.HipHeight, ent.Jumping and 42.6 or nil, rayCheck)
+									if calc then
+										targetinfo.Targets[ent] = tick() + 1
+										local switched = switchItem(item.tool)
+	
+										task.spawn(function()
+											local dir, id = CFrame.lookAt(pos, calc).LookVector, httpService:GenerateGUID(true)
+											local shootPosition = (CFrame.new(pos, calc) * CFrame.new(Vector3.new(-bedwars.BowConstantsTable.RelX, -bedwars.BowConstantsTable.RelY, -bedwars.BowConstantsTable.RelZ))).Position
+											bedwars.ProjectileController:createLocalProjectile(meta, ammo, projectile, shootPosition, id, dir * projSpeed, {drawDurationSeconds = 1})
+											local res = projectileRemote:InvokeServer(item.tool, ammo, projectile, shootPosition, pos, dir * projSpeed, id, {drawDurationSeconds = 1, shotId = httpService:GenerateGUID(false)}, workspace:GetServerTimeNow() - 0.045)
+											if not res then
+												FireDelays[item.itemType] = tick()
+											else
+												local shoot = itemMeta.launchSound
+												shoot = shoot and shoot[math.random(1, #shoot)] or nil
+												if shoot then 
+													bedwars.SoundManager:playSound(shoot) 
+												end
+											end
+										end)
+	
+										FireDelays[item.itemType] = tick() + itemMeta.fireDelaySec
+										if switched then 
+											task.wait(0.05) 
+										end
+									end
+								end
+							end
+						end
+					end
+					task.wait(0.1)
+				until not ProjectileAura.Enabled
+			end
+		end,
+		Tooltip = 'Shoots people around you'
+	})
+	Targets = ProjectileAura:CreateTargets({
+		Players = true, 
+		Walls = true
+	})
+	List = ProjectileAura:CreateTextList({
+		Name = 'Projectiles',
+		Default = {'arrow', 'snowball'}
+	})
+	Range = ProjectileAura:CreateSlider({
+		Name = 'Range',
+		Min = 1,
+		Max = 50,
+		Default = 50,
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
+		end
+	})
+end)
+	
+run(function()
+	local Speed
+	local Value
+	local WallCheck
+	local AutoJump
+	local AlwaysJump
+	local rayCheck = RaycastParams.new()
+	rayCheck.RespectCanCollide = true
+	
+	Speed = vape.Categories.Blatant:CreateModule({
+		Name = 'Speed',
+		Function = function(callback)
+			frictionTable.Speed = callback or nil
+			updateVelocity()
+			pcall(function() 
+				debug.setconstant(bedwars.WindWalkerController.updateSpeed, 7, callback and 'constantSpeedMultiplier' or 'moveSpeedMultiplier') 
+			end)
+	
+			if callback then
+				Speed:Clean(runService.PreSimulation:Connect(function(dt)
+					bedwars.StatefulEntityKnockbackController.lastImpulseTime = callback and math.huge or time()
+					if entitylib.isAlive and not Fly.Enabled and not InfiniteFly.Enabled and not LongJump.Enabled and isnetworkowner(entitylib.character.RootPart) then
+						local state = entitylib.character.Humanoid:GetState()
+						if state == Enum.HumanoidStateType.Climbing then return end
+	
+						local root, velo = entitylib.character.RootPart, getSpeed()
+						local moveDirection = AntiFallDirection or entitylib.character.Humanoid.MoveDirection
+						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
+	
+						if WallCheck.Enabled then
+							rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
+							rayCheck.CollisionGroup = root.CollisionGroup
+							local ray = workspace:Raycast(root.Position, destination, rayCheck)
+							if ray then 
+								destination = ((ray.Position + ray.Normal) - root.Position) 
+							end
+						end
+	
+						root.CFrame += destination
+						root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+						if AutoJump.Enabled and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed) and moveDirection ~= Vector3.zero and (Attacking or AlwaysJump.Enabled) then
+							entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+						end
+					end
+				end))
+			end
+		end,
+		ExtraText = function() 
+			return 'Heatseeker' 
+		end,
+		Tooltip = 'Increases your movement with various methods.'
+	})
+	Value = Speed:CreateSlider({
+		Name = 'Speed',
+		Min = 1,
+		Max = 23,
+		Default = 23,
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
+		end
+	})
+	WallCheck = Speed:CreateToggle({
+		Name = 'Wall Check',
+		Default = true
+	})
+	AutoJump = Speed:CreateToggle({
+		Name = 'AutoJump',
+		Function = function(callback)
+			AlwaysJump.Object.Visible = callback
+		end
+	})
+	AlwaysJump = Speed:CreateToggle({
+		Name = 'Always Jump',
+		Visible = false,
+		Darker = true
+	})
+end)
+	
+run(function()
+	local BedESP
+	local Reference = {}
+	local Folder = Instance.new('Folder')
+	Folder.Parent = vape.gui
+	
+	local function Added(bed)
+		if not BedESP.Enabled then return end
+		local BedFolder = Instance.new('Folder')
+		BedFolder.Parent = Folder
+		Reference[bed] = BedFolder
+		local bedparts = bed:GetChildren()
+		table.sort(bedparts, function(a, b) 
+			return a.Name > b.Name 
+		end)
+	
+		for _, part in bedparts do
+			if part:IsA('BasePart') and part.Name ~= 'Blanket' then
+				local boxhandle = Instance.new('BoxHandleAdornment')
+				boxhandle.Size = part.Size + Vector3.new(.01, .01, .01)
+				boxhandle.AlwaysOnTop = true
+				boxhandle.ZIndex = 2
+				boxhandle.Visible = true
+				boxhandle.Adornee = part
+				boxhandle.Color3 = part.Color
+				if part.Name == 'Legs' then
+					boxhandle.Color3 = Color3.fromRGB(167, 112, 64)
+					boxhandle.Size = part.Size + Vector3.new(.01, -1, .01)
+					boxhandle.CFrame = CFrame.new(0, -0.4, 0)
+					boxhandle.ZIndex = 0
+				end
+				boxhandle.Parent = BedFolder
+			end
+		end
+		table.clear(bedparts)
+	end
+	
+	BedESP = vape.Categories.Render:CreateModule({
+		Name = 'BedESP',
+		Function = function(callback)
+			if callback then
+				BedESP:Clean(collectionService:GetInstanceAddedSignal('bed'):Connect(function(bed) 
+					task.delay(0.2, Added, bed) 
+				end))
+				BedESP:Clean(collectionService:GetInstanceRemovedSignal('bed'):Connect(function(bed)
+					if Reference[bed] then
+						Reference[bed]:Destroy()
+						Reference[bed] = nil
+					end
+				end))
+				for _, bed in collectionService:GetTagged('bed') do 
+					Added(bed) 
+				end
+			else
+				Folder:ClearAllChildren()
+				table.clear(Reference)
+			end
+		end,
+		Tooltip = 'Render Beds through walls'
+	})
+end)
+	
+run(function()
+	local Health
+	
+	Health = vape.Categories.Render:CreateModule({
+		Name = 'Health',
+		Function = function(callback)
+			if callback then
+				local label = Instance.new('TextLabel')
+				label.Size = UDim2.fromOffset(100, 20)
+				label.Position = UDim2.new(0.5, 6, 0.5, 30)
+				label.BackgroundTransparency = 1
+				label.AnchorPoint = Vector2.new(0.5, 0)
+				label.Text = entitylib.isAlive and math.round(lplr.Character:GetAttribute('Health'))..' ❤️' or ''
+				label.TextColor3 = entitylib.isAlive and Color3.fromHSV((lplr.Character:GetAttribute('Health') / lplr.Character:GetAttribute('MaxHealth')) / 2.8, 0.86, 1) or Color3.new()
+				label.TextSize = 18
+				label.Font = Enum.Font.Arial
+				label.Parent = vape.gui
+				Health:Clean(label)
+				Health:Clean(vapeEvents.AttributeChanged.Event:Connect(function()
+					label.Text = entitylib.isAlive and math.round(lplr.Character:GetAttribute('Health'))..' ❤️' or ''
+					label.TextColor3 = entitylib.isAlive and Color3.fromHSV((lplr.Character:GetAttribute('Health') / lplr.Character:GetAttribute('MaxHealth')) / 2.8, 0.86, 1) or Color3.new()
+				end))
+			end
+		end,
+		Tooltip = 'Displays your health in the center of your screen.'
+	})
+end)
+	
+run(function()
+	local KitESP
+	local Background
+	local Color = {}
+	local Reference = {}
+	local Folder = Instance.new('Folder')
+	Folder.Parent = vape.gui
+	
+	local ESPKits = {
+		alchemist = {'alchemist_ingedients', 'wild_flower'},
+		beekeeper = {'bee', 'bee'},
+		bigman = {'treeOrb', 'natures_essence_1'},
+		ghost_catcher = {'ghost', 'ghost_orb'},
+		metal_detector = {'hidden-metal', 'iron'},
+		sheep_herder = {'SheepModel', 'purple_hay_bale'},
+		sorcerer = {'alchemy_crystal', 'wild_flower'},
+		star_collector = {'stars', 'crit_star'}
+	}
+	
+	local function Added(v, icon)
+		local billboard = Instance.new('BillboardGui')
+		billboard.Parent = Folder
+		billboard.Name = icon
+		billboard.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
+		billboard.Size = UDim2.fromOffset(36, 36)
+		billboard.AlwaysOnTop = true
+		billboard.ClipsDescendants = false
+		billboard.Adornee = v
+		local blur = addBlur(billboard)
+		blur.Visible = Background.Enabled
+		local image = Instance.new('ImageLabel')
+		image.Size = UDim2.fromOffset(36, 36)
+		image.Position = UDim2.fromScale(0.5, 0.5)
+		image.AnchorPoint = Vector2.new(0.5, 0.5)
+		image.BackgroundColor3 = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+		image.BackgroundTransparency = 1 - (Background.Enabled and Color.Opacity or 0)
+		image.BorderSizePixel = 0
+		image.Image = bedwars.getIcon({itemType = icon}, true)
+		image.Parent = billboard
+		local uicorner = Instance.new('UICorner')
+		uicorner.CornerRadius = UDim.new(0, 4)
+		uicorner.Parent = image
+		Reference[v] = billboard
+	end
+	
+	local function addKit(tag, icon)
+		KitESP:Clean(collectionService:GetInstanceAddedSignal(tag):Connect(function(v)
+			Added(v.PrimaryPart, icon)
+		end))
+		KitESP:Clean(collectionService:GetInstanceRemovedSignal(tag):Connect(function(v)
+			if Reference[v.PrimaryPart] then
+				Reference[v.PrimaryPart]:Destroy()
+				Reference[v.PrimaryPart] = nil
+			end
+		end))
+		for _, v in collectionService:GetTagged(tag) do
+			Added(v.PrimaryPart, icon)
+		end
+	end
+	
+	KitESP = vape.Categories.Render:CreateModule({
+		Name = 'KitESP',
+		Function = function(callback)
+			if callback then
+				repeat task.wait() until store.equippedKit ~= '' or (not KitESP.Enabled)
+				local kit = KitESP.Enabled and ESPKits[store.equippedKit] or nil
+				if kit then
+					addKit(kit[1], kit[2])
+				end
+			else
+				Folder:ClearAllChildren()
+				table.clear(Reference)
+			end
+		end,
+		Tooltip = 'ESP for certain kit related objects'
+	})
+	Background = KitESP:CreateToggle({
+		Name = 'Background',
+		Function = function(callback)
+			if Color.Object then Color.Object.Visible = callback end
+			for _, v in Reference do
+				v.ImageLabel.BackgroundTransparency = 1 - (callback and Color.Opacity or 0)
+				v.Blur.Visible = callback
+			end
+		end,
+		Default = true
+	})
+	Color = KitESP:CreateColorSlider({
+		Name = 'Background Color',
+		DefaultValue = 0,
+		DefaultOpacity = 0.5,
+		Function = function(hue, sat, val, opacity)
+			for _, v in Reference do
+				v.ImageLabel.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
+				v.ImageLabel.BackgroundTransparency = 1 - opacity
+			end
+		end,
+		Darker = true
+	})
+end)
+	
+run(function()
+	local NameTags
+	local Targets
+	local Color
+	local Background
+	local DisplayName
+	local Health
+	local Distance
+	local Equipment
+	local DrawingToggle
+	local Scale
+	local FontOption
+	local Teammates
+	local DistanceCheck
+	local DistanceLimit
+	local Strings, Sizes, Reference = {}, {}, {}
+	local Folder = Instance.new('Folder')
+	Folder.Parent = vape.gui
+	local methodused
+	local fontitems = {'Arial'}
+	local kititems = {
+		jade = 'jade_hammer',
+		archer = 'tactical_crossbow',
+		cowgirl = 'lasso',
+		dasher = 'wood_dao',
+		axolotl = 'axolotl',
+		yeti = 'snowball',
+		smoke = 'smoke_block',
+		trapper = 'snap_trap',
+		pyro = 'flamethrower',
+		davey = 'cannon',
+		regent = 'void_axe',
+		baker = 'apple',
+		builder = 'builder_hammer',
+		farmer_cletus = 'carrot_seeds',
+		melody = 'guitar',
+		barbarian = 'rageblade',
+		gingerbread_man = 'gumdrop_bounce_pad',
+		spirit_catcher = 'spirit',
+		fisherman = 'fishing_rod',
+		oil_man = 'oil_consumable',
+		santa = 'tnt',
+		miner = 'miner_pickaxe',
+		sheep_herder = 'crook',
+		beast = 'speed_potion',
+		metal_detector = 'metal_detector',
+		cyber = 'drone',
+		vesta = 'damage_banner',
+		lumen = 'light_sword',
+		ember = 'infernal_saber',
+		queen_bee = 'bee'
+	}
+	
+	local Added = {
+		Normal = function(ent)
+			if not Targets.Players.Enabled and ent.Player then return end
+			if not Targets.NPCs.Enabled and ent.NPC then return end
+			if Teammates.Enabled and (not ent.Targetable) and (not ent.Friend) then return end
+			local EntityNameTag = Instance.new('TextLabel')
+			EntityNameTag.BackgroundColor3 = Color3.new()
+			EntityNameTag.BorderSizePixel = 0
+			EntityNameTag.Visible = false
+			EntityNameTag.RichText = true
+			EntityNameTag.AnchorPoint = Vector2.new(0.5, 1)
+			EntityNameTag.Name = ent.Player and ent.Player.Name or ent.Character.Name
+			EntityNameTag.FontFace = FontOption.Value
+			EntityNameTag.TextSize = 14 * Scale.Value
+			EntityNameTag.BackgroundTransparency = Background.Value
+			Strings[ent] = ent.Player and whitelist:tag(ent.Player, true, true)..(DisplayName.Enabled and ent.Player.DisplayName or ent.Player.Name) or ent.Character.Name
+			if Health.Enabled then
+				local healthColor = Color3.fromHSV(math.clamp(ent.Health / ent.MaxHealth, 0, 1) / 2.5, 0.89, 0.75)
+				Strings[ent] = Strings[ent]..' <font color="rgb('..tostring(math.floor(healthColor.R * 255))..','..tostring(math.floor(healthColor.G * 255))..','..tostring(math.floor(healthColor.B * 255))..')">'..math.round(ent.Health)..'</font>'
+			end
+			if Distance.Enabled then
+				Strings[ent] = '<font color="rgb(85, 255, 85)">[</font><font color="rgb(255, 255, 255)">%s</font><font color="rgb(85, 255, 85)">]</font> '..Strings[ent]
+			end
+			if Equipment.Enabled then
+				for i, v in {'Hand', 'Helmet', 'Chestplate', 'Boots', 'Kit'} do
+					local Icon = Instance.new('ImageLabel')
+					Icon.Name = v
+					Icon.Size = UDim2.fromOffset(30, 30)
+					Icon.Position = UDim2.fromOffset(-60 + (i * 30), -30)
+					Icon.BackgroundTransparency = 1
+					Icon.Image = ''
+					Icon.Parent = EntityNameTag
+				end
+			end
+			local nametagSize = getfontsize(removeTags(Strings[ent]), EntityNameTag.TextSize, EntityNameTag.FontFace, Vector2.new(100000, 100000))
+			EntityNameTag.Size = UDim2.fromOffset(nametagSize.X + 8, nametagSize.Y + 7)
+			EntityNameTag.Text = Strings[ent]
+			EntityNameTag.TextColor3 = entitylib.getEntityColor(ent) or Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+			EntityNameTag.Parent = Folder
+			Reference[ent] = EntityNameTag
+		end,
+		Drawing = function(ent)
+			if not Targets.Players.Enabled and ent.Player then return end
+			if not Targets.NPCs.Enabled and ent.NPC then return end
+			if Teammates.Enabled and (not ent.Targetable) and (not ent.Friend) then return end
+			local EntityNameTag = {}
+			EntityNameTag.BG = Drawing.new('Square')
+			EntityNameTag.BG.Filled = true
+			EntityNameTag.BG.Transparency = 1 - Background.Value
+			EntityNameTag.BG.Color = Color3.new()
+			EntityNameTag.BG.ZIndex = 1
+			EntityNameTag.Text = Drawing.new('Text')
+			EntityNameTag.Text.Size = 15 * Scale.Value
+			EntityNameTag.Text.Font = (math.clamp((table.find(fontitems, FontOption.Value) or 1) - 1, 0, 3))
+			EntityNameTag.Text.ZIndex = 2
+			Strings[ent] = ent.Player and whitelist:tag(ent.Player, true)..(DisplayName.Enabled and ent.Player.DisplayName or ent.Player.Name) or ent.Character.Name
+			if Health.Enabled then
+				Strings[ent] = Strings[ent]..' '..math.round(ent.Health)
+			end
+			if Distance.Enabled then
+				Strings[ent] = '[%s] '..Strings[ent]
+			end
+			EntityNameTag.Text.Text = Strings[ent]
+			EntityNameTag.Text.Color = entitylib.getEntityColor(ent) or Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+			EntityNameTag.BG.Size = Vector2.new(EntityNameTag.Text.TextBounds.X + 8, EntityNameTag.Text.TextBounds.Y + 7)
+			Reference[ent] = EntityNameTag
+		end
+	}
+	
+	local Removed = {
+		Normal = function(ent)
+			local v = Reference[ent]
+			if v then
+				Reference[ent] = nil
+				Strings[ent] = nil
+				Sizes[ent] = nil
+				v:Destroy()
+			end
+		end,
+		Drawing = function(ent)
+			local v = Reference[ent]
+			if v then
+				Reference[ent] = nil
+				Strings[ent] = nil
+				Sizes[ent] = nil
+				for _, obj in v do
+					pcall(function() 
+						obj.Visible = false 
+						obj:Remove() 
+					end)
+				end
+			end
+		end
+	}
+	
+	local Updated = {
+		Normal = function(ent)
+			local EntityNameTag = Reference[ent]
+			if EntityNameTag then
+				Sizes[ent] = nil
+				Strings[ent] = ent.Player and whitelist:tag(ent.Player, true, true)..(DisplayName.Enabled and ent.Player.DisplayName or ent.Player.Name) or ent.Character.Name
+				if Health.Enabled then
+					local healthColor = Color3.fromHSV(math.clamp(ent.Health / ent.MaxHealth, 0, 1) / 2.5, 0.89, 0.75)
+					Strings[ent] = Strings[ent]..' <font color="rgb('..tostring(math.floor(healthColor.R * 255))..','..tostring(math.floor(healthColor.G * 255))..','..tostring(math.floor(healthColor.B * 255))..')">'..math.round(ent.Health)..'</font>'
+				end
+				if Distance.Enabled then
+					Strings[ent] = '<font color="rgb(85, 255, 85)">[</font><font color="rgb(255, 255, 255)">%s</font><font color="rgb(85, 255, 85)">]</font> '..Strings[ent]
+				end
+				if Equipment.Enabled and store.inventories[ent.Player] then
+					local inventory = store.inventories[ent.Player]
+					EntityNameTag.Hand.Image = bedwars.getIcon(inventory.hand or {itemType = ''}, true)
+					EntityNameTag.Helmet.Image = bedwars.getIcon(inventory.armor[4] or {itemType = ''}, true)
+					EntityNameTag.Chestplate.Image = bedwars.getIcon(inventory.armor[5] or {itemType = ''}, true)
+					EntityNameTag.Boots.Image = bedwars.getIcon(inventory.armor[6] or {itemType = ''}, true)
+					EntityNameTag.Kit.Image = bedwars.getIcon({itemType = kititems[ent.Player:GetAttribute('PlayingAsKit')] or ''}, true)
+				end
+				local nametagSize = getfontsize(removeTags(Strings[ent]), EntityNameTag.TextSize, EntityNameTag.FontFace, Vector2.new(100000, 100000))
+				EntityNameTag.Size = UDim2.fromOffset(nametagSize.X + 8, nametagSize.Y + 7)
+				EntityNameTag.Text = Strings[ent]
+			end
+		end,
+		Drawing = function(ent)
+			local EntityNameTag = Reference[ent]
+			if EntityNameTag then
+				Sizes[ent] = nil
+				Strings[ent] = ent.Player and whitelist:tag(ent.Player, true)..(DisplayName.Enabled and ent.Player.DisplayName or ent.Player.Name) or ent.Character.Name
+				if Health.Enabled then
+					Strings[ent] = Strings[ent]..' '..math.round(ent.Health)
+				end
+				if Distance.Enabled then
+					Strings[ent] = '[%s] '..Strings[ent]
+					EntityNameTag.Text.Text = entitylib.isAlive and string.format(Strings[ent], (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude // 1) or Strings[ent]
+				else
+					EntityNameTag.Text.Text = Strings[ent]
+				end
+				EntityNameTag.BG.Size = Vector2.new(EntityNameTag.Text.TextBounds.X + 8, EntityNameTag.Text.TextBounds.Y + 7)
+				EntityNameTag.Text.Color = entitylib.getEntityColor(ent) or Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+			end
+		end
+	}
+	
+	local ColorFunc = {
+		Normal = function(hue, sat, val)
+			local tagColor = Color3.fromHSV(hue, sat, val)
+			for i, v in Reference do
+				v.TextColor3 = entitylib.getEntityColor(i) or tagColor
+			end
+		end,
+		Drawing = function(hue, sat, val)
+			local tagColor = Color3.fromHSV(hue, sat, val)
+			for i, v in Reference do
+				v.Text.Text.Color = entitylib.getEntityColor(i) or tagColor
+			end
+		end
+	}
+	
+	local Loop = {
+		Normal = function()
+			for ent, EntityNameTag in Reference do
+				if DistanceCheck.Enabled then
+					local distance = entitylib.isAlive and (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude or math.huge
+					if distance < DistanceLimit.ValueMin or distance > DistanceLimit.ValueMax then
+						EntityNameTag.Visible = false
+						continue
+					end
+				end
+				local headPos, headVis = gameCamera:WorldToViewportPoint(ent.RootPart.Position + Vector3.new(0, ent.HipHeight + 1, 0))
+				EntityNameTag.Visible = headVis
+				if not headVis then
+					continue
+				end
+				if Distance.Enabled and entitylib.isAlive then
+					local mag = (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude // 1
+					if Sizes[ent] ~= mag then
+						EntityNameTag.Text = string.format(Strings[ent], mag)
+						local nametagSize = getfontsize(removeTags(EntityNameTag.Text), EntityNameTag.TextSize, EntityNameTag.FontFace, Vector2.new(100000, 100000))
+						EntityNameTag.Size = UDim2.fromOffset(nametagSize.X + 8, nametagSize.Y + 7)
+						Sizes[ent] = mag
+					end
+				end
+				EntityNameTag.Position = UDim2.fromOffset(headPos.X, headPos.Y)
+			end
+		end,
+		Drawing = function()
+			for ent, EntityNameTag in Reference do
+				if DistanceCheck.Enabled then
+					local distance = entitylib.isAlive and (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude or math.huge
+					if distance < DistanceLimit.ValueMin or distance > DistanceLimit.ValueMax then
+						EntityNameTag.Text.Visible = false
+						EntityNameTag.BG.Visible = false
+						continue
+					end
+				end
+				local headPos, headVis = gameCamera:WorldToViewportPoint(ent.RootPart.Position + Vector3.new(0, ent.HipHeight + 1, 0))
+				EntityNameTag.Text.Visible = headVis
+				EntityNameTag.BG.Visible = headVis and Background.Enabled
+				if not headVis then
+					continue
+				end
+				if Distance.Enabled and entitylib.isAlive then
+					local mag = (entitylib.character.RootPart.Position - ent.RootPart.Position).Magnitude // 1
+					if Sizes[ent] ~= mag then
+						EntityNameTag.Text.Text = string.format(Strings[ent], mag)
+						EntityNameTag.BG.Size = Vector2.new(EntityNameTag.Text.TextBounds.X + 8, EntityNameTag.Text.TextBounds.Y + 7)
+						Sizes[ent] = mag
+					end
+				end
+				EntityNameTag.BG.Position = Vector2.new(headPos.X - (EntityNameTag.BG.Size.X / 2), headPos.Y + (EntityNameTag.BG.Size.Y / 2))
+				EntityNameTag.Text.Position = EntityNameTag.BG.Position + Vector2.new(4, 2.5)
+			end
+		end
+	}
+	
+	NameTags = vape.Categories.Render:CreateModule({
+		Name = 'NameTags',
+		Function = function(callback)
+			if callback then
+				methodused = DrawingToggle.Enabled and 'Drawing' or 'Normal'
+				if Removed[methodused] then
+					NameTags:Clean(entitylib.Events.EntityRemoved:Connect(Removed[methodused]))
+				end
+				if Added[methodused] then
+					for _, v in entitylib.List do
+						if Reference[v] then 
+							Removed[methodused](v) 
+						end
+						Added[methodused](v)
+					end
+					NameTags:Clean(entitylib.Events.EntityAdded:Connect(function(ent)
+						if Reference[ent] then 
+							Removed[methodused](ent) 
+						end
+						Added[methodused](ent)
+					end))
+				end
+				if Updated[methodused] then
+					NameTags:Clean(entitylib.Events.EntityUpdated:Connect(Updated[methodused]))
+					for _, v in entitylib.List do 
+						Updated[methodused](v) 
+					end
+				end
+				if ColorFunc[methodused] then
+					NameTags:Clean(vape.Categories.Friends.ColorUpdate.Event:Connect(function()
+						ColorFunc[methodused](Color.Hue, Color.Sat, Color.Value)
+					end))
+				end
+				if Loop[methodused] then
+					NameTags:Clean(runService.RenderStepped:Connect(Loop[methodused]))
+				end
+			else
+				if Removed[methodused] then
+					for i in Reference do 
+						Removed[methodused](i) 
+					end
+				end
+			end
+		end,
+		Tooltip = 'Renders nametags on entities through walls.'
+	})
+	Targets = NameTags:CreateTargets({
+		Players = true, 
+		Function = function()
+		if NameTags.Enabled then
+				NameTags:Toggle()
+				NameTags:Toggle()
+			end
+		end
+	})
+	FontOption = NameTags:CreateFont({
+		Name = 'Font',
+		Blacklist = 'Arial',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end
+	})
+	Color = NameTags:CreateColorSlider({
+		Name = 'Player Color',
+		Function = function(hue, sat, val)
+			if NameTags.Enabled and ColorFunc[methodused] then
+				ColorFunc[methodused](hue, sat, val)
+			end
+		end
+	})
+	Scale = NameTags:CreateSlider({
+		Name = 'Scale',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end,
+		Default = 1,
+		Min = 0.1,
+		Max = 1.5,
+		Decimal = 10
+	})
+	Background = NameTags:CreateSlider({
+		Name = 'Transparency',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end,
+		Default = 0.5,
+		Min = 0,
+		Max = 1,
+		Decimal = 10
+	})
+	Health = NameTags:CreateToggle({
+		Name = 'Health',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end
+	})
+	Distance = NameTags:CreateToggle({
+		Name = 'Distance',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end
+	})
+	Equipment = NameTags:CreateToggle({
+		Name = 'Equipment',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end
+	})
+	DisplayName = NameTags:CreateToggle({
+		Name = 'Use Displayname',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end,
+		Default = true
+	})
+	Teammates = NameTags:CreateToggle({
+		Name = 'Priority Only',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end,
+		Default = true
+	})
+	DrawingToggle = NameTags:CreateToggle({
+		Name = 'Drawing',
+		Function = function() 
+			if NameTags.Enabled then 
+				NameTags:Toggle() 
+				NameTags:Toggle() 
+			end 
+		end,
+	})
+	DistanceCheck = NameTags:CreateToggle({
+		Name = 'Distance Check',
+		Function = function(callback)
+			DistanceLimit.Object.Visible = callback
+		end
+	})
+	DistanceLimit = NameTags:CreateTwoSlider({
+		Name = 'Player Distance',
+		Min = 0,
+		Max = 256,
+		DefaultMin = 0,
+		DefaultMax = 64,
+		Darker = true,
+		Visible = false
+	})
+end)
+	
+run(function()
+	local StorageESP
+	local List
+	local Background
+	local Color = {}
+	local Reference = {}
+	local Folder = Instance.new('Folder')
+	Folder.Parent = vape.gui
+	
+	local function nearStorageItem(item)
+		for _, v in List.ListEnabled do
+			if item:find(v) then return v end
+		end
+	end
+	
+	local function refreshAdornee(v)
+		local chest = v.Adornee:FindFirstChild('ChestFolderValue')
+		chest = chest and chest.Value or nil
+		if not chest then
+			v.Enabled = false
+			return
+		end
+	
+		local chestitems = chest and chest:GetChildren() or {}
+		for _, obj in v.Frame:GetChildren() do
+			if obj:IsA('ImageLabel') and obj.Name ~= 'Blur' then
+				obj:Destroy()
+			end
+		end
+	
+		v.Enabled = false
+		local alreadygot = {}
+		for _, item in chestitems do
+			if not alreadygot[item.Name] and (table.find(List.ListEnabled, item.Name) or nearStorageItem(item.Name)) then
+				alreadygot[item.Name] = true
+				v.Enabled = true
+				local blockimage = Instance.new('ImageLabel')
+				blockimage.Size = UDim2.fromOffset(32, 32)
+				blockimage.BackgroundTransparency = 1
+				blockimage.Image = bedwars.getIcon({itemType = item.Name}, true)
+				blockimage.Parent = v.Frame
+			end
+		end
+		table.clear(chestitems)
+	end
+	
+	local function Added(v)
+		local chest = v:WaitForChild('ChestFolderValue', 3)
+		if not (chest and StorageESP.Enabled) then return end
+		chest = chest.Value
+		local billboard = Instance.new('BillboardGui')
+		billboard.Parent = Folder
+		billboard.Name = 'chest'
+		billboard.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
+		billboard.Size = UDim2.fromOffset(36, 36)
+		billboard.AlwaysOnTop = true
+		billboard.ClipsDescendants = false
+		billboard.Adornee = v
+		local blur = addBlur(billboard)
+		blur.Visible = Background.Enabled
+		local frame = Instance.new('Frame')
+		frame.Size = UDim2.fromScale(1, 1)
+		frame.BackgroundColor3 = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+		frame.BackgroundTransparency = 1 - (Background.Enabled and Color.Opacity or 0)
+		frame.Parent = billboard
+		local layout = Instance.new('UIListLayout')
+		layout.FillDirection = Enum.FillDirection.Horizontal
+		layout.Padding = UDim.new(0, 4)
+		layout.VerticalAlignment = Enum.VerticalAlignment.Center
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		layout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
+			billboard.Size = UDim2.fromOffset(math.max(layout.AbsoluteContentSize.X + 4, 36), 36)
+		end)
+		layout.Parent = frame
+		local corner = Instance.new('UICorner')
+		corner.CornerRadius = UDim.new(0, 4)
+		corner.Parent = frame
+		Reference[v] = billboard
+		StorageESP:Clean(chest.ChildAdded:Connect(function(item)
+			if table.find(List.ListEnabled, item.Name) or nearStorageItem(item.Name) then
+				refreshAdornee(billboard)
+			end
+		end))
+		StorageESP:Clean(chest.ChildRemoved:Connect(function(item)
+			if table.find(List.ListEnabled, item.Name) or nearStorageItem(item.Name) then
+				refreshAdornee(billboard)
+			end
+		end))
+		task.spawn(refreshAdornee, billboard)
+	end
+	
+	StorageESP = vape.Categories.Render:CreateModule({
+		Name = 'StorageESP',
+		Function = function(callback)
+			if callback then
+				StorageESP:Clean(collectionService:GetInstanceAddedSignal('chest'):Connect(Added))
+				for _, v in collectionService:GetTagged('chest') do
+					task.spawn(Added, v)
+				end
+			else
+				table.clear(Reference)
+				Folder:ClearAllChildren()
+			end
+		end,
+		Tooltip = 'Displays items in chests'
+	})
+	List = StorageESP:CreateTextList({
+		Name = 'Item',
+		Function = function()
+			for _, v in Reference do
+				task.spawn(refreshAdornee, v)
+			end
+		end
+	})
+	Background = StorageESP:CreateToggle({
+		Name = 'Background',
+		Function = function(callback)
+			if Color.Object then Color.Object.Visible = callback end
+			for _, v in Reference do
+				v.Frame.BackgroundTransparency = 1 - (callback and Color.Opacity or 0)
+				v.Blur.Visible = callback
+			end
+		end,
+		Default = true
+	})
+	Color = StorageESP:CreateColorSlider({
+		Name = 'Background Color',
+		DefaultValue = 0,
+		DefaultOpacity = 0.5,
+		Function = function(hue, sat, val, opacity)
+			for _, v in Reference do
+				v.Frame.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
+				v.Frame.BackgroundTransparency = 1 - opacity
+			end
+		end,
+		Darker = true
+	})
+end)
+	
+run(function()
+	local AutoBalloon
+	
+	AutoBalloon = vape.Categories.Utility:CreateModule({
+		Name = 'AutoBalloon',
+		Function = function(callback)
+			if callback then
+				repeat task.wait() until store.matchState ~= 0 or (not AutoBalloon.Enabled)
+				if not AutoBalloon.Enabled then return end
+	
+				local lowestpoint = math.huge
+				for _, v in store.blocks do
+					local point = (v.Position.Y - (v.Size.Y / 2)) - 50
+					if point < lowestpoint then 
+						lowestpoint = point 
+					end
+				end
+	
+				repeat
+					if entitylib.isAlive then
+						if entitylib.character.RootPart.Position.Y < lowestpoint and (lplr.Character:GetAttribute('InflatedBalloons') or 0) < 3 then
+							local balloon = getItem('balloon')
+							if balloon then
+								for _ = 1, 3 do 
+									bedwars.BalloonController:inflateBalloon() 
+								end
+							end
+							task.wait(0.1)
+						end
+					end
+					task.wait(0.1)
+				until not AutoBalloon.Enabled
+			end
+		end,
+		Tooltip = 'Inflates when you fall into the void'
+	})
+end)
+	
+run(function()
+	local AutoKit
+	local Legit
+	local Toggles = {}
+	
+	local function kitCollection(id, func, range, specific)
+		local objs = type(id) == 'table' and id or collection(id, AutoKit)
+		repeat
+			if entitylib.isAlive then
+				local localPosition = entitylib.character.RootPart.Position
+				for _, v in objs do
+					if InfiniteFly.Enabled or not AutoKit.Enabled then break end
+					local part = not v:IsA('Model') and v or v.PrimaryPart
+					if part and (part.Position - localPosition).Magnitude <= (not Legit.Enabled and specific and math.huge or range) then
+						func(v)
+					end
+				end
+			end
+			task.wait(0.1)
+		until not AutoKit.Enabled
+	end
+	
+	local AutoKitFunctions = {
+		battery = function()
+			repeat
+				if entitylib.isAlive then
+					local localPosition = entitylib.character.RootPart.Position
+					for i, v in bedwars.BatteryEffectsController.liveBatteries do
+						if (v.position - localPosition).Magnitude <= 10 then
+							local BatteryInfo = bedwars.BatteryEffectsController:getBatteryInfo(i)
+							if not BatteryInfo or BatteryInfo.activateTime >= workspace:GetServerTimeNow() or BatteryInfo.consumeTime + 0.1 >= workspace:GetServerTimeNow() then continue end
+							BatteryInfo.consumeTime = workspace:GetServerTimeNow()
+							bedwars.Client:Get(remotes.ConsumeBattery):SendToServer({batteryId = i})
+						end
+					end
+				end
+				task.wait(0.1)
+			until not AutoKit.Enabled
+		end,
+		bigman = function()
+			kitCollection('treeOrb', function(v)
+				if bedwars.Client:Get(remotes.ConsumeTreeOrb):CallServer({treeOrbSecret = v:GetAttribute('TreeOrbSecret')}) then
+					v:Destroy()
+				end
+			end, 12, false)
+		end,
+		farmer_cletus = function()
+			kitCollection('HarvestableCrop', function(v)
+				if bedwars.Client:Get(remotes.HarvestCrop):CallServer({position = bedwars.BlockController:getBlockPosition(v.Position)}) then
+					bedwars.GameAnimationUtil.playAnimation(lplr.Character, bedwars.AnimationType.PUNCH)
+					bedwars.SoundManager:playSound(bedwars.SoundList.CROP_HARVEST)
+				end
+			end, 10, false)
+		end,
+		fisherman = function()
+			local old = bedwars.FishingMinigameController.startMinigame
+			bedwars.FishingMinigameController.startMinigame = function(_, _, result)
+				result({win = true})
+			end
+			AutoKit:Clean(function()
+				bedwars.FishingMinigameController.startMinigame = old
+			end)
+		end,
+		hannah = function()
+			kitCollection('HannahExecuteInteraction', function(v)
+				bedwars.Client:Get(remotes.HannahKill):CallServer({
+					user = lplr,
+					victimEntity = v
+				})
+			end, 30, true)
+		end,
+		grim_reaper = function()
+			kitCollection(bedwars.GrimReaperController.soulsByPosition, function(v)
+				if entitylib.isAlive and lplr.Character:GetAttribute('Health') <= (lplr.Character:GetAttribute('MaxHealth') / 4) and (not lplr.Character:GetAttribute('GrimReaperChannel')) then
+					bedwars.Client:Get(remotes.ConsumeSoul):CallServer({
+						secret = v:GetAttribute('GrimReaperSoulSecret')
+					})
+				end
+			end, 120, false)
+		end,
+		melody = function()
+			repeat
+				local mag, hp, ent = 30, math.huge
+				if entitylib.isAlive then
+					local localPosition = entitylib.character.RootPart.Position
+					for _, v in entitylib.List do
+						if v.Player and v.Player:GetAttribute('Team') == lplr:GetAttribute('Team') then
+							local newmag = (localPosition - v.RootPart.Position).Magnitude
+							if newmag <= mag and v.Health < hp and v.Health < v.MaxHealth then
+								mag, hp, ent = newmag, v.Health, v
+							end
+						end
+					end
+				end
+	
+				if ent and getItem('guitar') then
+					bedwars.Client:Get(remotes.GuitarHeal):SendToServer({
+						healTarget = ent.Character
+					})
+				end
+				task.wait(0.1)
+			until not AutoKit.Enabled
+		end,
+		metal_detector = function()
+			kitCollection('hidden-metal', function(v)
+				bedwars.Client:Get(remotes.PickupMetal):SendToServer({
+					id = v:GetAttribute('Id')
+				})
+			end, 20, false)
+		end,
+		miner = function()
+			kitCollection('petrified-player', function(v)
+				bedwars.Client:Get(remotes.MinerDig):SendToServer({
+					petrifyId = v:GetAttribute('PetrifyId')
+				})
+			end, 6, true)
+		end,
+		pinata = function()
+			kitCollection(lplr.Name..':pinata', function(v)
+				if getItem('candy') then
+					bedwars.Client:Get(remotes.DepositPinata):CallServer(v)
+				end
+			end, 6, true)
+		end,
+		spirit_assassin = function()
+			kitCollection('EvelynnSoul', function(v)
+				bedwars.SpiritAssassinController:useSpirit(lplr, v)
+			end, 120, true)
+		end,
+		star_collector = function()
+			kitCollection('stars', function(v)
+				bedwars.StarCollectorController:collectEntity(lplr, v, v.Name)
+			end, 20, false)
+		end,
+		summoner = function()
+			repeat
+				local plr = entitylib.EntityPosition({
+					Range = 22,
+					Part = 'RootPart',
+					Players = true
+				})
+	
+				if plr then
+					local localPosition = entitylib.character.RootPart.Position
+					bedwars.Client:Get(remotes.SummonerClawAttack):SendToServer({
+						position = localPosition,
+						direction = CFrame.lookAt(localPosition, plr.RootPart.Position).LookVector,
+						clientTime = workspace:GetServerTimeNow()
+					})
+				end
+				task.wait(0.1)
+			until not AutoKit.Enabled
+		end,
+		void_dragon = function()
+			local old = bedwars.VoidDragonController.voidDragonActive
+			local oldflap = bedwars.VoidDragonController.flapWings
+	
+			bedwars.VoidDragonController.voidDragonActive = function(self, ...)
+				local Client = bedwars.Client
+				local Remote = remotes.DragonEndFly
+				self.SpeedMaid:GiveTask(function()
+					Client:Get(Remote):SendToServer()
+				end)
+	
+				task.spawn(function()
+					for i = 1, 10 do
+						if bedwars.Client:Get(remotes.DragonFly):CallServer() then
+							local modifier = bedwars.SprintController:getMovementStatusModifier():addModifier({
+								blockSprint = true,
+								constantSpeedMultiplier = 1.7
+							})
+							self.SpeedMaid:GiveTask(modifier)
+							break
+						end
+					end
+				end)
+	
+				return old(self, ...)
+			end
+			bedwars.VoidDragonController.flapWings = function() end
+	
+			AutoKit:Clean(function()
+				bedwars.VoidDragonController.voidDragonActive = old
+				bedwars.VoidDragonController.flapWings = oldflap
+				task.spawn(function()
+					bedwars.Client:Get(remotes.DragonEndFly):SendToServer()
+				end)
+			end)
+	
+			repeat
+				if bedwars.VoidDragonController.inDragonForm then
+					local plr = entitylib.EntityPosition({
+						Range = 30,
+						Part = 'RootPart',
+						Players = true
+					})
+					if plr then
+						bedwars.Client:Get(remotes.DragonBreath):SendToServer({
+							player = lplr,
+							targetPoint = plr.RootPart.Position
+						})
+					end
+				end
+				task.wait(0.1)
+			until not AutoKit.Enabled
+		end
+	}
+	
+	AutoKit = vape.Categories.Utility:CreateModule({
+		Name = 'AutoKit',
+		Function = function(callback)
+			if callback then
+				repeat task.wait() until store.equippedKit ~= '' or (not AutoKit.Enabled)
+				if AutoKit.Enabled and AutoKitFunctions[store.equippedKit] and Toggles[store.equippedKit].Enabled then
+					AutoKitFunctions[store.equippedKit]()
+				end
+			end
+		end,
+		Tooltip = 'Automatically uses kit abilities.'
+	})
+	Legit = AutoKit:CreateToggle({Name = 'Legit Range'})
+	for i in AutoKitFunctions do
+		Toggles[i] = AutoKit:CreateToggle({
+			Name = bedwars.BedwarsKitMeta[i].name,
+			Default = true
+		})
+	end
+end)
+	
+run(function()
+	local AutoPlay
+	local Random
+	
+	local function isEveryoneDead()
+		return #bedwars.Store:getState().Party.members <= 0
+	end
+	
+	local function joinQueue()
+		if not bedwars.Store:getState().Game.customMatch and bedwars.Store:getState().Party.leader.userId == lplr.UserId and bedwars.Store:getState().Party.queueState == 0 then
+			if Random.Enabled then
+				local listofmodes = {}
+				for i, v in bedwars.QueueMeta do
+					if not v.disabled and not v.voiceChatOnly and not v.rankCategory then 
+						table.insert(listofmodes, i) 
+					end
+				end
+				bedwars.QueueController:joinQueue(listofmodes[math.random(1, #listofmodes)])
+			else
+				bedwars.QueueController:joinQueue(store.queueType)
+			end
+		end
+	end
+	
+	AutoPlay = vape.Categories.Utility:CreateModule({
+		Name = 'AutoPlay',
+		Function = function(callback)
+			if callback then
+				AutoPlay:Clean(vapeEvents.EntityDeathEvent.Event:Connect(function(deathTable)
+					if deathTable.finalKill and deathTable.entityInstance == lplr.Character and isEveryoneDead() and store.matchState ~= 2 then
+						joinQueue()
+					end
+				end))
+				AutoPlay:Clean(vapeEvents.MatchEndEvent.Event:Connect(joinQueue))
+			end
+		end,
+		Tooltip = 'Automatically queues after the match ends.'
+	})
+	Random = AutoPlay:CreateToggle({
+		Name = 'Random',
+		Tooltip = 'Chooses a random mode'
+	})
+end)
+	
+run(function()
+	local shooting, old = false
+	
+	local function getCrossbows()
+		local crossbows = {}
+		for i, v in store.inventory.hotbar do
+			if v.item and v.item.itemType:find('crossbow') and i ~= (store.inventory.hotbarSlot + 1) then table.insert(crossbows, i - 1) end
+		end
+		return crossbows
+	end
+	
+	vape.Categories.Utility:CreateModule({
+		Name = 'AutoShoot',
+		Function = function(callback)
+			if callback then
+				old = bedwars.ProjectileController.createLocalProjectile
+				bedwars.ProjectileController.createLocalProjectile = function(...)
+					local source, data, proj = ...
+					if source and (proj == 'arrow' or proj == 'fireball') and not shooting then
+						task.spawn(function()
+							local bows = getCrossbows()
+							if #bows > 0 then
+								shooting = true
+								task.wait(0.15)
+								local selected = store.inventory.hotbarSlot
+								for _, v in getCrossbows() do
+									if hotbarSwitch(v) then
+										task.wait(0.05)
+										mouse1click()
+										task.wait(0.05)
+									end
+								end
+								hotbarSwitch(selected)
+								shooting = false
+							end
+						end)
+					end
+					return old(...)
+				end
+			else
+				bedwars.ProjectileController.createLocalProjectile = old
+			end
+		end,
+		Tooltip = 'Automatically crossbow macro\'s'
+	})
+	
+end)
+	
+run(function()
+	local AutoToxic
+	local GG
+	local Toggles, Lists, said, dead = {}, {}, {}
+	
+	local function sendMessage(name, obj, default)
+		local tab = Lists[name].ListEnabled
+		local custommsg = #tab > 0 and tab[math.random(1, #tab)] or default
+		if not custommsg then return end
+		if #tab > 1 and custommsg == said[name] then
+			repeat 
+				task.wait() 
+				custommsg = tab[math.random(1, #tab)] 
+			until custommsg ~= said[name]
+		end
+		said[name] = custommsg
+	
+		custommsg = custommsg and custommsg:gsub('<obj>', obj or '') or ''
+		if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+			textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+		else
+			replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(custommsg, 'All')
+		end
+	end
+	
+	AutoToxic = vape.Categories.Utility:CreateModule({
+		Name = 'AutoToxic',
+		Function = function(callback)
+			if callback then
+				AutoToxic:Clean(vapeEvents.BedwarsBedBreak.Event:Connect(function(bedTable)
+					if Toggles.BedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute('Team') then
+						sendMessage('BedDestroyed', (bedTable.player.DisplayName or bedTable.player.Name), 'how dare you >:( | <obj>')
+					elseif Toggles.Bed.Enabled and bedTable.player.UserId == lplr.UserId then
+						local team = bedwars.QueueMeta[store.queueType].teams[tonumber(bedTable.brokenBedTeam.id)]
+						sendMessage('Bed', team and team.displayName:lower() or 'white', 'nice bed lul | <obj>')
+					end
+				end))
+				AutoToxic:Clean(vapeEvents.EntityDeathEvent.Event:Connect(function(deathTable)
+					if deathTable.finalKill then
+						local killer = playersService:GetPlayerFromCharacter(deathTable.fromEntity)
+						local killed = playersService:GetPlayerFromCharacter(deathTable.entityInstance)
+						if not killed or not killer then return end
+						if killed == lplr then
+							if (not dead) and killer ~= lplr and Toggles.Death.Enabled then
+								dead = true
+								sendMessage('Death', (killer.DisplayName or killer.Name), 'my gaming chair subscription expired :( | <obj>')
+							end
+						elseif killer == lplr and Toggles.Kill.Enabled then
+							sendMessage('Kill', (killed.DisplayName or killed.Name), 'vxp on top | <obj>')
+						end
+					end
+				end))
+				AutoToxic:Clean(vapeEvents.MatchEndEvent.Event:Connect(function(winstuff)
+					if GG.Enabled then
+						if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+							textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync('gg')
+						else
+							replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer('gg', 'All')
+						end
+					end
+					
+					local myTeam = bedwars.Store:getState().Game.myTeam
+					if myTeam and myTeam.id == winstuff.winningTeamId or lplr.Neutral then
+						if Toggles.Win.Enabled then 
+							sendMessage('Win', nil, 'yall garbage') 
+						end
+					end
+				end))
+			end
+		end,
+		Tooltip = 'Says a message after a certain action'
+	})
+	GG = AutoToxic:CreateToggle({
+		Name = 'AutoGG',
+		Default = true
+	})
+	for _, v in {'Kill', 'Death', 'Bed', 'BedDestroyed', 'Win'} do
+		Toggles[v] = AutoToxic:CreateToggle({
+			Name = v..' ',
+			Function = function(callback)
+				if Lists[v] then
+					Lists[v].Object.Visible = callback
+				end
+			end
+		})
+		Lists[v] = AutoToxic:CreateTextList({
+			Name = v,
+			Darker = true,
+			Visible = false
+		})
+	end
+end)
+	
+run(function()
+	local AutoVoidDrop
+	
+	AutoVoidDrop = vape.Categories.Utility:CreateModule({
+		Name = 'AutoVoidDrop',
+		Function = function(callback)
+			if callback then
+				repeat task.wait() until store.matchState ~= 0 or (not AutoVoidDrop.Enabled)
+				if not AutoVoidDrop.Enabled then return end
+	
+				local lowestpoint = math.huge
+				for _, v in store.blocks do
+					local point = (v.Position.Y - (v.Size.Y / 2)) - 50
+					if point < lowestpoint then 
+						lowestpoint = point 
+					end
+				end
+	
+				repeat
+					if entitylib.isAlive then
+						if entitylib.character.RootPart.Position.Y < lowestpoint and (lplr.Character:GetAttribute('InflatedBalloons') or 0) <= 0 and not getItem('balloon') then
+							for _, item in {'iron', 'diamond', 'emerald', 'gold'} do 
+								item = getItem(item)
+								if item then 
+									item = bedwars.Client:Get(remotes.DropItem):CallServer({
+										item = item.tool,
+										amount = item.amount
+									})
+									
+									if item then 
+										item:SetAttribute('ClientDropTime', tick() + 100)
+									end
+								end
+							end
+						end
+					end
+					task.wait(0.1)
+				until not AutoVoidDrop.Enabled
+			end
+		end,
+		Tooltip = 'Drops resources when you fall into the void'
+	})
+end)
+	
+run(function()
+	local MissileTP
+	
+	MissileTP = vape.Categories.Utility:CreateModule({
+		Name = 'MissileTP',
+		Function = function(callback)
+			if callback then
+				MissileTP:Toggle()
+				local plr = entitylib.EntityMouse({
+					Range = 1000,
+					Players = true,
+					Part = 'RootPart'
+				})
+	
+				if getItem('guided_missile') and plr then
+					local projectile = bedwars.RuntimeLib.await(bedwars.GuidedProjectileController.fireGuidedProjectile:CallServerAsync('guided_missile'))
+					if projectile then
+						local projectilemodel = projectile.model
+						if not projectilemodel.PrimaryPart then
+							projectilemodel:GetPropertyChangedSignal('PrimaryPart'):Wait()
+						end
+	
+						local bodyforce = Instance.new('BodyForce')
+						bodyforce.Force = Vector3.new(0, projectilemodel.PrimaryPart.AssemblyMass * workspace.Gravity, 0)
+						bodyforce.Name = 'AntiGravity'
+						bodyforce.Parent = projectilemodel.PrimaryPart
+	
+						repeat
+							projectile.model:SetPrimaryPartCFrame(CFrame.lookAlong(plr.RootPart.CFrame.p, gameCamera.CFrame.LookVector))
+							task.wait(0.1)
+						until not projectile.model or not projectile.model.Parent
+					else
+						notif('MissileTP', 'Missile on cooldown.', 3)
+					end
+				end
+			end
+		end,
+		Tooltip = 'Spawns and teleports a missile to a player\nnear your mouse.'
+	})
+end)
+	
+run(function()
+	local PickupRange
+	local Range
+	local Network
+	local Lower
+	
+	PickupRange = vape.Categories.Utility:CreateModule({
+		Name = 'PickupRange',
+		Function = function(callback)
+			if callback then
+				local items = collection('ItemDrop', PickupRange)
+				repeat
+					if entitylib.isAlive then
+						local localPosition = entitylib.character.RootPart.Position
+						for _, v in items do
+							if tick() - (v:GetAttribute('ClientDropTime') or 0) < 2 then continue end
+							if isnetworkowner(v) and Network.Enabled and entitylib.character.Humanoid.Health > 0 then 
+								v.CFrame = CFrame.new(localPosition - Vector3.new(0, 3, 0)) 
+							end
+							
+							if (localPosition - v.Position).Magnitude <= Range.Value then
+								if Lower.Enabled and (localPosition.Y - v.Position.Y) < (entitylib.character.HipHeight - 1) then continue end
+								task.spawn(function()
+									bedwars.Client:Get(remotes.PickupItem):CallServerAsync({
+										itemDrop = v
+									}):andThen(function(suc)
+										if suc and bedwars.SoundList then
+											bedwars.SoundManager:playSound(bedwars.SoundList.PICKUP_ITEM_DROP)
+											local sound = bedwars.ItemMeta[v.Name].pickUpOverlaySound
+											if sound then
+												bedwars.SoundManager:playSound(sound, {
+													position = v.Position,
+													volumeMultiplier = 0.9
+												})
+											end
+										end
+									end)
+								end)
+							end
+						end
+					end
+					task.wait(0.1)
+				until not PickupRange.Enabled
+			end
+		end,
+		Tooltip = 'Picks up items from a farther distance'
+	})
+	Range = PickupRange:CreateSlider({
+		Name = 'Range',
+		Min = 1,
+		Max = 10,
+		Default = 10,
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
+		end
+	})
+	Network = PickupRange:CreateToggle({
+		Name = 'Network TP',
+		Default = true
+	})
+	Lower = PickupRange:CreateToggle({Name = 'Feet Check'})
+end)
+	
+run(function()
+	local RavenTP
+	
+	RavenTP = vape.Categories.Utility:CreateModule({
+		Name = 'RavenTP',
+		Function = function(callback)
+			if callback then
+				RavenTP:Toggle()
+				local plr = entitylib.EntityMouse({
+					Range = 1000,
+					Players = true,
+					Part = 'RootPart'
+				})
+	
+				if getItem('raven') and plr then
+					bedwars.Client:Get(remotes.SpawnRaven):CallServerAsync():andThen(function(projectile)
+						if projectile then
+							local bodyforce = Instance.new('BodyForce')
+							bodyforce.Force = Vector3.new(0, projectile.PrimaryPart.AssemblyMass * workspace.Gravity, 0)
+							bodyforce.Parent = projectile.PrimaryPart
+	
+							if plr then
+								task.spawn(function()
+									for _ = 1, 20 do
+										if plr.RootPart and projectile then
+											projectile:SetPrimaryPartCFrame(CFrame.lookAlong(plr.RootPart.Position, gameCamera.CFrame.LookVector))
+										end
+										task.wait(0.05)
+									end
+								end)
+								task.wait(0.3)
+								bedwars.RavenController:detonateRaven()
+							end
+						end
+					end)
+				end
+			end
+		end,
+		Tooltip = 'Spawns and teleports a raven to a player\nnear your mouse.'
+	})
+end)
+	
+run(function()
+	local Scaffold
+	local Expand
+	local Tower
+	local Downwards
+	local Diagonal
+	local LimitItem
+	local Mouse
+	local adjacent, lastpos = {}, Vector3.zero
+	
+	for x = -3, 3, 3 do
+		for y = -3, 3, 3 do
+			for z = -3, 3, 3 do
+				local vec = Vector3.new(x, y, z)
+				if vec ~= Vector3.zero then
+					table.insert(adjacent, vec)
+				end
+			end
+		end
+	end
+	
+	local function nearCorner(poscheck, pos)
+		local startpos = poscheck - Vector3.new(3, 3, 3)
+		local endpos = poscheck + Vector3.new(3, 3, 3)
+		local check = poscheck + (pos - poscheck).Unit * 100
+		return Vector3.new(math.clamp(check.X, startpos.X, endpos.X), math.clamp(check.Y, startpos.Y, endpos.Y), math.clamp(check.Z, startpos.Z, endpos.Z))
+	end
+	
+	local function blockProximity(pos)
+		local mag, returned = 60
+		local tab = getBlocksInPoints(bedwars.BlockController:getBlockPosition(pos - Vector3.new(21, 21, 21)), bedwars.BlockController:getBlockPosition(pos + Vector3.new(21, 21, 21)))
+		for _, v in tab do
+			local blockpos = nearCorner(v, pos)
+			local newmag = (pos - blockpos).Magnitude
+			if newmag < mag then
+				mag, returned = newmag, blockpos
+			end
+		end
+		table.clear(tab)
+		return returned
+	end
+	
+	local function checkAdjacent(pos)
+		for _, v in adjacent do
+			if getPlacedBlock(pos + v) then
+				return true
+			end
+		end
+		return false
+	end
+	
+	local function getBlock()
+		for _, item in store.inventory.inventory.items do
+			if bedwars.ItemMeta[item.itemType].block then
+				return item.itemType, item.amount
+			end
+		end
+	end
+	
+	Scaffold = vape.Categories.Utility:CreateModule({
+		Name = 'Scaffold',
+		Function = function(callback)
+			if callback then
+				repeat
+					if entitylib.isAlive then
+						local wool = store.hand.toolType == 'block' and store.hand.tool.Name or (not LimitItem.Enabled) and (getWool() or getBlock())
+	
+						if Mouse.Enabled then
+							if not inputService:IsMouseButtonPressed(0) then
+								wool = nil
+							end
+						end
+	
+						if wool then
+							local root = entitylib.character.RootPart
+							if Tower.Enabled and inputService:IsKeyDown(Enum.KeyCode.Space) and (not inputService:GetFocusedTextBox()) then
+								root.Velocity = Vector3.new(root.Velocity.X, 38, root.Velocity.Z)
+							end
+	
+							for i = Expand.Value, 1, -1 do
+								local currentpos = roundPos(root.Position - Vector3.new(0, entitylib.character.HipHeight + (Downwards.Enabled and inputService:IsKeyDown(Enum.KeyCode.LeftShift) and 4.5 or 1.5), 0) + entitylib.character.Humanoid.MoveDirection * (i * 3))
+								if Diagonal.Enabled then
+									if math.abs(math.round(math.deg(math.atan2(-entitylib.character.Humanoid.MoveDirection.X, -entitylib.character.Humanoid.MoveDirection.Z)) / 45) * 45) % 90 == 45 then
+										local dt = (lastpos - currentpos)
+										if ((dt.X == 0 and dt.Z ~= 0) or (dt.X ~= 0 and dt.Z == 0)) and ((lastpos - root.Position) * Vector3.new(1, 0, 1)).Magnitude < 2.5 then
+											currentpos = lastpos
+										end
+									end
+								end
+	
+								local block, blockpos = getPlacedBlock(currentpos)
+								if not block then
+									blockpos = checkAdjacent(blockpos * 3) and blockpos * 3 or blockProximity(currentpos)
+									if blockpos then
+										task.spawn(bedwars.placeBlock, blockpos, wool, false)
+									end
+								end
+								lastpos = currentpos
+							end
+						end
+					end
+	
+					task.wait(0.03)
+				until not Scaffold.Enabled
+			end
+		end,
+		Tooltip = 'Helps you make bridges/scaffold walk.'
+	})
+	Expand = Scaffold:CreateSlider({
+		Name = 'Expand',
+		Min = 1,
+		Max = 6
+	})
+	Tower = Scaffold:CreateToggle({
+		Name = 'Tower',
+		Default = true
+	})
+	Downwards = Scaffold:CreateToggle({
+		Name = 'Downwards',
+		Default = true
+	})
+	Diagonal = Scaffold:CreateToggle({
+		Name = 'Diagonal',
+		Default = true
+	})
+	LimitItem = Scaffold:CreateToggle({Name = 'Limit to items'})
+	Mouse = Scaffold:CreateToggle({Name = 'Require mouse down'})
+end)
+	
+run(function()
+	local tiered, nexttier = {}, {}
+	
+	vape.Categories.Utility:CreateModule({
+		Name = 'ShopTierBypass',
+		Function = function(callback)
+			if callback then
+				for _, v in bedwars.Shop.ShopItems do
+					tiered[v] = v.tiered
+					nexttier[v] = v.nextTier
+					v.nextTier = nil
+					v.tiered = nil
+				end
+			else
+				for i, v in tiered do 
+					i.tiered = v 
+				end
+				for i, v in nexttier do 
+					i.nextTier = v 
+				end
+				table.clear(nexttier)
+				table.clear(tiered)
+			end
+		end,
+		Tooltip = 'Lets you buy things like armor early.'
+	})
+end)
+	
+run(function()
+	local StaffDetector
+	local Mode
+	local Profile
+	local Users
+	local blacklistedclans = {'gg', 'gg2', 'DV', 'DV2'}
+	local blacklisteduserids = {1502104539, 3826146717, 4531785383, 1049767300, 4926350670, 653085195, 184655415, 2752307430, 5087196317, 5744061325, 1536265275}
+	local joined = {}
+	
+	local function getRole(plr, id)
+		local suc, res = pcall(function()
+			return plr:GetRankInGroup(id)
+		end)
+		if not suc then
+			notif('StaffDetector', res, 30, 'alert')
+		end
+		return suc and res or 0
+	end
+	
+	local function staffFunction(plr, checktype)
+		if not vape.Loaded then repeat task.wait() until vape.Loaded end
+		notif('StaffDetector', 'Staff Detected ('..checktype..'): '..plr.Name..' ('..plr.UserId..')', 60, 'alert')
+		whitelist.customtags[plr.Name] = {{text = 'GAME STAFF', color = Color3.new(1, 0, 0)}}
+	
+		if Mode.Value == 'Uninject' then
+			task.spawn(function()
+				vape:Uninject()
+			end)
+			game:GetService('StarterGui'):SetCore('SendNotification', {
+				Title = 'StaffDetector',
+				Text = 'Staff Detected ('..checktype..')\n'..plr.Name..' ('..plr.UserId..')',
+				Duration = 60,
+			})
+		elseif Mode.Value == 'Profile' then
+			vape.Save = function() end
+			if vape.Profile ~= Profile.Value then
+				vape:Load(true, Profile.Value)
+			end
+		elseif Mode.Value == 'AutoConfig' then
+			local safe = {'AutoClicker', 'Reach', 'Sprint', 'HitFix', 'StaffDetector'}
+			vape.Save = function() end
+			for i, v in vape.Modules do
+				if not (table.find(safe, i) or v.Category == 'Render') then
+					if v.Enabled then
+						v:Toggle()
+					end
+					v:SetBind('')
+				end
+			end
+		end
+	end
+	
+	local function checkFriends(list)
+		for _, v in list do
+			if joined[v] then
+				return joined[v]
+			end
+		end
+		return nil
+	end
+	
+	local function checkJoin(plr, connection)
+		if not plr:GetAttribute('Team') and plr:GetAttribute('Spectator') and not bedwars.Store:getState().Game.customMatch then
+			connection:Disconnect()
+			local tab, pages = {}, playersService:GetFriendsAsync(plr.UserId)
+			for _ = 1, 4 do
+				for _, v in pages:GetCurrentPage() do
+					table.insert(tab, v.Id)
+				end
+				if pages.IsFinished then break end
+				pages:AdvanceToNextPageAsync()
+			end
+	
+			local friend = checkFriends(tab)
+			if not friend then
+				staffFunction(plr, 'impossible_join')
+				return true
+			else
+				notif('StaffDetector', string.format('Spectator %s joined from %s', plr.Name, friend), 20, 'warning')
+			end
+		end
+	end
+	
+	local function playerAdded(plr)
+		joined[plr.UserId] = plr.Name
+		if plr == lplr then return end
+		if table.find(blacklisteduserids, plr.UserId) or table.find(Users.ListEnabled, tostring(plr.UserId)) then
+			staffFunction(plr, 'blacklisted_user')
+			return
+		end
+	
+		if getRole(plr, 5774246) >= 100 then
+			staffFunction(plr, 'staff_role')
+		else
+			local connection
+			connection = plr:GetAttributeChangedSignal('Spectator'):Connect(function()
+				checkJoin(plr, connection)
+			end)
+			StaffDetector:Clean(connection)
+			if checkJoin(plr, connection) then
+				return
+			end
+	
+			if not plr:GetAttribute('ClanTag') then
+				plr:GetAttributeChangedSignal('ClanTag'):Wait()
+			end
+	
+			if table.find(blacklistedclans, plr:GetAttribute('ClanTag')) and vape.Loaded then
+				connection:Disconnect()
+				staffFunction(plr, 'blacklisted_clan_'..plr:GetAttribute('ClanTag'):lower())
+			end
+		end
+	end
+	
+	StaffDetector = vape.Categories.Utility:CreateModule({
+		Name = 'StaffDetector',
+		Function = function(callback)
+			if callback then
+				StaffDetector:Clean(playersService.PlayerAdded:Connect(playerAdded))
+				for _, v in playersService:GetPlayers() do
+					task.spawn(playerAdded, v)
+				end
+			else
+				table.clear(joined)
+			end
+		end,
+		Tooltip = 'Detects people with a staff rank ingame'
+	})
+	Mode = StaffDetector:CreateDropdown({
+		Name = 'Mode',
+		List = {'Uninject', 'Profile', 'AutoConfig', 'Notify'},
+		Function = function(val)
+			if Profile.Object then
+				Profile.Object.Visible = val == 'Profile'
+			end
+		end
+	})
+	Profile = StaffDetector:CreateTextBox({
+		Name = 'Profile',
+		Default = 'default',
+		Darker = true,
+		Visible = false
+	})
+	Users = StaffDetector:CreateTextList({
+		Name = 'Users',
+		Placeholder = 'player (userid)'
+	})
+	
+	task.spawn(function()
+		repeat task.wait(1) until vape.Loaded or vape.Loaded == nil
+		if vape.Loaded and not StaffDetector.Enabled then
+			StaffDetector:Toggle()
+		end
+	end)
+end)
+	
+run(function()
+	StoreDamage = vape.Categories.Utility:CreateModule({
+		Name = 'StoreDamage',
+		Tooltip = 'Store damage knockback packets for certain modules.'
+	})
+end)
+	
+run(function()
+	TrapDisabler = vape.Categories.Utility:CreateModule({
+		Name = 'TrapDisabler',
+		Tooltip = 'Disables Snap Traps'
+	})
+end)
+	
+run(function()
+	vape.Categories.World:CreateModule({
+		Name = 'Anti-AFK',
+		Function = function(callback)
+			if callback then
+				for _, v in getconnections(lplr.Idled) do
+					v:Disconnect()
+				end
+	
+				for _, v in getconnections(runService.Heartbeat) do
+					if type(v.Function) == 'function' and table.find(debug.getconstants(v.Function), remotes.AfkStatus) then
+						v:Disconnect()
+					end
+				end
+	
+				bedwars.Client:Get(remotes.AfkStatus):SendToServer({
+					afk = false
+				})
+			end
+		end,
+		Tooltip = 'Lets you stay ingame without getting kicked'
+	})
+end)
+	
+run(function()
+	local AutoTool
+	local old, event
+	
+	local function switchHotbarItem(block)
+		if block and not block:GetAttribute('NoBreak') and not block:GetAttribute('Team'..(lplr:GetAttribute('Team') or 0)..'NoBreak') then
+			local tool, slot = store.tools[bedwars.ItemMeta[block.Name].block.breakType], nil
+			if tool then
+				for i, v in store.inventory.hotbar do
+					if v.item and v.item.itemType == tool.itemType then slot = i - 1 break end
+				end
+	
+				if hotbarSwitch(slot) then
+					if inputService:IsMouseButtonPressed(0) then 
+						event:Fire() 
+					end
+					return true
+				end
+			end
+		end
+	end
+	
+	AutoTool = vape.Categories.World:CreateModule({
+		Name = 'AutoTool',
+		Function = function(callback)
+			if callback then
+				event = Instance.new('BindableEvent')
+				AutoTool:Clean(event)
+				AutoTool:Clean(event.Event:Connect(function()
+					contextActionService:CallFunction('block-break', Enum.UserInputState.Begin, newproxy(true))
+				end))
+				old = bedwars.BlockBreaker.hitBlock
+				bedwars.BlockBreaker.hitBlock = function(self, maid, raycastparams, ...)
+					local block = self.clientManager:getBlockSelector():getMouseInfo(1, {ray = raycastparams})
+					if switchHotbarItem(block and block.target and block.target.blockInstance or nil) then return end
+					return old(self, maid, raycastparams, ...)
+				end
+			else
+				bedwars.BlockBreaker.hitBlock = old
+				old = nil
+			end
+		end,
+		Tooltip = 'Automatically selects the correct tool'
+	})
+end)
+	
+run(function()
+	local BedProtector
+	
+	local function getBedNear()
+		local localPosition = entitylib.isAlive and entitylib.character.RootPart.Position or Vector3.zero
+		for _, v in collectionService:GetTagged('bed') do
+			if (localPosition - v.Position).Magnitude < 20 and v:GetAttribute('Team'..(lplr:GetAttribute('Team') or -1)..'NoBreak') then
+				return v
+			end
+		end
+	end
+	
+	local function getBlocks()
+		local blocks = {}
+		for _, item in store.inventory.inventory.items do
+			local block = bedwars.ItemMeta[item.itemType].block
+			if block then
+				table.insert(blocks, {item.itemType, block.health})
+			end
+		end
+		table.sort(blocks, function(a, b) 
+			return a[2] > b[2]
+		end)
+		return blocks
+	end
+	
+	local function getPyramid(size, grid)
+		local positions = {}
+		for h = size, 0, -1 do
+			for w = h, 0, -1 do
+				table.insert(positions, Vector3.new(w, (size - h), ((h + 1) - w)) * grid)
+				table.insert(positions, Vector3.new(w * -1, (size - h), ((h + 1) - w)) * grid)
+				table.insert(positions, Vector3.new(w, (size - h), (h - w) * -1) * grid)
+				table.insert(positions, Vector3.new(w * -1, (size - h), (h - w) * -1) * grid)
+			end
+		end
+		return positions
+	end
+	
+	BedProtector = vape.Categories.World:CreateModule({
+		Name = 'BedProtector',
+		Function = function(callback)
+			if callback then
+				local bed = getBedNear()
+				bed = bed and bed.Position or nil
+				if bed then
+					for i, block in getBlocks() do
+						for _, pos in getPyramid(i, 3) do
+							if not BedProtector.Enabled then break end
+							if getPlacedBlock(bed + pos) then continue end
+							bedwars.placeBlock(bed + pos, block[1], false)
+						end
+					end
+					if BedProtector.Enabled then 
+						BedProtector:Toggle() 
+					end
+				else
+					notif('BedProtector', 'Unable to locate bed', 5)
+					BedProtector:Toggle()
+				end
+			end
+		end,
+		Tooltip = 'Automatically places strong blocks around the bed.'
+	})
+end)
+	
+run(function()
+	local ChestSteal
+	local Range
+	local Open
+	local Skywars
+	local Delays = {}
+	
+	local function lootChest(chest)
+		chest = chest and chest.Value or nil
+		local chestitems = chest and chest:GetChildren() or {}
+		if #chestitems > 1 and (Delays[chest] == nil or Delays[chest] < tick()) then
+			Delays[chest] = tick() + 0.3
+			bedwars.Client:GetNamespace('Inventory'):Get('SetObservedChest'):SendToServer(chest)
+	
+			for _, v in chestitems do
+				if v:IsA('Accessory') then
+					task.spawn(function()
+						pcall(function()
+							bedwars.Client:GetNamespace('Inventory'):Get('ChestGetItem'):CallServer(chest, v)
+						end)
+					end)
+				end
+			end
+	
+			bedwars.Client:GetNamespace('Inventory'):Get('SetObservedChest'):SendToServer(nil)
+		end
+	end
+	
+	ChestSteal = vape.Categories.World:CreateModule({
+		Name = 'ChestSteal',
+		Function = function(callback)
+			if callback then
+				local chests = collection('chest', ChestSteal)
+				repeat task.wait() until store.queueType ~= 'bedwars_test'
+				if (not Skywars.Enabled) or store.queueType:find('skywars') then
+					repeat
+						if entitylib.isAlive and store.matchState ~= 2 then
+							if Open.Enabled then
+								if bedwars.AppController:isAppOpen('ChestApp') then
+									lootChest(lplr.Character:FindFirstChild('ObservedChestFolder'))
+								end
+							else
+								local localPosition = entitylib.character.RootPart.Position
+								for _, v in chests do
+									if (localPosition - v.Position).Magnitude <= Range.Value then
+										lootChest(v:FindFirstChild('ChestFolderValue'))
+									end
+								end
+							end
+						end
+						task.wait(0.1)
+					until not ChestSteal.Enabled
+				end
+			end
+		end,
+		Tooltip = 'Grabs items from near chests.'
+	})
+	Range = ChestSteal:CreateSlider({
+		Name = 'Range',
+		Min = 0,
+		Max = 18,
+		Default = 18,
+		Suffix = function(val) 
+			return val == 1 and 'stud' or 'studs' 
+		end
+	})
+	Open = ChestSteal:CreateToggle({Name = 'GUI Check'})
+	Skywars = ChestSteal:CreateToggle({
+		Name = 'Only Skywars',
+		Function = function()
+			if ChestSteal.Enabled then
+				ChestSteal:Toggle()
+				ChestSteal:Toggle()
+			end
+		end,
+		Default = true
+	})
+end)
+	
+run(function()
+	local Schematica
+	local File
+	local Mode
+	local Transparency
+	local parts, guidata, poschecklist = {}, {}, {}
+	local point1, point2
+	
+	for x = -3, 3, 3 do
+		for y = -3, 3, 3 do
+			for z = -3, 3, 3 do
+				if Vector3.new(x, y, z) ~= Vector3.zero then
+					table.insert(poschecklist, Vector3.new(x, y, z))
+				end
+			end
+		end
+	end
+	
+	local function checkAdjacent(pos)
+		for _, v in poschecklist do
+			if getPlacedBlock(pos + v) then return true end
+		end
+		return false
+	end
+	
+	local function getPlacedBlocksInPoints(s, e)
+		local list, blocks = {}, bedwars.BlockController:getStore()
+		for x = (e.X > s.X and s.X or e.X), (e.X > s.X and e.X or s.X) do
+			for y = (e.Y > s.Y and s.Y or e.Y), (e.Y > s.Y and e.Y or s.Y) do
+				for z = (e.Z > s.Z and s.Z or e.Z), (e.Z > s.Z and e.Z or s.Z) do
+					local vec = Vector3.new(x, y, z)
+					local block = blocks:getBlockAt(vec)
+					if block and block:GetAttribute('PlacedByUserId') == lplr.UserId then
+						list[vec] = block
+					end
+				end
+			end
+		end
+		return list
+	end
+	
+	local function loadMaterials()
+		for _, v in guidata do 
+			v:Destroy() 
+		end
+		local suc, read = pcall(function() 
+			return isfile(File.Value) and httpService:JSONDecode(readfile(File.Value)) 
+		end)
+	
+		if suc and read then
+			local items = {}
+			for _, v in read do 
+				items[v[2]] = (items[v[2]] or 0) + 1 
+			end
+			
+			for i, v in items do
+				local holder = Instance.new('Frame')
+				holder.Size = UDim2.new(1, 0, 0, 32)
+				holder.BackgroundTransparency = 1
+				holder.Parent = Schematica.Children
+				local icon = Instance.new('ImageLabel')
+				icon.Size = UDim2.fromOffset(24, 24)
+				icon.Position = UDim2.fromOffset(4, 4)
+				icon.BackgroundTransparency = 1
+				icon.Image = bedwars.getIcon({itemType = i}, true)
+				icon.Parent = holder
+				local text = Instance.new('TextLabel')
+				text.Size = UDim2.fromOffset(100, 32)
+				text.Position = UDim2.fromOffset(32, 0)
+				text.BackgroundTransparency = 1
+				text.Text = (bedwars.ItemMeta[i] and bedwars.ItemMeta[i].displayName or i)..': '..v
+				text.TextXAlignment = Enum.TextXAlignment.Left
+				text.TextColor3 = uipallet.Text
+				text.TextSize = 14
+				text.FontFace = uipallet.Font
+				text.Parent = holder
+				table.insert(guidata, holder)
+			end
+			table.clear(read)
+			table.clear(items)
+		end
+	end
+	
+	local function save()
+		if point1 and point2 then
+			local tab = getPlacedBlocksInPoints(point1, point2)
+			local savetab = {}
+			point1 = point1 * 3
+			for i, v in tab do
+				i = bedwars.BlockController:getBlockPosition(CFrame.lookAlong(point1, entitylib.character.RootPart.CFrame.LookVector):PointToObjectSpace(i * 3)) * 3
+				table.insert(savetab, {
+					{
+						x = i.X, 
+						y = i.Y, 
+						z = i.Z
+					}, 
+					v.Name
+				})
+			end
+			point1, point2 = nil, nil
+			writefile(File.Value, httpService:JSONEncode(savetab))
+			notif('Schematica', 'Saved '..getTableSize(tab)..' blocks', 5)
+			loadMaterials()
+			table.clear(tab)
+			table.clear(savetab)
+		else
+			local mouseinfo = bedwars.BlockBreaker.clientManager:getBlockSelector():getMouseInfo(0)
+			if mouseinfo and mouseinfo.target then
+				if point1 then
+					point2 = mouseinfo.target.blockRef.blockPosition
+					notif('Schematica', 'Selected position 2, toggle again near position 1 to save it', 3)
+				else
+					point1 = mouseinfo.target.blockRef.blockPosition
+					notif('Schematica', 'Selected position 1', 3)
+				end
+			end
+		end
+	end
+	
+	local function load(read)
+		local mouseinfo = bedwars.BlockBreaker.clientManager:getBlockSelector():getMouseInfo(0)
+		if mouseinfo and mouseinfo.target then
+			local position = CFrame.new(mouseinfo.placementPosition * 3) * CFrame.Angles(0, math.rad(math.round(math.deg(math.atan2(-entitylib.character.RootPart.CFrame.LookVector.X, -entitylib.character.RootPart.CFrame.LookVector.Z)) / 45) * 45), 0)
+	
+			for _, v in read do
+				local blockpos = bedwars.BlockController:getBlockPosition((position * CFrame.new(v[1].x, v[1].y, v[1].z)).p) * 3
+				if parts[blockpos] then continue end
+				local handler = bedwars.BlockController:getHandlerRegistry():getHandler(v[2]:find('wool') and getWool() or v[2])
+				if handler then
+					local part = handler:place(blockpos / 3, 0)
+					part.Transparency = Transparency.Value
+					part.CanCollide = false
+					part.Anchored = true
+					part.Parent = workspace
+					parts[blockpos] = part
+				end
+			end
+			table.clear(read)
+	
+			repeat
+				if entitylib.isAlive then
+					local localPosition = entitylib.character.RootPart.Position
+					for i, v in parts do
+						if (i - localPosition).Magnitude < 60 and checkAdjacent(i) then
+							if not Schematica.Enabled then break end
+							if not getItem(v.Name) then continue end
+							bedwars.placeBlock(i, v.Name, false)
+							task.delay(0.1, function()
+								local block = getPlacedBlock(i)
+								if block then
+									v:Destroy()
+									parts[i] = nil
+								end
+							end)
+						end
+					end
+				end
+				task.wait()
+			until getTableSize(parts) <= 0
+	
+			if getTableSize(parts) <= 0 and Schematica.Enabled then
+				notif('Schematica', 'Finished building', 5)
+				Schematica:Toggle()
+			end
+		end
+	end
+	
+	Schematica = vape.Categories.World:CreateModule({
+		Name = 'Schematica',
+		Function = function(callback)
+			if callback then
+				if not File.Value:find('.json') then
+					notif('Schematica', 'Invalid file', 3)
+					Schematica:Toggle()
+					return
+				end
+	
+				if Mode.Value == 'Save' then
+					save()
+					Schematica:Toggle()
+				else
+					local suc, read = pcall(function() 
+						return isfile(File.Value) and httpService:JSONDecode(readfile(File.Value)) 
+					end)
+	
+					if suc and read then
+						load(read)
+					else
+						notif('Schematica', 'Missing / corrupted file', 3)
+						Schematica:Toggle()
+					end
+				end
+			else
+				for _, v in parts do 
+					v:Destroy() 
+				end
+				table.clear(parts)
+			end
+		end,
+		Tooltip = 'Save and load placements of buildings'
+	})
+	File = Schematica:CreateTextBox({
+		Name = 'File',
+		Function = function()
+			loadMaterials()
+			point1, point2 = nil, nil
+		end
+	})
+	Mode = Schematica:CreateDropdown({
+		Name = 'Mode',
+		List = {'Load', 'Save'}
+	})
+	Transparency = Schematica:CreateSlider({
+		Name = 'Transparency',
+		Min = 0,
+		Max = 1,
+		Default = 0.7,
+		Decimal = 10,
+		Function = function(val)
+			for _, v in parts do 
+				v.Transparency = val 
+			end
+		end
+	})
+end)
+	
+run(function()
+	local AutoBuy
+	local Sword
+	local Armor
+	local Upgrades
+	local TierCheck
+	local BedwarsCheck
+	local GUI
+	local SmartCheck
+	local Custom = {}
+	local CustomPost = {}
+	local UpgradeToggles = {}
+	local Functions, id = {}
+	local Callbacks = {Custom, Functions, CustomPost}
+	local npctick = tick()
+	
+	local swords = {
+		'wood_sword',
+		'stone_sword',
+		'iron_sword',
+		'diamond_sword',
+		'emerald_sword'
+	}
+	
+	local armors = {
+		'none',
+		'leather_chestplate',
+		'iron_chestplate',
+		'diamond_chestplate',
+		'emerald_chestplate'
+	}
+	
+	local axes = {
+		'none',
+		'wood_axe',
+		'stone_axe',
+		'iron_axe',
+		'diamond_axe'
+	}
+	
+	local pickaxes = {
+		'none',
+		'wood_pickaxe',
+		'stone_pickaxe',
+		'iron_pickaxe',
+		'diamond_pickaxe'
+	}
+	
+	local function getShopNPC()
+		local shop, items, upgrades, newid = nil, false, false, nil
+		if entitylib.isAlive then
+			local localPosition = entitylib.character.RootPart.Position
+			for _, v in store.shop do
+				if (v.RootPart.Position - localPosition).Magnitude <= 20 then
+					shop = v.Upgrades or v.Shop or nil
+					upgrades = upgrades or v.Upgrades
+					items = items or v.Shop
+					newid = v.Shop and v.Id or newid
+				end
+			end
+		end
+		return shop, items, upgrades, newid
+	end
+	
+	local function canBuy(item, currencytable, amount)
+		amount = amount or 1
+		if not currencytable[item.currency] then
+			local currency = getItem(item.currency)
+			currencytable[item.currency] = currency and currency.amount or 0
+		end
+		if item.ignoredByKit and table.find(item.ignoredByKit, store.equippedKit or '') then return false end
+		if item.lockedByForge or item.disabled then return false end
+		if item.require and item.require.teamUpgrade then
+			if (bedwars.Store:getState().Bedwars.teamUpgrades[item.require.teamUpgrade.upgradeId] or -1) < item.require.teamUpgrade.lowestTierIndex then
+				return false
+			end
+		end
+		return currencytable[item.currency] >= (item.price * amount)
+	end
+	
+	local function buyItem(item, currencytable)
+		if not id then return end
+		notif('AutoBuy', 'Bought '..bedwars.ItemMeta[item.itemType].displayName, 3)
+		bedwars.Client:Get('BedwarsPurchaseItem'):CallServerAsync({
+			shopItem = item,
+			shopId = id
+		}):andThen(function(suc)
+			if suc then
+				bedwars.SoundManager:playSound(bedwars.SoundList.BEDWARS_PURCHASE_ITEM)
+				bedwars.Store:dispatch({
+					type = 'BedwarsAddItemPurchased',
+					itemType = item.itemType
+				})
+				bedwars.BedwarsShopController.alreadyPurchasedMap[item.itemType] = true
+			end
+		end)
+		currencytable[item.currency] -= item.price
+	end
+	
+	local function buyUpgrade(upgradeType, currencytable)
+		if not Upgrades.Enabled then return end
+		local upgrade = bedwars.TeamUpgradeMeta[upgradeType]
+		local currentUpgrades = bedwars.Store:getState().Bedwars.teamUpgrades[lplr:GetAttribute('Team')] or {}
+		local currentTier = (currentUpgrades[upgradeType] or 0) + 1
+		local bought = false
+	
+		for i = currentTier, #upgrade.tiers do
+			local tier = upgrade.tiers[i]
+			if tier.availableOnlyInQueue and not table.find(tier.availableOnlyInQueue, store.queueType) then continue end
+	
+			if canBuy({currency = 'diamond', price = tier.cost}, currencytable) then
+				notif('AutoBuy', 'Bought '..(upgrade.name == 'Armor' and 'Protection' or upgrade.name)..' '..i, 3)
+				bedwars.Client:Get('RequestPurchaseTeamUpgrade'):CallServerAsync(upgradeType)
+				currencytable.diamond -= tier.cost
+				bought = true
+			else
+				break
+			end
+		end
+	
+		return bought
+	end
+	
+	local function buyTool(tool, tools, currencytable)
+		local bought, buyable = false
+		tool = tool and table.find(tools, tool.itemType) and table.find(tools, tool.itemType) + 1 or math.huge
+	
+		for i = tool, #tools do
+			local v = bedwars.Shop.getShopItem(tools[i], lplr)
+			if canBuy(v, currencytable) then
+				if SmartCheck.Enabled and bedwars.ItemMeta[tools[i]].breakBlock and i > 2 then
+					if Armor.Enabled then
+						local currentarmor = store.inventory.inventory.armor[2]
+						currentarmor = currentarmor and currentarmor ~= 'empty' and currentarmor.itemType or 'none'
+						if (table.find(armors, currentarmor) or 3) < 3 then break end
+					end
+					if Sword.Enabled then
+						if store.tools.sword and (table.find(swords, store.tools.sword.itemType) or 2) < 2 then break end
+					end
+				end
+				bought = true
+				buyable = v
+			end
+			if TierCheck.Enabled and v.nextTier then break end
+		end
+	
+		if buyable then
+			buyItem(buyable, currencytable)
+		end
+	
+		return bought
+	end
+	
+	AutoBuy = vape.Categories.Inventory:CreateModule({
+		Name = 'AutoBuy',
+		Function = function(callback)
+			if callback then
+				repeat task.wait() until store.queueType ~= 'bedwars_test'
+				if BedwarsCheck.Enabled and not store.queueType:find('bedwars') then return end
+	
+				local lastupgrades
+				AutoBuy:Clean(vapeEvents.InventoryAmountChanged.Event:Connect(function()
+					if (npctick - tick()) > 1 then npctick = tick() end
+				end))
+	
+				repeat
+					local npc, shop, upgrades, newid = getShopNPC()
+					id = newid
+					if GUI.Enabled then
+						if not (bedwars.AppController:isAppOpen('BedwarsItemShopApp') or bedwars.AppController:isAppOpen('BedwarsTeamUpgradeApp')) then
+							npc = nil
+						end
+					end
+	
+					if npc and lastupgrades ~= upgrades then
+						if (npctick - tick()) > 1 then npctick = tick() end
+						lastupgrades = upgrades
+					end
+	
+					if npc and npctick <= tick() and store.matchState ~= 2 and store.shopLoaded then
+						local currencytable = {}
+						local waitcheck
+						if not AutoBuy.Enabled then break end
+						for _, tab in Callbacks do
+							for _, callback in tab do
+								if callback(currencytable, shop, upgrades) then
+									waitcheck = true
+								end
+							end
+						end
+						npctick = tick() + (waitcheck and 0.4 or math.huge)
+					end
+	
+					task.wait(0.1)
+				until not AutoBuy.Enabled
+			else
+				npctick = tick()
+			end
+		end,
+		Tooltip = 'Automatically buys items when you go near the shop'
+	})
+	Sword = AutoBuy:CreateToggle({
+		Name = 'Buy Sword',
+		Function = function(callback)
+			npctick = tick()
+			Functions[2] = callback and function(currencytable, shop)
+				if not shop then return end
+	
+				if store.equippedKit == 'dasher' then
+					swords = {
+						[1] = 'wood_dao',
+						[2] = 'stone_dao',
+						[3] = 'iron_dao',
+						[4] = 'diamond_dao',
+						[5] = 'emerald_dao'
+					}
+				elseif store.equippedKit == 'ice_queen' then
+					swords[5] = 'ice_sword'
+				elseif store.equippedKit == 'ember' then
+					swords[5] = 'infernal_saber'
+				elseif store.equippedKit == 'lumen' then
+					swords[5] = 'light_sword'
+				end
+	
+				return buyTool(store.tools.sword, swords, currencytable)
+			end or nil
+		end
+	})
+	Armor = AutoBuy:CreateToggle({
+		Name = 'Buy Armor',
+		Function = function(callback)
+			npctick = tick()
+			Functions[1] = callback and function(currencytable, shop)
+				if not shop then return end
+				local currentarmor = store.inventory.inventory.armor[2]
+				currentarmor = currentarmor and currentarmor ~= 'empty' and currentarmor.itemType or 'none'
+				return buyTool({itemType = currentarmor}, armors, currencytable)
+			end or nil
+		end,
+		Default = true
+	})
+	AutoBuy:CreateToggle({
+		Name = 'Buy Axe',
+		Function = function(callback)
+			npctick = tick()
+			Functions[3] = callback and function(currencytable, shop)
+				if not shop then return end
+				return buyTool(store.tools.wood or {itemType = 'none'}, axes, currencytable)
+			end or nil
+		end
+	})
+	AutoBuy:CreateToggle({
+		Name = 'Buy Pickaxe',
+		Function = function(callback)
+			npctick = tick()
+			Functions[4] = callback and function(currencytable, shop)
+				if not shop then return end
+				return buyTool(store.tools.stone, pickaxes, currencytable)
+			end or nil
+		end
+	})
+	Upgrades = AutoBuy:CreateToggle({
+		Name = 'Buy Upgrades',
+		Function = function(callback)
+			for _, v in UpgradeToggles do
+				v.Object.Visible = callback
+			end
+		end,
+		Default = true
+	})
+	local count = 0
+	for i, v in bedwars.TeamUpgradeMeta do
+		local toggleCount = count
+		table.insert(UpgradeToggles, AutoBuy:CreateToggle({
+			Name = 'Buy '..(v.name == 'Armor' and 'Protection' or v.name),
+			Function = function(callback)
+				npctick = tick()
+				Functions[5 + toggleCount + (v.name == 'Armor' and 20 or 0)] = callback and function(currencytable, shop, upgrades)
+					if not upgrades then return end
+					if v.disabledInQueue and table.find(v.disabledInQueue, store.queueType) then return end
+					return buyUpgrade(i, currencytable)
+				end or nil
+			end,
+			Darker = true,
+			Default = (i == 'ARMOR' or i == 'DAMAGE')
+		}))
+		count += 1
+	end
+	TierCheck = AutoBuy:CreateToggle({Name = 'Tier Check'})
+	BedwarsCheck = AutoBuy:CreateToggle({
+		Name = 'Only Bedwars',
+		Function = function()
+			if AutoBuy.Enabled then
+				AutoBuy:Toggle()
+				AutoBuy:Toggle()
+			end
+		end,
+		Default = true
+	})
+	GUI = AutoBuy:CreateToggle({Name = 'GUI check'})
+	SmartCheck = AutoBuy:CreateToggle({
+		Name = 'Smart check',
+		Default = true,
+		Tooltip = 'Buys iron armor before iron axe'
+	})
+	AutoBuy:CreateTextList({
+		Name = 'Item',
+		Placeholder = 'priority/item/amount/after',
+		Function = function(list)
+			table.clear(Custom)
+			table.clear(CustomPost)
+			for _, entry in list do
+				local tab = entry:split('/')
+				local ind = tonumber(tab[1])
+				if ind then
+					(tab[4] and CustomPost or Custom)[ind] = function(currencytable, shop)
+						if not shop then return end
+	
+						local v = bedwars.Shop.getShopItem(tab[2], lplr)
+						if v then
+							local item = getItem(tab[2] == 'wool_white' and bedwars.Shop.getTeamWool(lplr:GetAttribute('Team')) or tab[2])
+							item = (item and tonumber(tab[3]) - item.amount or tonumber(tab[3])) // v.amount
+							if item > 0 and canBuy(v, currencytable, item) then
+								for _ = 1, item do
+									buyItem(v, currencytable)
+								end
+								return true
+							end
+						end
+					end
+				end
+			end
+		end
+	})
+end)
+	
+run(function()
+	local AutoConsume
+	local Health
+	local SpeedPotion
+	local Apple
+	local ShieldPotion
+	
+	local function consumeCheck(attribute)
+		if entitylib.isAlive then
+			if SpeedPotion.Enabled and (not attribute or attribute == 'StatusEffect_speed') then
+				local speedpotion = getItem('speed_potion')
+				if speedpotion and (not lplr.Character:GetAttribute('StatusEffect_speed')) then
+					for _ = 1, 4 do
+						if bedwars.Client:Get(remotes.ConsumeItem):CallServer({item = speedpotion.tool}) then break end
+					end
+				end
+			end
+	
+			if Apple.Enabled and (not attribute or attribute:find('Health')) then
+				if (lplr.Character:GetAttribute('Health') / lplr.Character:GetAttribute('MaxHealth')) <= (Health.Value / 100) then
+					local apple = getItem('orange') or (not lplr.Character:GetAttribute('StatusEffect_golden_apple') and getItem('golden_apple')) or getItem('apple')
+					
+					if apple then
+						bedwars.Client:Get(remotes.ConsumeItem):CallServerAsync({
+							item = apple.tool
+						})
+					end
+				end
+			end
+	
+			if ShieldPotion.Enabled and (not attribute or attribute:find('Shield')) then
+				if (lplr.Character:GetAttribute('Shield_POTION') or 0) == 0 then
+					local shield = getItem('big_shield') or getItem('mini_shield')
+	
+					if shield then
+						bedwars.Client:Get(remotes.ConsumeItem):CallServerAsync({
+							item = shield.tool
+						})
+					end
+				end
+			end
+		end
+	end
+	
+	AutoConsume = vape.Categories.Inventory:CreateModule({
+		Name = 'AutoConsume',
+		Function = function(callback)
+			if callback then
+				AutoConsume:Clean(vapeEvents.InventoryAmountChanged.Event:Connect(consumeCheck))
+				AutoConsume:Clean(vapeEvents.AttributeChanged.Event:Connect(function(attribute)
+					if attribute:find('Shield') or attribute:find('Health') or attribute == 'StatusEffect_speed' then
+						consumeCheck(attribute)
+					end
+				end))
+				consumeCheck()
+			end
+		end,
+		Tooltip = 'Automatically heals for you when health or shield is under threshold.'
+	})
+	Health = AutoConsume:CreateSlider({
+		Name = 'Health Percent',
+		Min = 1,
+		Max = 99,
+		Default = 70,
+		Suffix = '%'
+	})
+	SpeedPotion = AutoConsume:CreateToggle({
+		Name = 'Speed Potions',
+		Default = true
+	})
+	Apple = AutoConsume:CreateToggle({
+		Name = 'Apple',
+		Default = true
+	})
+	ShieldPotion = AutoConsume:CreateToggle({
+		Name = 'Shield Potions',
+		Default = true
+	})
+end)
+	
+run(function()
+	local AutoHotbar
+	local Mode
+	local Clear
+	local List
+	local Active
+	
+	local function CreateWindow(self)
+		local selectedslot = 1
+		local window = Instance.new('Frame')
+		window.Name = 'HotbarGUI'
+		window.Size = UDim2.fromOffset(660, 465)
+		window.Position = UDim2.fromScale(0.5, 0.5)
+		window.BackgroundColor3 = uipallet.Main
+		window.AnchorPoint = Vector2.new(0.5, 0.5)
+		window.Visible = false
+		window.Parent = vape.gui.ScaledGui
+		local title = Instance.new('TextLabel')
+		title.Name = 'Title'
+		title.Size = UDim2.new(1, -10, 0, 20)
+		title.Position = UDim2.fromOffset(math.abs(title.Size.X.Offset), 12)
+		title.BackgroundTransparency = 1
+		title.Text = 'AutoHotbar'
+		title.TextXAlignment = Enum.TextXAlignment.Left
+		title.TextColor3 = uipallet.Text
+		title.TextSize = 13
+		title.FontFace = uipallet.Font
+		title.Parent = window
+		local divider = Instance.new('Frame')
+		divider.Name = 'Divider'
+		divider.Size = UDim2.new(1, 0, 0, 1)
+		divider.Position = UDim2.fromOffset(0, 40)
+		divider.BackgroundColor3 = color.Light(uipallet.Main, 0.04)
+		divider.BorderSizePixel = 0
+		divider.Parent = window
+		addBlur(window)
+		local modal = Instance.new('TextButton')
+		modal.Text = ''
+		modal.BackgroundTransparency = 1
+		modal.Modal = true
+		modal.Parent = window
+		local corner = Instance.new('UICorner')
+		corner.CornerRadius = UDim.new(0, 5)
+		corner.Parent = window
+		local close = Instance.new('ImageButton')
+		close.Name = 'Close'
+		close.Size = UDim2.fromOffset(24, 24)
+		close.Position = UDim2.new(1, -35, 0, 9)
+		close.BackgroundColor3 = Color3.new(1, 1, 1)
+		close.BackgroundTransparency = 1
+		close.Image = getcustomasset('newvape/assets/new/close.png')
+		close.ImageColor3 = color.Light(uipallet.Text, 0.2)
+		close.ImageTransparency = 0.5
+		close.AutoButtonColor = false
+		close.Parent = window
+		close.MouseEnter:Connect(function()
+			close.ImageTransparency = 0.3
+			tween:Tween(close, TweenInfo.new(0.2), {
+				BackgroundTransparency = 0.6
+			})
+		end)
+		close.MouseLeave:Connect(function()
+			close.ImageTransparency = 0.5
+			tween:Tween(close, TweenInfo.new(0.2), {
+				BackgroundTransparency = 1
+			})
+		end)
+		close.MouseButton1Click:Connect(function()
+			window.Visible = false
+			vape.gui.ScaledGui.ClickGui.Visible = true
+		end)
+		local closecorner = Instance.new('UICorner')
+		closecorner.CornerRadius = UDim.new(1, 0)
+		closecorner.Parent = close
+		local bigslot = Instance.new('Frame')
+		bigslot.Size = UDim2.fromOffset(110, 111)
+		bigslot.Position = UDim2.fromOffset(11, 71)
+		bigslot.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
+		bigslot.Parent = window
+		local bigslotcorner = Instance.new('UICorner')
+		bigslotcorner.CornerRadius = UDim.new(0, 4)
+		bigslotcorner.Parent = bigslot
+		local bigslotstroke = Instance.new('UIStroke')
+		bigslotstroke.Color = color.Light(uipallet.Main, 0.034)
+		bigslotstroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		bigslotstroke.Parent = bigslot
+		local slotnum = Instance.new('TextLabel')
+		slotnum.Size = UDim2.fromOffset(80, 20)
+		slotnum.Position = UDim2.fromOffset(25, 200)
+		slotnum.BackgroundTransparency = 1
+		slotnum.Text = 'SLOT 1'
+		slotnum.TextColor3 = color.Dark(uipallet.Text, 0.1)
+		slotnum.TextSize = 12
+		slotnum.FontFace = uipallet.Font
+		slotnum.Parent = window
+		for i = 1, 9 do
+			local slotbkg = Instance.new('TextButton')
+			slotbkg.Name = 'Slot'..i
+			slotbkg.Size = UDim2.fromOffset(51, 52)
+			slotbkg.Position = UDim2.fromOffset(89 + (i * 55), 382)
+			slotbkg.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
+			slotbkg.Text = ''
+			slotbkg.AutoButtonColor = false
+			slotbkg.Parent = window
+			local slotimage = Instance.new('ImageLabel')
+			slotimage.Size = UDim2.fromOffset(32, 32)
+			slotimage.Position = UDim2.new(0.5, -16, 0.5, -16)
+			slotimage.BackgroundTransparency = 1
+			slotimage.Image = ''
+			slotimage.Parent = slotbkg
+			local slotcorner = Instance.new('UICorner')
+			slotcorner.CornerRadius = UDim.new(0, 4)
+			slotcorner.Parent = slotbkg
+			local slotstroke = Instance.new('UIStroke')
+			slotstroke.Color = color.Light(uipallet.Main, 0.04)
+			slotstroke.Thickness = 2
+			slotstroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			slotstroke.Enabled = i == selectedslot
+			slotstroke.Parent = slotbkg
+			slotbkg.MouseEnter:Connect(function()
+				slotbkg.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
+			end)
+			slotbkg.MouseLeave:Connect(function()
+				slotbkg.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
+			end)
+			slotbkg.MouseButton1Click:Connect(function()
+				window['Slot'..selectedslot].UIStroke.Enabled = false
+				selectedslot = i
+				slotstroke.Enabled = true
+				slotnum.Text = 'SLOT '..selectedslot
+			end)
+			slotbkg.MouseButton2Click:Connect(function()
+				local obj = self.Hotbars[self.Selected]
+				if obj then
+					window['Slot'..i].ImageLabel.Image = ''
+					obj.Hotbar[tostring(i)] = nil
+					obj.Object['Slot'..i].Image = '	'
+				end
+			end)
+		end
+		local searchbkg = Instance.new('Frame')
+		searchbkg.Size = UDim2.fromOffset(496, 31)
+		searchbkg.Position = UDim2.fromOffset(142, 80)
+		searchbkg.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
+		searchbkg.Parent = window
+		local search = Instance.new('TextBox')
+		search.Size = UDim2.new(1, -10, 0, 31)
+		search.Position = UDim2.fromOffset(10, 0)
+		search.BackgroundTransparency = 1
+		search.Text = ''
+		search.PlaceholderText = ''
+		search.TextXAlignment = Enum.TextXAlignment.Left
+		search.TextColor3 = uipallet.Text
+		search.TextSize = 12
+		search.FontFace = uipallet.Font
+		search.ClearTextOnFocus = false
+		search.Parent = searchbkg
+		local searchcorner = Instance.new('UICorner')
+		searchcorner.CornerRadius = UDim.new(0, 4)
+		searchcorner.Parent = searchbkg
+		local searchicon = Instance.new('ImageLabel')
+		searchicon.Size = UDim2.fromOffset(14, 14)
+		searchicon.Position = UDim2.new(1, -26, 0, 8)
+		searchicon.BackgroundTransparency = 1
+		searchicon.Image = getcustomasset('newvape/assets/new/search.png')
+		searchicon.ImageColor3 = color.Light(uipallet.Main, 0.37)
+		searchicon.Parent = searchbkg
+		local children = Instance.new('ScrollingFrame')
+		children.Name = 'Children'
+		children.Size = UDim2.fromOffset(500, 240)
+		children.Position = UDim2.fromOffset(144, 122)
+		children.BackgroundTransparency = 1
+		children.BorderSizePixel = 0
+		children.ScrollBarThickness = 2
+		children.ScrollBarImageTransparency = 0.75
+		children.CanvasSize = UDim2.new()
+		children.Parent = window
+		local windowlist = Instance.new('UIGridLayout')
+		windowlist.SortOrder = Enum.SortOrder.LayoutOrder
+		windowlist.FillDirectionMaxCells = 9
+		windowlist.CellSize = UDim2.fromOffset(51, 52)
+		windowlist.CellPadding = UDim2.fromOffset(4, 3)
+		windowlist.Parent = children
+		windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
+			if vape.ThreadFix then
+				setthreadidentity(8)
+			end
+			children.CanvasSize = UDim2.fromOffset(0, windowlist.AbsoluteContentSize.Y / vape.guiscale.Scale)
+		end)
+		table.insert(vape.Windows, window)
+	
+		local function createitem(id, image)
+			local slotbkg = Instance.new('TextButton')
+			slotbkg.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
+			slotbkg.Text = ''
+			slotbkg.AutoButtonColor = false
+			slotbkg.Parent = children
+			local slotimage = Instance.new('ImageLabel')
+			slotimage.Size = UDim2.fromOffset(32, 32)
+			slotimage.Position = UDim2.new(0.5, -16, 0.5, -16)
+			slotimage.BackgroundTransparency = 1
+			slotimage.Image = image
+			slotimage.Parent = slotbkg
+			local slotcorner = Instance.new('UICorner')
+			slotcorner.CornerRadius = UDim.new(0, 4)
+			slotcorner.Parent = slotbkg
+			slotbkg.MouseEnter:Connect(function()
+				slotbkg.BackgroundColor3 = color.Light(uipallet.Main, 0.04)
+			end)
+			slotbkg.MouseLeave:Connect(function()
+				slotbkg.BackgroundColor3 = color.Light(uipallet.Main, 0.02)
+			end)
+			slotbkg.MouseButton1Click:Connect(function()
+				local obj = self.Hotbars[self.Selected]
+				if obj then
+					window['Slot'..selectedslot].ImageLabel.Image = image
+					obj.Hotbar[tostring(selectedslot)] = id
+					obj.Object['Slot'..selectedslot].Image = image
+				end
+			end)
+		end
+	
+		local function indexSearch(text)
+			for _, v in children:GetChildren() do
+				if v:IsA('TextButton') then
+					v:ClearAllChildren()
+					v:Destroy()
+				end
+			end
+	
+			if text == '' then
+				for _, v in {'diamond_sword', 'diamond_pickaxe', 'diamond_axe', 'shears', 'wood_bow', 'wool_white', 'fireball', 'apple', 'iron', 'gold', 'diamond', 'emerald'} do
+					createitem(v, bedwars.ItemMeta[v].image)
+				end
+				return
+			end
+	
+			for i, v in bedwars.ItemMeta do
+				if text:lower() == i:lower():sub(1, text:len()) then
+					if not v.image then continue end
+					createitem(i, v.image)
+				end
+			end
+		end
+	
+		search:GetPropertyChangedSignal('Text'):Connect(function()
+			indexSearch(search.Text)
+		end)
+		indexSearch('')
+	
+		return window
+	end
+	
+	vape.Components.HotbarList = function(optionsettings, children, api)
+		if vape.ThreadFix then
+			setthreadidentity(8)
+		end
+		local optionapi = {
+			Type = 'HotbarList',
+			Hotbars = {},
+			Selected = 1
+		}
+		local hotbarlist = Instance.new('TextButton')
+		hotbarlist.Name = 'HotbarList'
+		hotbarlist.Size = UDim2.fromOffset(220, 40)
+		hotbarlist.BackgroundColor3 = optionsettings.Darker and (children.BackgroundColor3 == color.Dark(uipallet.Main, 0.02) and color.Dark(uipallet.Main, 0.04) or color.Dark(uipallet.Main, 0.02)) or children.BackgroundColor3
+		hotbarlist.Text = ''
+		hotbarlist.BorderSizePixel = 0
+		hotbarlist.AutoButtonColor = false
+		hotbarlist.Parent = children
+		local textbkg = Instance.new('Frame')
+		textbkg.Name = 'BKG'
+		textbkg.Size = UDim2.new(1, -20, 0, 31)
+		textbkg.Position = UDim2.fromOffset(10, 4)
+		textbkg.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
+		textbkg.Parent = hotbarlist
+		local textbkgcorner = Instance.new('UICorner')
+		textbkgcorner.CornerRadius = UDim.new(0, 4)
+		textbkgcorner.Parent = textbkg
+		local textbutton = Instance.new('TextButton')
+		textbutton.Name = 'HotbarList'
+		textbutton.Size = UDim2.new(1, -2, 1, -2)
+		textbutton.Position = UDim2.fromOffset(1, 1)
+		textbutton.BackgroundColor3 = uipallet.Main
+		textbutton.Text = ''
+		textbutton.AutoButtonColor = false
+		textbutton.Parent = textbkg
+		textbutton.MouseEnter:Connect(function()
+			tween:Tween(textbkg, TweenInfo.new(0.2), {
+				BackgroundColor3 = color.Light(uipallet.Main, 0.14)
+			})
+		end)
+		textbutton.MouseLeave:Connect(function()
+			tween:Tween(textbkg, TweenInfo.new(0.2), {
+				BackgroundColor3 = color.Light(uipallet.Main, 0.034)
+			})
+		end)
+		local textbuttoncorner = Instance.new('UICorner')
+		textbuttoncorner.CornerRadius = UDim.new(0, 4)
+		textbuttoncorner.Parent = textbutton
+		local textbuttonicon = Instance.new('ImageLabel')
+		textbuttonicon.Size = UDim2.fromOffset(12, 12)
+		textbuttonicon.Position = UDim2.fromScale(0.5, 0.5)
+		textbuttonicon.AnchorPoint = Vector2.new(0.5, 0.5)
+		textbuttonicon.BackgroundTransparency = 1
+		textbuttonicon.Image = getcustomasset('newvape/assets/new/add.png')
+		textbuttonicon.ImageColor3 = Color3.fromHSV(0.46, 0.96, 0.52)
+		textbuttonicon.Parent = textbutton
+		local childrenlist = Instance.new('Frame')
+		childrenlist.Size = UDim2.new(1, 0, 1, -40)
+		childrenlist.Position = UDim2.fromOffset(0, 40)
+		childrenlist.BackgroundTransparency = 1
+		childrenlist.Parent = hotbarlist
+		local windowlist = Instance.new('UIListLayout')
+		windowlist.SortOrder = Enum.SortOrder.LayoutOrder
+		windowlist.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		windowlist.Padding = UDim.new(0, 3)
+		windowlist.Parent = childrenlist
+		windowlist:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
+			if vape.ThreadFix then
+				setthreadidentity(8)
+			end
+			hotbarlist.Size = UDim2.fromOffset(220, math.min(43 + windowlist.AbsoluteContentSize.Y / vape.guiscale.Scale, 603))
+		end)
+		textbutton.MouseButton1Click:Connect(function()
+			optionapi:AddHotbar()
+		end)
+		optionapi.Window = CreateWindow(optionapi)
+	
+		function optionapi:Save(savetab)
+			local hotbars = {}
+			for _, v in self.Hotbars do
+				table.insert(hotbars, v.Hotbar)
+			end
+			savetab.HotbarList = {
+				Selected = self.Selected,
+				Hotbars = hotbars
+			}
+		end
+	
+		function optionapi:Load(savetab)
+			for _, v in self.Hotbars do
+				v.Object:ClearAllChildren()
+				v.Object:Destroy()
+				table.clear(v.Hotbar)
+			end
+			table.clear(self.Hotbars)
+			for _, v in savetab.Hotbars do
+				self:AddHotbar(v)
+			end
+			self.Selected = savetab.Selected or 1
+		end
+	
+		function optionapi:AddHotbar(data)
+			local hotbardata = {Hotbar = data or {}}
+			table.insert(self.Hotbars, hotbardata)
+			local hotbar = Instance.new('TextButton')
+			hotbar.Size = UDim2.fromOffset(200, 27)
+			hotbar.BackgroundColor3 = table.find(self.Hotbars, hotbardata) == self.Selected and color.Light(uipallet.Main, 0.034) or uipallet.Main
+			hotbar.Text = ''
+			hotbar.AutoButtonColor = false
+			hotbar.Parent = childrenlist
+			hotbardata.Object = hotbar
+			local hotbarcorner = Instance.new('UICorner')
+			hotbarcorner.CornerRadius = UDim.new(0, 4)
+			hotbarcorner.Parent = hotbar
+			for i = 1, 9 do
+				local slot = Instance.new('ImageLabel')
+				slot.Name = 'Slot'..i
+				slot.Size = UDim2.fromOffset(17, 18)
+				slot.Position = UDim2.fromOffset(-7 + (i * 18), 5)
+				slot.BackgroundColor3 = color.Dark(uipallet.Main, 0.02)
+				slot.Image = hotbardata.Hotbar[tostring(i)] and bedwars.getIcon({itemType = hotbardata.Hotbar[tostring(i)]}, true) or ''
+				slot.BorderSizePixel = 0
+				slot.Parent = hotbar
+			end
+			hotbar.MouseButton1Click:Connect(function()
+				local ind = table.find(optionapi.Hotbars, hotbardata)
+				if ind == optionapi.Selected then
+					vape.gui.ScaledGui.ClickGui.Visible = false
+					optionapi.Window.Visible = true
+					for i = 1, 9 do
+						optionapi.Window['Slot'..i].ImageLabel.Image = hotbardata.Hotbar[tostring(i)] and bedwars.getIcon({itemType = hotbardata.Hotbar[tostring(i)]}, true) or ''
+					end
+				else
+					if optionapi.Hotbars[optionapi.Selected] then
+						optionapi.Hotbars[optionapi.Selected].Object.BackgroundColor3 = uipallet.Main
+					end
+					hotbar.BackgroundColor3 = color.Light(uipallet.Main, 0.034)
+					optionapi.Selected = ind
+				end
+			end)
+			local close = Instance.new('ImageButton')
+			close.Name = 'Close'
+			close.Size = UDim2.fromOffset(16, 16)
+			close.Position = UDim2.new(1, -23, 0, 6)
+			close.BackgroundColor3 = Color3.new(1, 1, 1)
+			close.BackgroundTransparency = 1
+			close.Image = getcustomasset('newvape/assets/new/closemini.png')
+			close.ImageColor3 = color.Light(uipallet.Text, 0.2)
+			close.ImageTransparency = 0.5
+			close.AutoButtonColor = false
+			close.Parent = hotbar
+			local closecorner = Instance.new('UICorner')
+			closecorner.CornerRadius = UDim.new(1, 0)
+			closecorner.Parent = close
+			close.MouseEnter:Connect(function()
+				close.ImageTransparency = 0.3
+				tween:Tween(close, TweenInfo.new(0.2), {
+					BackgroundTransparency = 0.6
+				})
+			end)
+			close.MouseLeave:Connect(function()
+				close.ImageTransparency = 0.5
+				tween:Tween(close, TweenInfo.new(0.2), {
+					BackgroundTransparency = 1
+				})
+			end)
+			close.MouseButton1Click:Connect(function()
+				local ind = table.find(self.Hotbars, hotbardata)
+				local obj = self.Hotbars[self.Selected]
+				local obj2 = self.Hotbars[ind]
+				if obj and obj2 then
+					obj2.Object:ClearAllChildren()
+					obj2.Object:Destroy()
+					table.remove(self.Hotbars, ind)
+					ind = table.find(self.Hotbars, obj)
+					self.Selected = table.find(self.Hotbars, obj) or 1
+				end
+			end)
+		end
+	
+		api.Options.HotbarList = optionapi
+	
+		return optionapi
+	end
+	
+	local function getBlock()
+		local clone = table.clone(store.inventory.inventory.items)
+		table.sort(clone, function(a, b)
+			return a.amount < b.amount
+		end)
+	
+		for _, item in clone do
+			if bedwars.ItemMeta[item.itemType].block then
+				return item
+			end
+		end
+	end
+	
+	local function getCustomItem(v)
+		if v == 'diamond_sword' then
+			local sword = store.tools.sword
+			v = sword and sword.itemType or 'wood_sword'
+		elseif v == 'diamond_pickaxe' then
+			local pickaxe = store.tools.stone
+			v = pickaxe and pickaxe.itemType or 'wood_pickaxe'
+		elseif v == 'diamond_axe' then
+			local axe = store.tools.wood
+			v = axe and axe.itemType or 'wood_axe'
+		elseif v == 'wood_bow' then
+			local bow = getBow()
+			v = bow and bow.itemType or 'wood_bow'
+		elseif v == 'wool_white' then
+			local block = getBlock()
+			v = block and block.itemType or 'wool_white'
+		end
+	
+		return v
+	end
+	
+	local function findItemInTable(tab, item)
+		for slot, v in tab do
+			if item.itemType == getCustomItem(v) then
+				return tonumber(slot)
+			end
+		end
+	end
+	
+	local function findInHotbar(item)
+		for i, v in store.inventory.hotbar do
+			if v.item and v.item.itemType == item.itemType then
+				return i - 1, v.item
+			end
+		end
+	end
+	
+	local function findInInventory(item)
+		for _, v in store.inventory.inventory.items do
+			if v.itemType == item.itemType then
+				return v
+			end
+		end
+	end
+	
+	local function dispatch(...)
+		bedwars.Store:dispatch(...)
+		vapeEvents.InventoryChanged.Event:Wait()
+	end
+	
+	local function sortCallback()
+		if Active then return end
+		Active = true
+		local items = (List.Hotbars[List.Selected] and List.Hotbars[List.Selected].Hotbar or {})
+	
+		for _, v in store.inventory.inventory.items do
+			local slot = findItemInTable(items, v)
+			if slot then
+				local olditem = store.inventory.hotbar[slot]
+				if olditem.item and olditem.item.itemType == v.itemType then continue end
+				if olditem.item then
+					dispatch({
+						type = 'InventoryRemoveFromHotbar',
+						slot = slot - 1
+					})
+				end
+	
+				local newslot = findInHotbar(v)
+				if newslot then
+					dispatch({
+						type = 'InventoryRemoveFromHotbar',
+						slot = newslot
+					})
+					if olditem.item then
+						dispatch({
+							type = 'InventoryAddToHotbar',
+							item = findInInventory(olditem.item),
+							slot = newslot
+						})
+					end
+				end
+	
+				dispatch({
+					type = 'InventoryAddToHotbar',
+					item = findInInventory(v),
+					slot = slot - 1
+				})
+			elseif Clear.Enabled then
+				local newslot = findInHotbar(v)
+				if newslot then
+				   	dispatch({
+						type = 'InventoryRemoveFromHotbar',
+						slot = newslot
+					})
+				end
+			end
+		end
+	
+		Active = false
+	end
+	
+	AutoHotbar = vape.Categories.Inventory:CreateModule({
+		Name = 'AutoHotbar',
+		Function = function(callback)
+			if callback then
+				task.spawn(sortCallback)
+				if Mode.Value == 'On Key' then
+					AutoHotbar:Toggle()
+					return
+				end
+	
+				AutoHotbar:Clean(vapeEvents.InventoryAmountChanged.Event:Connect(sortCallback))
+			end
+		end,
+		Tooltip = 'Automatically arranges hotbar to your liking.'
+	})
+	Mode = AutoHotbar:CreateDropdown({
+		Name = 'Activation',
+		List = {'Toggle', 'On Key'},
+		Function = function()
+			if AutoHotbar.Enabled then
+				AutoHotbar:Toggle()
+				AutoHotbar:Toggle()
+			end
+		end
+	})
+	Clear = AutoHotbar:CreateToggle({Name = 'Clear Hotbar'})
+	List = AutoHotbar:CreateHotbarList({})
+end)
+	
+run(function()
+	local Value
+	local oldclickhold, oldshowprogress
+	
+	local FastConsume = vape.Categories.Inventory:CreateModule({
+		Name = 'FastConsume',
+		Function = function(callback)
+			if callback then
+				oldclickhold = bedwars.ClickHold.startClick
+				oldshowprogress = bedwars.ClickHold.showProgress
+				bedwars.ClickHold.startClick = function(self)
+					self.startedClickTime = tick()
+					local handle = self:showProgress()
+					local clicktime = self.startedClickTime
+					bedwars.RuntimeLib.Promise.defer(function()
+						task.wait(self.durationSeconds * (Value.Value / 40))
+						if handle == self.handle and clicktime == self.startedClickTime and self.closeOnComplete then
+							self:hideProgress()
+							if self.onComplete then self.onComplete() end
+							if self.onPartialComplete then self.onPartialComplete(1) end
+							self.startedClickTime = -1
+						end
+					end)
+				end
+	
+				bedwars.ClickHold.showProgress = function(self)
+					local roact = debug.getupvalue(oldshowprogress, 1)
+					local countdown = roact.mount(roact.createElement('ScreenGui', {}, { roact.createElement('Frame', {
+						[roact.Ref] = self.wrapperRef,
+						Size = UDim2.new(),
+						Position = UDim2.fromScale(0.5, 0.55),
+						AnchorPoint = Vector2.new(0.5, 0),
+						BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+						BackgroundTransparency = 0.8
+					}, { roact.createElement('Frame', {
+						[roact.Ref] = self.progressRef,
+						Size = UDim2.fromScale(0, 1),
+						BackgroundColor3 = Color3.new(1, 1, 1),
+						BackgroundTransparency = 0.5
+					}) }) }), lplr:FindFirstChild('PlayerGui'))
+	
+					self.handle = countdown
+					local sizetween = tweenService:Create(self.wrapperRef:getValue(), TweenInfo.new(0.1), {
+						Size = UDim2.fromScale(0.11, 0.005)
+					})
+					local countdowntween = tweenService:Create(self.progressRef:getValue(), TweenInfo.new(self.durationSeconds * (Value.Value / 100), Enum.EasingStyle.Linear), {
+						Size = UDim2.fromScale(1, 1)
+					})
+	
+					sizetween:Play()
+					countdowntween:Play()
+					table.insert(self.tweens, countdowntween)
+					table.insert(self.tweens, sizetween)
+					
+					return countdown
+				end
+			else
+				bedwars.ClickHold.startClick = oldclickhold
+				bedwars.ClickHold.showProgress = oldshowprogress
+				oldclickhold = nil
+				oldshowprogress = nil
+			end
+		end,
+		Tooltip = 'Use/Consume items quicker.'
+	})
+	Value = FastConsume:CreateSlider({
+		Name = 'Multiplier',
+		Min = 0,
+		Max = 100
+	})
+end)
+	
+run(function()
+	local FastDrop
+	
+	FastDrop = vape.Categories.Inventory:CreateModule({
+		Name = 'FastDrop',
+		Function = function(callback)
+			if callback then
+				repeat
+					if entitylib.isAlive and (not store.inventory.opened) and (inputService:IsKeyDown(Enum.KeyCode.H) or inputService:IsKeyDown(Enum.KeyCode.Backspace)) and inputService:GetFocusedTextBox() == nil then
+						task.spawn(bedwars.ItemDropController.dropItemInHand)
+						task.wait()
+					else
+						task.wait(0.1)
+					end
+				until not FastDrop.Enabled
+			end
+		end,
+		Tooltip = 'Drops items fast when you hold Q'
+	})
+end)
+	
+run(function()
+	local BedPlates
+	local Background
+	local Color = {}
+	local Reference = {}
+	local Folder = Instance.new('Folder')
+	Folder.Parent = vape.gui
+	
+	local function scanSide(self, start, tab)
+		for _, side in sides do
+			for i = 1, 15 do
+				local block = getPlacedBlock(start + (side * i))
+				if not block or block == self then break end
+				if not block:GetAttribute('NoBreak') and not table.find(tab, block.Name) then
+					table.insert(tab, block.Name)
+				end
+			end
+		end
+	end
+	
+	local function refreshAdornee(v)
+		for _, obj in v.Frame:GetChildren() do
+			if obj:IsA('ImageLabel') and obj.Name ~= 'Blur' then
+				obj:Destroy()
+			end
+		end
+	
+		local start = v.Adornee.Position
+		local alreadygot = {}
+		scanSide(v.Adornee, start, alreadygot)
+		scanSide(v.Adornee, start + Vector3.new(0, 0, 3), alreadygot)
+		table.sort(alreadygot, function(a, b)
+			return (bedwars.ItemMeta[a].block and bedwars.ItemMeta[a].block.health or 0) > (bedwars.ItemMeta[b].block and bedwars.ItemMeta[b].block.health or 0)
+		end)
+		v.Enabled = #alreadygot > 0
+	
+		for _, block in alreadygot do
+			local blockimage = Instance.new('ImageLabel')
+			blockimage.Size = UDim2.fromOffset(32, 32)
+			blockimage.BackgroundTransparency = 1
+			blockimage.Image = bedwars.getIcon({itemType = block}, true)
+			blockimage.Parent = v.Frame
+		end
+	end
+	
+	local function Added(v)
+		local billboard = Instance.new('BillboardGui')
+		billboard.Parent = Folder
+		billboard.Name = 'bed'
+		billboard.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
+		billboard.Size = UDim2.fromOffset(36, 36)
+		billboard.AlwaysOnTop = true
+		billboard.ClipsDescendants = false
+		billboard.Adornee = v
+		local blur = addBlur(billboard)
+		blur.Visible = Background.Enabled
+		local frame = Instance.new('Frame')
+		frame.Size = UDim2.fromScale(1, 1)
+		frame.BackgroundColor3 = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+		frame.BackgroundTransparency = 1 - (Background.Enabled and Color.Opacity or 0)
+		frame.Parent = billboard
+		local layout = Instance.new('UIListLayout')
+		layout.FillDirection = Enum.FillDirection.Horizontal
+		layout.Padding = UDim.new(0, 4)
+		layout.VerticalAlignment = Enum.VerticalAlignment.Center
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		layout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
+			billboard.Size = UDim2.fromOffset(math.max(layout.AbsoluteContentSize.X + 4, 36), 36)
+		end)
+		layout.Parent = frame
+		local corner = Instance.new('UICorner')
+		corner.CornerRadius = UDim.new(0, 4)
+		corner.Parent = frame
+		Reference[v] = billboard
+		refreshAdornee(billboard)
+	end
+	
+	local function refreshNear(data)
+		data = data.blockRef.blockPosition * 3
+		for i, v in Reference do
+			if (data - i.Position).Magnitude <= 30 then
+				refreshAdornee(v)
+			end
+		end
+	end
+	
+	BedPlates = vape.Categories.Minigames:CreateModule({
+		Name = 'BedPlates',
+		Function = function(callback)
+			if callback then
+				for _, v in collectionService:GetTagged('bed') do 
+					task.spawn(Added, v) 
+				end
+				BedPlates:Clean(vapeEvents.PlaceBlockEvent.Event:Connect(refreshNear))
+				BedPlates:Clean(vapeEvents.BreakBlockEvent.Event:Connect(refreshNear))
+				BedPlates:Clean(collectionService:GetInstanceAddedSignal('bed'):Connect(Added))
+				BedPlates:Clean(collectionService:GetInstanceRemovedSignal('bed'):Connect(function(v)
+					if Reference[v] then
+						Reference[v]:Destroy()
+						Reference[v]:ClearAllChildren()
+						Reference[v] = nil
+					end
+				end))
+			else
+				table.clear(Reference)
+				Folder:ClearAllChildren()
+			end
+		end,
+		Tooltip = 'Displays blocks over the bed'
+	})
+	Background = BedPlates:CreateToggle({
+		Name = 'Background',
+		Function = function(callback)
+			if Color.Object then 
+				Color.Object.Visible = callback 
+			end
+			for _, v in Reference do
+				v.Frame.BackgroundTransparency = 1 - (callback and Color.Opacity or 0)
+				v.Blur.Visible = callback
+			end
+		end,
+		Default = true
+	})
+	Color = BedPlates:CreateColorSlider({
+		Name = 'Background Color',
+		DefaultValue = 0,
+		DefaultOpacity = 0.5,
+		Function = function(hue, sat, val, opacity)
+			for _, v in Reference do
+				v.Frame.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
+				v.Frame.BackgroundTransparency = 1 - opacity
+			end
+		end,
+		Darker = true
+	})
+end)
+	
+run(function()
+	local Breaker
+	local Range
+	local UpdateRate
+	local Custom
+	local Bed
+	local LuckyBlock
+	local IronOre
+	local Effect
+	local CustomHealth = {}
+	local Animation
+	local SelfBreak
+	local InstantBreak
+	local LimitItem
+	local customlist, parts = {}, {}
+	
+	local function customHealthbar(self, blockRef, health, maxHealth, changeHealth, block)
+		if block:GetAttribute('NoHealthbar') then return end
+		if not self.healthbarPart or not self.healthbarBlockRef or self.healthbarBlockRef.blockPosition ~= blockRef.blockPosition then
+			self.healthbarMaid:DoCleaning()
+			self.healthbarBlockRef = blockRef
+			local create = bedwars.Roact.createElement
+			local percent = math.clamp(health / maxHealth, 0, 1)
+			local cleanCheck = true
+			local part = Instance.new('Part')
+			part.Size = Vector3.one
+			part.CFrame = CFrame.new(bedwars.BlockController:getWorldPosition(blockRef.blockPosition))
+			part.Transparency = 1
+			part.Anchored = true
+			part.CanCollide = false
+			part.Parent = workspace
+			self.healthbarPart = part
+			bedwars.QueryUtil:setQueryIgnored(self.healthbarPart, true)
+	
+			local mounted = bedwars.Roact.mount(create('BillboardGui', {
+				Size = UDim2.fromOffset(249, 102),
+				StudsOffset = Vector3.new(0, 2.5, 0),
+				Adornee = part,
+				MaxDistance = 40,
+				AlwaysOnTop = true
+			}, {
+				create('Frame', {
+					Size = UDim2.fromOffset(160, 50),
+					Position = UDim2.fromOffset(44, 32),
+					BackgroundColor3 = Color3.new(),
+					BackgroundTransparency = 0.5
+				}, {
+					create('UICorner', {CornerRadius = UDim.new(0, 5)}),
+					create('ImageLabel', {
+						Size = UDim2.new(1, 89, 1, 52),
+						Position = UDim2.fromOffset(-48, -31),
+						BackgroundTransparency = 1,
+						Image = getcustomasset('newvape/assets/new/blur.png'),
+						ScaleType = Enum.ScaleType.Slice,
+						SliceCenter = Rect.new(52, 31, 261, 502)
+					}),
+					create('TextLabel', {
+						Size = UDim2.fromOffset(145, 14),
+						Position = UDim2.fromOffset(13, 12),
+						BackgroundTransparency = 1,
+						Text = bedwars.ItemMeta[block.Name].displayName or block.Name,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						TextYAlignment = Enum.TextYAlignment.Top,
+						TextColor3 = Color3.new(),
+						TextScaled = true,
+						Font = Enum.Font.Arial
+					}),
+					create('TextLabel', {
+						Size = UDim2.fromOffset(145, 14),
+						Position = UDim2.fromOffset(12, 11),
+						BackgroundTransparency = 1,
+						Text = bedwars.ItemMeta[block.Name].displayName or block.Name,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						TextYAlignment = Enum.TextYAlignment.Top,
+						TextColor3 = color.Dark(uipallet.Text, 0.16),
+						TextScaled = true,
+						Font = Enum.Font.Arial
+					}),
+					create('Frame', {
+						Size = UDim2.fromOffset(138, 4),
+						Position = UDim2.fromOffset(12, 32),
+						BackgroundColor3 = uipallet.Main
+					}, {
+						create('UICorner', {CornerRadius = UDim.new(1, 0)}),
+						create('Frame', {
+							[bedwars.Roact.Ref] = self.healthbarProgressRef,
+							Size = UDim2.fromScale(percent, 1),
+							BackgroundColor3 = Color3.fromHSV(math.clamp(percent / 2.5, 0, 1), 0.89, 0.75)
+						}, {create('UICorner', {CornerRadius = UDim.new(1, 0)})})
+					})
+				})
+			}), part)
+	
+			self.healthbarMaid:GiveTask(function()
+				cleanCheck = false
+				self.healthbarBlockRef = nil
+				bedwars.Roact.unmount(mounted)
+				if self.healthbarPart then
+					self.healthbarPart:Destroy()
+				end
+				self.healthbarPart = nil
+			end)
+	
+			bedwars.RuntimeLib.Promise.delay(5):andThen(function()
+				if cleanCheck then
+					self.healthbarMaid:DoCleaning()
+				end
+			end)
+		end
+	
+		local newpercent = math.clamp((health - changeHealth) / maxHealth, 0, 1)
+		tweenService:Create(self.healthbarProgressRef:getValue(), TweenInfo.new(0.3), {
+			Size = UDim2.fromScale(newpercent, 1), BackgroundColor3 = Color3.fromHSV(math.clamp(newpercent / 2.5, 0, 1), 0.89, 0.75)
+		}):Play()
+	end
+	
+	local hit = 0
+	
+	local function attemptBreak(tab, localPosition)
+		if not tab then return end
+		for _, v in tab do
+			if (v.Position - localPosition).Magnitude < Range.Value and bedwars.BlockController:isBlockBreakable({blockPosition = v.Position / 3}, lplr) then
+				if not SelfBreak.Enabled and v:GetAttribute('PlacedByUserId') == lplr.UserId then continue end
+				if (v:GetAttribute('BedShieldEndTime') or 0) > workspace:GetServerTimeNow() then continue end
+				if LimitItem.Enabled and not (store.hand.tool and bedwars.ItemMeta[store.hand.tool.Name].breakBlock) then continue end
+	
+				hit += 1
+				local target, path, endpos = bedwars.breakBlock(v, Effect.Enabled, Animation.Enabled, CustomHealth.Enabled and customHealthbar or nil, InstantBreak.Enabled)
+				if path then
+					local currentnode = target
+					for _, part in parts do
+						part.Position = currentnode or Vector3.zero
+						if currentnode then
+							part.BoxHandleAdornment.Color3 = currentnode == endpos and Color3.new(1, 0.2, 0.2) or currentnode == target and Color3.new(0.2, 0.2, 1) or Color3.new(0.2, 1, 0.2)
+						end
+						currentnode = path[currentnode]
+					end
+				end
+	
+				task.wait(InstantBreak.Enabled and (store.damageBlockFail > tick() and 4.5 or 0) or 0.25)
+	
+				return true
+			end
+		end
+	
+		return false
+	end
+	
+	Breaker = vape.Categories.Minigames:CreateModule({
+		Name = 'Breaker',
+		Function = function(callback)
+			if callback then
+				for _ = 1, 30 do
+					local part = Instance.new('Part')
+					part.Anchored = true
+					part.CanQuery = false
+					part.CanCollide = false
+					part.Transparency = 1
+					part.Parent = gameCamera
+					local highlight = Instance.new('BoxHandleAdornment')
+					highlight.Size = Vector3.one
+					highlight.AlwaysOnTop = true
+					highlight.ZIndex = 1
+					highlight.Transparency = 0.5
+					highlight.Adornee = part
+					highlight.Parent = part
+					table.insert(parts, part)
+				end
+	
+				local beds = collection('bed', Breaker)
+				local luckyblock = collection('LuckyBlock', Breaker)
+				local ironores = collection('iron-ore', Breaker)
+				customlist = collection('block', Breaker, function(tab, obj)
+					if table.find(Custom.ListEnabled, obj.Name) then
+						table.insert(tab, obj)
+					end
+				end)
+	
+				repeat
+					task.wait(1 / UpdateRate.Value)
+					if not Breaker.Enabled then break end
+					if entitylib.isAlive then
+						local localPosition = entitylib.character.RootPart.Position
+	
+						if attemptBreak(Bed.Enabled and beds, localPosition) then continue end
+						if attemptBreak(customlist, localPosition) then continue end
+						if attemptBreak(LuckyBlock.Enabled and luckyblock, localPosition) then continue end
+						if attemptBreak(IronOre.Enabled and ironores, localPosition) then continue end
+	
+						for _, v in parts do
+							v.Position = Vector3.zero
+						end
+					end
+				until not Breaker.Enabled
+			else
+				for _, v in parts do
+					v:ClearAllChildren()
+					v:Destroy()
+				end
+				table.clear(parts)
+			end
+		end,
+		Tooltip = 'Break blocks around you automatically'
+	})
+	Range = Breaker:CreateSlider({
+		Name = 'Break range',
+		Min = 1,
+		Max = 30,
+		Default = 30,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+	UpdateRate = Breaker:CreateSlider({
+		Name = 'Update rate',
+		Min = 1,
+		Max = 120,
+		Default = 60,
+		Suffix = 'hz'
+	})
+	Custom = Breaker:CreateTextList({
+		Name = 'Custom',
+		Function = function()
+			if not customlist then return end
+			table.clear(customlist)
+			for _, obj in store.blocks do
+				if table.find(Custom.ListEnabled, obj.Name) then
+					table.insert(customlist, obj)
+				end
+			end
+		end
+	})
+	Bed = Breaker:CreateToggle({
+		Name = 'Break Bed',
+		Default = true
+	})
+	LuckyBlock = Breaker:CreateToggle({
+		Name = 'Break Lucky Block',
+		Default = true
+	})
+	IronOre = Breaker:CreateToggle({
+		Name = 'Break Iron Ore',
+		Default = true
+	})
+	Effect = Breaker:CreateToggle({
+		Name = 'Show Healthbar & Effects',
+		Function = function(callback)
+			if CustomHealth.Object then
+				CustomHealth.Object.Visible = callback
+			end
+		end,
+		Default = true
+	})
+	CustomHealth = Breaker:CreateToggle({
+		Name = 'Custom Healthbar',
+		Default = true,
+		Darker = true
+	})
+	Animation = Breaker:CreateToggle({Name = 'Animation'})
+	SelfBreak = Breaker:CreateToggle({Name = 'Self Break'})
+	InstantBreak = Breaker:CreateToggle({Name = 'Instant Break'})
+	LimitItem = Breaker:CreateToggle({
+		Name = 'Limit to items',
+		Tooltip = 'Only breaks when tools are held'
+	})
+end)
+	
+run(function()
+	vape.Legit:CreateModule({
+		Name = 'Clean Kit',
+		Function = function(callback)
+			if callback then
+				bedwars.WindWalkerController.spawnOrb = function() end
+				local zephyreffect = lplr.PlayerGui:FindFirstChild('WindWalkerEffect', true)
+				if zephyreffect then 
+					zephyreffect.Visible = false 
+				end
+			end
+		end,
+		Tooltip = 'Removes zephyr status indicator'
+	})
+end)
+	
+run(function()
+	local old
+	local Image
+	
+	local Crosshair = vape.Legit:CreateModule({
+		Name = 'Crosshair',
+		Function = function(callback)
+			if callback then 
+				old = debug.getconstant(bedwars.ViewmodelController.show, 25)
+				debug.setconstant(bedwars.ViewmodelController.show, 25, Image.Value)
+				debug.setconstant(bedwars.ViewmodelController.show, 37, Image.Value)
+			else
+				debug.setconstant(bedwars.ViewmodelController.show, 25, old)
+				debug.setconstant(bedwars.ViewmodelController.show, 37, old)
+				old = nil 
+			end
+			if bedwars.CameraPerspectiveController:getCameraPerspective() == 0 then
+				bedwars.ViewmodelController:hide()
+				bedwars.ViewmodelController:show()
+			end
+		end,
+		Tooltip = 'Custom first person crosshair depending on the image choosen.'
+	})
+	Image = Crosshair:CreateTextBox({
+		Name = 'Image',
+		Placeholder = 'image id (roblox)',
+		Function = function(enter)
+			if enter and Crosshair.Enabled then 
+				Crosshair:Toggle()
+				Crosshair:Toggle()
+			end
+		end
+	})
+end)
+	
+run(function()
+	local DamageIndicator
+	local FontOption
+	local Color
+	local Size
+	local Anchor
+	local Stroke
+	local suc, tab = pcall(function() 
+		return debug.getupvalue(bedwars.DamageIndicator, 2) 
+	end)
+	tab = suc and tab or {}
+	local oldvalues, oldfont = {}
+	
+	DamageIndicator = vape.Legit:CreateModule({
+		Name = 'Damage Indicator',
+		Function = function(callback)
+			if callback then
+				oldvalues = table.clone(tab)
+				oldfont = debug.getconstant(bedwars.DamageIndicator, 83)
+				debug.setconstant(bedwars.DamageIndicator, 83, Enum.Font[FontOption.Value])
+				debug.setconstant(bedwars.DamageIndicator, 102, Stroke.Enabled and 'Thickness' or 'Enabled')
+				tab.strokeThickness = Stroke.Enabled and 1 or false
+				tab.textSize = Size.Value
+				tab.blowUpSize = Size.Value
+				tab.blowUpDuration = 0
+				tab.baseColor = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+				tab.blowUpCompleteDuration = 0
+				tab.anchoredDuration = Anchor.Value
+			else
+				for i, v in oldvalues do 
+					tab[i] = v 
+				end
+				debug.setconstant(bedwars.DamageIndicator, 83, oldfont)
+				debug.setconstant(bedwars.DamageIndicator, 102, 'Thickness')
+			end
+		end,
+		Tooltip = 'Customize the damage indicator'
+	})
+	local fontitems = {'GothamBlack'}
+	for _, v in Enum.Font:GetEnumItems() do
+		if v.Name ~= 'GothamBlack' then 
+			table.insert(fontitems, v.Name) 
+		end
+	end
+	FontOption = DamageIndicator:CreateDropdown({
+		Name = 'Font',
+		List = fontitems,
+		Function = function(val)
+			if DamageIndicator.Enabled then
+				debug.setconstant(bedwars.DamageIndicator, 82, val)
+			end
+		end
+	})
+	Color = DamageIndicator:CreateColorSlider({
+		Name = 'Color',
+		DefaultHue = 0,
+		Function = function(hue, sat, val)
+			if DamageIndicator.Enabled then
+				tab.baseColor = Color3.fromHSV(hue, sat, val)
+			end
+		end
+	})
+	Size = DamageIndicator:CreateSlider({
+		Name = 'Size',
+		Min = 1,
+		Max = 32,
+		Default = 32,
+		Function = function(val)
+			if DamageIndicator.Enabled then
+				tab.textSize = val
+				tab.blowUpSize = val
+			end
+		end
+	})
+	Anchor = DamageIndicator:CreateSlider({
+		Name = 'Anchor',
+		Min = 0,
+		Max = 1,
+		Decimal = 10,
+		Function = function(val)
+			if DamageIndicator.Enabled then
+				tab.anchoredDuration = val
+			end
+		end
+	})
+	Stroke = DamageIndicator:CreateToggle({
+		Name = 'Stroke',
+		Function = function(callback)
+			if DamageIndicator.Enabled then
+				debug.setconstant(bedwars.DamageIndicator, 102, callback and 'Thickness' or 'Enabled')
+				tab.strokeThickness = callback and 1 or false
+			end
+		end
+	})
+end)
+	
+run(function()
+	local FOV
+	local Value
+	local old, old2
+	
+	FOV = vape.Legit:CreateModule({
+		Name = 'FOV',
+		Function = function(callback)
+			if callback then
+				old = bedwars.FovController.setFOV
+				old2 = bedwars.FovController.getFOV
+				bedwars.FovController.setFOV = function(self) 
+					return old(self, Value.Value) 
+				end
+				bedwars.FovController.getFOV = function() 
+					return Value.Value 
+				end
+			else
+				bedwars.FovController.setFOV = old
+				bedwars.FovController.getFOV = old2
+			end
+			
+			bedwars.FovController:setFOV(bedwars.Store:getState().Settings.fov)
+		end,
+		Tooltip = 'Adjusts camera vision'
+	})
+	Value = FOV:CreateSlider({
+		Name = 'FOV',
+		Min = 30,
+		Max = 120
+	})
+end)
+	
+run(function()
+	local FPSBoost
+	local Kill
+	local Visualizer
+	local effects, util = {}, {}
+	
+	FPSBoost = vape.Legit:CreateModule({
+		Name = 'FPS Boost',
+		Function = function(callback)
+			if callback then
+				if Kill.Enabled then
+					for i, v in bedwars.KillEffectController.killEffects do
+						if not i:find('Custom') then
+							effects[i] = v
+							bedwars.KillEffectController.killEffects[i] = {
+								new = function() 
+									return {
+										onKill = function() end, 
+										isPlayDefaultKillEffect = function() 
+											return true 
+										end
+									} 
+								end
+							}
+						end
+					end
+				end
+	
+				if Visualizer.Enabled then
+					for i, v in bedwars.VisualizerUtils do
+						util[i] = v
+						bedwars.VisualizerUtils[i] = function() end
+					end
+				end
+	
+				repeat task.wait() until store.matchState ~= 0
+				if not bedwars.AppController then return end
+				bedwars.NametagController.addGameNametag = function() end
+				for _, v in bedwars.AppController:getOpenApps() do
+					if tostring(v):find('Nametag') then
+						bedwars.AppController:closeApp(tostring(v))
+					end
+				end
+			else
+				for i, v in effects do 
+					bedwars.KillEffectController.killEffects[i] = v 
+				end
+				for i, v in util do 
+					bedwars.VisualizerUtils[i] = v 
+				end
+				table.clear(effects)
+				table.clear(util)
+			end
+		end,
+		Tooltip = 'Improves the framerate by turning off certain effects'
+	})
+	Kill = FPSBoost:CreateToggle({
+		Name = 'Kill Effects',
+		Function = function()
+			if FPSBoost.Enabled then
+				FPSBoost:Toggle()
+				FPSBoost:Toggle()
+			end
+		end,
+		Default = true
+	})
+	Visualizer = FPSBoost:CreateToggle({
+		Name = 'Visualizer',
+		Function = function()
+			if FPSBoost.Enabled then
+				FPSBoost:Toggle()
+				FPSBoost:Toggle()
+			end
+		end,
+		Default = true
+	})
+end)
+	
+run(function()
+	local HitColor
+	local Color
+	local done = {}
+	
+	HitColor = vape.Legit:CreateModule({
+		Name = 'Hit Color',
+		Function = function(callback)
+			if callback then 
+				repeat
+					for i, v in entitylib.List do 
+						local highlight = v.Character and v.Character:FindFirstChild('_DamageHighlight_')
+						if highlight then 
+							if not table.find(done, highlight) then 
+								table.insert(done, highlight) 
+							end
+							highlight.FillColor = Color3.fromHSV(Color.Hue, Color.Sat, Color.Value)
+							highlight.FillTransparency = Color.Opacity
+						end
+					end
+					task.wait(0.1)
+				until not HitColor.Enabled
+			else
+				for i, v in done do 
+					v.FillColor = Color3.new(1, 0, 0)
+					v.FillTransparency = 0.4
+				end
+				table.clear(done)
+			end
+		end,
+		Tooltip = 'Customize the hit highlight options'
+	})
+	Color = HitColor:CreateColorSlider({
+		Name = 'Color',
+		DefaultOpacity = 0.4
+	})
+end)
+	
+run(function()
+	vape.Legit:CreateModule({
+		Name = 'HitFix',
+		Function = function(callback)
+			debug.setconstant(bedwars.SwordController.swingSwordAtMouse, 23, callback and 'raycast' or 'Raycast')
+			debug.setupvalue(bedwars.SwordController.swingSwordAtMouse, 4, callback and bedwars.QueryUtil or workspace)
+		end,
+		Tooltip = 'Changes the raycast function to the correct one'
+	})
+end)
+	
+run(function()
+	local Interface
+	local HotbarOpenInventory = require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui['hotbar-open-inventory']).HotbarOpenInventory
+	local HotbarHealthbar = require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui.healthbar['hotbar-healthbar']).HotbarHealthbar
+	local HotbarApp = require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui['hotbar-app']).HotbarApp
+	local old, new = {}, {}
+	
+	vape:Clean(function()
+		for _, v in new do
+			table.clear(v)
+		end
+		for _, v in old do
+			table.clear(v)
+		end
+		table.clear(new)
+		table.clear(old)
+	end)
+	
+	local function modifyconstant(func, ind, val)
+		if not func then return end
+		if not old[func] then old[func] = {} end
+		if not new[func] then new[func] = {} end
+		if not old[func][ind] then
+			old[func][ind] = debug.getconstant(func, ind)
+		end
+		if typeof(old[func][ind]) ~= typeof(val) then return end
+		new[func][ind] = val
+	
+		if Interface.Enabled then
+			if val then
+				debug.setconstant(func, ind, val)
+			else
+				debug.setconstant(func, ind, old[func][ind])
+				old[func][ind] = nil
+			end
+		end
+	end
+	
+	Interface = vape.Legit:CreateModule({
+		Name = 'Interface',
+		Function = function(callback)
+			for i, v in (callback and new or old) do
+				for i2, v2 in v do
+					debug.setconstant(i, i2, v2)
+				end
+			end
+		end,
+		Tooltip = 'Customize bedwars UI'
+	})
+	local fontitems = {'LuckiestGuy'}
+	for _, v in Enum.Font:GetEnumItems() do
+		if v.Name ~= 'LuckiestGuy' then
+			table.insert(fontitems, v.Name)
+		end
+	end
+	Interface:CreateDropdown({
+		Name = 'Health Font',
+		List = fontitems,
+		Function = function(val)
+			modifyconstant(HotbarHealthbar.render, 78, val)
+		end
+	})
+	Interface:CreateColorSlider({
+		Name = 'Health Color',
+		Function = function(hue, sat, val)
+			modifyconstant(HotbarHealthbar.render, 16, tonumber(Color3.fromHSV(hue, sat, val):ToHex(), 16))
+			if Interface.Enabled then
+				local hotbar = lplr.PlayerGui:FindFirstChild('hotbar')
+				hotbar = hotbar and hotbar:FindFirstChild('HealthbarProgressWrapper', true)
+				if hotbar then
+					hotbar['1'].BackgroundColor3 = Color3.fromHSV(hue, sat, val)
+				end
+			end
+		end
+	})
+	Interface:CreateColorSlider({
+		Name = 'Hotbar Color',
+		DefaultOpacity = 0.8,
+		Function = function(hue, sat, val, opacity)
+			local func = oldinvrender or HotbarOpenInventory.render
+			modifyconstant(debug.getupvalue(HotbarApp.render, 17).render, 51, tonumber(Color3.fromHSV(hue, sat, val):ToHex(), 16))
+			modifyconstant(debug.getupvalue(HotbarApp.render, 17).render, 58, tonumber(Color3.fromHSV(hue, sat, math.clamp(val > 0.5 and val - 0.2 or val + 0.2, 0, 1)):ToHex(), 16))
+			modifyconstant(debug.getupvalue(HotbarApp.render, 17).render, 54, 1 - opacity)
+			modifyconstant(debug.getupvalue(HotbarApp.render, 17).render, 55, math.clamp(1.2 - opacity, 0, 1))
+			modifyconstant(func, 31, tonumber(Color3.fromHSV(hue, sat, val):ToHex(), 16))
+			modifyconstant(func, 32, math.clamp(1.2 - opacity, 0, 1))
+			modifyconstant(func, 34, tonumber(Color3.fromHSV(hue, sat, math.clamp(val > 0.5 and val - 0.2 or val + 0.2, 0, 1)):ToHex(), 16))
+		end
+	})
+end)
+	
+run(function()
+	local KillEffect
+	local Mode
+	local List
+	
+	local killeffects = {
+		Gravity = function(_, _, char, _)
+			char:BreakJoints()
+			local highlight = char:FindFirstChildWhichIsA('Highlight')
+			local nametag = char:FindFirstChild('Nametag', true)
+			if highlight then 
+				highlight:Destroy() 
+			end
+			if nametag then 
+				nametag:Destroy() 
+			end
+	
+			task.spawn(function()
+				local partvelo = {}
+				for _, v in char:GetDescendants() do
+					if v:IsA('BasePart') then
+						partvelo[v.Name] = v.Velocity
+					end
+				end
+				char.Archivable = true
+				local clone = char:Clone()
+				clone.Humanoid.Health = 100
+				clone.Parent = workspace
+				game:GetService('Debris'):AddItem(clone, 30)
+				char:Destroy()
+				task.wait(0.01)
+				clone.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+				clone:BreakJoints()
+				task.wait(0.01)
+				for _, v in clone:GetDescendants() do
+					if v:IsA('BasePart') then
+						local bodyforce = Instance.new('BodyForce')
+						bodyforce.Force = Vector3.new(0, (workspace.Gravity - 10) * v:GetMass(), 0)
+						bodyforce.Parent = v
+						v.CanCollide = true
+						v.Velocity = partvelo[v.Name] or Vector3.zero
+					end
+				end
+			end)
+		end,
+		Lightning = function(_, _, char, _)
+			char:BreakJoints()
+			local highlight = char:FindFirstChildWhichIsA('Highlight')
+			if highlight then 
+				highlight:Destroy() 
+			end
+			local startpos = 1125
+			local startcf = char.PrimaryPart.CFrame.p - Vector3.new(0, 8, 0)
+			local newpos = Vector3.new((math.random(1, 10) - 5) * 2, startpos, (math.random(1, 10) - 5) * 2)
+	
+			for i = startpos - 75, 0, -75 do
+				local newpos2 = Vector3.new((math.random(1, 10) - 5) * 2, i, (math.random(1, 10) - 5) * 2)
+				if i == 0 then
+					newpos2 = Vector3.zero
+				end
+				local part = Instance.new('Part')
+				part.Size = Vector3.new(1.5, 1.5, 77)
+				part.Material = Enum.Material.SmoothPlastic
+				part.Anchored = true
+				part.Material = Enum.Material.Neon
+				part.CanCollide = false
+				part.CFrame = CFrame.new(startcf + newpos + ((newpos2 - newpos) * 0.5), startcf + newpos2)
+				part.Parent = workspace
+				local part2 = part:Clone()
+				part2.Size = Vector3.new(3, 3, 78)
+				part2.Color = Color3.new(0.7, 0.7, 0.7)
+				part2.Transparency = 0.7
+				part2.Material = Enum.Material.SmoothPlastic
+				part2.Parent = workspace
+				game:GetService('Debris'):AddItem(part, 0.5)
+				game:GetService('Debris'):AddItem(part2, 0.5)
+				bedwars.QueryUtil:setQueryIgnored(part, true)
+				bedwars.QueryUtil:setQueryIgnored(part2, true)
+				if i == 0 then
+					local soundpart = Instance.new('Part')
+					soundpart.Transparency = 1
+					soundpart.Anchored = true
+					soundpart.Size = Vector3.zero
+					soundpart.Position = startcf
+					soundpart.Parent = workspace
+					bedwars.QueryUtil:setQueryIgnored(soundpart, true)
+					local sound = Instance.new('Sound')
+					sound.SoundId = 'rbxassetid://6993372814'
+					sound.Volume = 2
+					sound.Pitch = 0.5 + (math.random(1, 3) / 10)
+					sound.Parent = soundpart
+					sound:Play()
+					sound.Ended:Connect(function() 
+						soundpart:Destroy() 
+					end)
+				end
+				newpos = newpos2
+			end
+		end,
+		Delete = function(_, _, char, _) 
+			char:Destroy() 
+		end
+	}
+	
+	KillEffect = vape.Legit:CreateModule({
+		Name = 'Kill Effect',
+		Function = function(callback)
+			if callback then
+				for i, v in killeffects do
+					bedwars.KillEffectController.killEffects['Custom'..i] = {
+						new = function() 
+							return {
+								onKill = v, 
+								isPlayDefaultKillEffect = function() 
+									return false 
+								end
+							} 
+						end
+					}
+				end
+				KillEffect:Clean(lplr:GetAttributeChangedSignal('KillEffectType'):Connect(function()
+					lplr:SetAttribute('KillEffectType', Mode.Value == 'Bedwars' and List.Value or 'Custom'..Mode.Value)
+				end))
+				lplr:SetAttribute('KillEffectType', Mode.Value == 'Bedwars' and List.Value or 'Custom'..Mode.Value)
+			else
+				for i in killeffects do 
+					bedwars.KillEffectController.killEffects['Custom'..i] = nil 
+				end
+				lplr:SetAttribute('KillEffectType', 'default')
+			end
+		end,
+		Tooltip = 'Custom final kill effects'
+	})
+	local modes = {'Bedwars'}
+	for i in killeffects do 
+		table.insert(modes, i) 
+	end
+	Mode = KillEffect:CreateDropdown({
+		Name = 'Mode',
+		List = modes,
+		Function = function(val)
+			List.Object.Visible = val == 'Bedwars'
+			if KillEffect.Enabled then
+				lplr:SetAttribute('KillEffectType', val == 'Bedwars' and List.Value or 'Custom'..val)
+			end
+		end
+	})
+	local KillEffectName = {}
+	for i, v in bedwars.KillEffectMeta do
+		table.insert(KillEffectName, v.name)
+		KillEffectName[v.name] = i
+	end
+	table.sort(KillEffectName)
+	List = KillEffect:CreateDropdown({
+		Name = 'Bedwars',
+		List = KillEffectName,
+		Function = function(val)
+			if KillEffect.Enabled then
+				lplr:SetAttribute('KillEffectType', val)
+			end
+		end,
+		Darker = true
+	})
+end)
+	
+run(function()
+	local ReachDisplay
+	local label
+	
+	ReachDisplay = vape.Legit:CreateModule({
+		Name = 'Reach Display',
+		Function = function(callback)
+			if callback then
+				repeat
+					label.Text = (store.attackReachUpdate > tick() and store.attackReach or '0.00')..' studs'
+					task.wait(0.4)
+				until not ReachDisplay.Enabled
+			end
+		end,
+		Size = UDim2.fromOffset(100, 41)
+	})
+	ReachDisplay:CreateFont({
+		Name = 'Font',
+		Blacklist = 'Gotham',
+		Function = function(val)
+			label.FontFace = val
+		end
+	})
+	ReachDisplay:CreateColorSlider({
+		Name = 'Color',
+		DefaultValue = 0,
+		DefaultOpacity = 0.5,
+		Function = function(hue, sat, val, opacity)
+			label.BackgroundColor3 = Color3.fromHSV(hue, sat, val)
+			label.BackgroundTransparency = 1 - opacity
+		end
+	})
+	label = Instance.new('TextLabel')
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 0.5
+	label.TextSize = 15
+	label.Font = Enum.Font.Gotham
+	label.Text = '0.00 studs'
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.BackgroundColor3 = Color3.new()
+	label.Parent = ReachDisplay.Children
+	local corner = Instance.new('UICorner')
+	corner.CornerRadius = UDim.new(0, 4)
+	corner.Parent = label
+end)
+	
+run(function()
+	local SongBeats
+	local List
+	local FOV
+	local FOVValue = {}
+	local Volume
+	local alreadypicked = {}
+	local beattick = tick()
+	local oldfov, songobj, songbpm, songtween
+	
+	local function choosesong()
+		local list = List.ListEnabled
+		if #alreadypicked >= #list then 
+			table.clear(alreadypicked) 
+		end
+	
+		if #list <= 0 then
+			notif('SongBeats', 'no songs', 10)
+			SongBeats:Toggle()
+			return
+		end
+	
+		local chosensong = list[math.random(1, #list)]
+		if #list > 1 and table.find(alreadypicked, chosensong) then
+			repeat 
+				task.wait() 
+				chosensong = list[math.random(1, #list)] 
+			until not table.find(alreadypicked, chosensong) or not SongBeats.Enabled
+		end
+		if not SongBeats.Enabled then return end
+	
+		local split = chosensong:split('/')
+		if not isfile(split[1]) then
+			notif('SongBeats', 'Missing song ('..split[1]..')', 10)
+			SongBeats:Toggle()
+			return
+		end
+	
+		songobj.SoundId = assetfunction(split[1])
+		repeat task.wait() until songobj.IsLoaded or not SongBeats.Enabled
+		if SongBeats.Enabled then
+			beattick = tick() + (tonumber(split[3]) or 0)
+			songbpm = 60 / (tonumber(split[2]) or 50)
+			songobj:Play()
+		end
+	end
+	
+	SongBeats = vape.Legit:CreateModule({
+		Name = 'Song Beats',
+		Function = function(callback)
+			if callback then
+				songobj = Instance.new('Sound')
+				songobj.Volume = Volume.Value / 100
+				songobj.Parent = workspace
+				repeat
+					if not songobj.Playing then choosesong() end
+					if beattick < tick() and SongBeats.Enabled and FOV.Enabled then
+						beattick = tick() + songbpm
+						oldfov = math.min(bedwars.FovController:getFOV() * (bedwars.SprintController.sprinting and 1.1 or 1), 120)
+						gameCamera.FieldOfView = oldfov - FOVValue.Value
+						songtween = tweenService:Create(gameCamera, TweenInfo.new(math.min(songbpm, 0.2), Enum.EasingStyle.Linear), {FieldOfView = oldfov})
+						songtween:Play()
+					end
+					task.wait()
+				until not SongBeats.Enabled
+			else
+				if songobj then
+					songobj:Destroy()
+				end
+				if songtween then
+					songtween:Cancel()
+				end
+				if oldfov then
+					gameCamera.FieldOfView = oldfov
+				end
+				table.clear(alreadypicked)
+			end
+		end,
+		Tooltip = 'Built in mp3 player'
+	})
+	List = SongBeats:CreateTextList({
+		Name = 'Songs',
+		Placeholder = 'filepath/bpm/start'
+	})
+	FOV = SongBeats:CreateToggle({
+		Name = 'Beat FOV',
+		Function = function(callback)
+			if FOVValue.Object then
+				FOVValue.Object.Visible = callback
+			end
+			if SongBeats.Enabled then
+				SongBeats:Toggle()
+				SongBeats:Toggle()
+			end
+		end,
+		Default = true
+	})
+	FOVValue = SongBeats:CreateSlider({
+		Name = 'Adjustment',
+		Min = 1,
+		Max = 30,
+		Default = 5,
+		Darker = true
+	})
+	Volume = SongBeats:CreateSlider({
+		Name = 'Volume',
+		Function = function(val)
+			if songobj then 
+				songobj.Volume = val / 100 
+			end
+		end,
+		Min = 1,
+		Max = 100,
+		Default = 100,
+		Suffix = '%'
+	})
+end)
+	
+run(function()
+	local SoundChanger
+	local List
+	local soundlist = {}
+	local old
+	
+	SoundChanger = vape.Legit:CreateModule({
+		Name = 'SoundChanger',
+		Function = function(callback)
+			if callback then 
+				old = bedwars.SoundManager.playSound
+				bedwars.SoundManager.playSound = function(self, id, ...)
+					if soundlist[id] then 
+						id = soundlist[id]
+					end
+	
+					return old(self, id, ...)
+				end
+			else
+				bedwars.SoundManager.playSound = old
+				old = nil
+			end
+		end,
+		Tooltip = 'Change ingame sounds to custom ones.'
+	})
+	List = SoundChanger:CreateTextList({
+		Name = 'Sounds',
+		Placeholder = '(DAMAGE_1/ben.mp3)',
+		Function = function()
+			table.clear(soundlist)
+			for _, entry in List.ListEnabled do
+				local split = entry:split('/')
+				local id = bedwars.SoundList[split[1]]
+				if id and #split > 1 then
+					soundlist[id] = split[2]:find('rbxasset') and split[2] or assetfunction(split[2]) 
+				end
+			end
+		end
+	})
+end)
+	
+run(function()
+	local UICleanup
+	local OpenInv
+	local KillFeed
+	local OldTabList
+	local HotbarApp = require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui['hotbar-app']).HotbarApp
+	local HotbarOpenInventory = require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui['hotbar-open-inventory']).HotbarOpenInventory
+	local old, new = {}, {}
+	local oldkillfeed
+	
+	vape:Clean(function()
+		for _, v in new do 
+			table.clear(v) 
+		end
+		for _, v in old do 
+			table.clear(v) 
+		end
+		table.clear(new)
+		table.clear(old)
+	end)
+	
+	local function modifyconstant(func, ind, val)
+		if not old[func] then old[func] = {} end
+		if not new[func] then new[func] = {} end
+		if not old[func][ind] then 
+			local typing = type(old[func][ind])
+			if typing == 'function' or typing == 'userdata' then return end
+			old[func][ind] = debug.getconstant(func, ind) 
+		end
+		if typeof(old[func][ind]) ~= typeof(val) and val ~= nil then return end
+	
+		new[func][ind] = val
+		if UICleanup.Enabled then
+			if val then
+				debug.setconstant(func, ind, val)
+			else
+				debug.setconstant(func, ind, old[func][ind])
+				old[func][ind] = nil
+			end
+		end
+	end
+	
+	UICleanup = vape.Legit:CreateModule({
+		Name = 'UI Cleanup',
+		Function = function(callback)
+			for i, v in (callback and new or old) do
+				for i2, v2 in v do 
+					debug.setconstant(i, i2, v2) 
+				end
+			end
+			if callback then
+				if OpenInv.Enabled then
+					oldinvrender = HotbarOpenInventory.render
+					HotbarOpenInventory.render = function()
+						return bedwars.Roact.createElement('TextButton', {Visible = false}, {})
+					end
+				end
+	
+				if KillFeed.Enabled then
+					oldkillfeed = bedwars.KillFeedController.addToKillFeed
+					bedwars.KillFeedController.addToKillFeed = function() end
+				end
+	
+				if OldTabList.Enabled then 
+					starterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, true) 
+				end
+			else
+				if oldinvrender then
+					HotbarOpenInventory.render = oldinvrender
+					oldinvrender = nil
+				end
+	
+				if KillFeed.Enabled then
+					bedwars.KillFeedController.addToKillFeed = oldkillfeed
+					oldkillfeed = nil
+				end
+	
+				if OldTabList.Enabled then 
+					starterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false) 
+				end
+			end
+		end,
+		Tooltip = 'Cleans up the UI for kits & main'
+	})
+	UICleanup:CreateToggle({
+		Name = 'Resize Health',
+		Function = function(callback)
+			modifyconstant(HotbarApp.render, 60, callback and 1 or nil)
+			modifyconstant(debug.getupvalue(HotbarApp.render, 10).render, 30, callback and 1 or nil)
+			modifyconstant(debug.getupvalue(HotbarApp.render, 17).tweenPosition, 16, callback and 0 or nil)
+		end,
+		Default = true
+	})
+	UICleanup:CreateToggle({
+		Name = 'No Hotbar Numbers',
+		Function = function(callback)
+			local func = oldinvrender or HotbarOpenInventory.render
+			modifyconstant(debug.getupvalue(HotbarApp.render, 17).render, 90, callback and 0 or nil)
+			modifyconstant(func, 71, callback and 0 or nil)
+		end,
+		Default = true
+	})
+	OpenInv = UICleanup:CreateToggle({
+		Name = 'No Inventory Button',
+		Function = function(callback)
+			modifyconstant(HotbarApp.render, 78, callback and 0 or nil)
+			if UICleanup.Enabled then
+				if callback then
+					oldinvrender = HotbarOpenInventory.render
+					HotbarOpenInventory.render = function()
+						return bedwars.Roact.createElement('TextButton', {Visible = false}, {})
+					end
+				else
+					HotbarOpenInventory.render = oldinvrender
+					oldinvrender = nil
+				end
+			end
+		end,
+		Default = true
+	})
+	KillFeed = UICleanup:CreateToggle({
+		Name = 'No Kill Feed',
+		Function = function(callback)
+			if UICleanup.Enabled then
+				if callback then
+					oldkillfeed = bedwars.KillFeedController.addToKillFeed
+					bedwars.KillFeedController.addToKillFeed = function() end
+				else
+					bedwars.KillFeedController.addToKillFeed = oldkillfeed
+					oldkillfeed = nil
+				end
+			end
+		end,
+		Default = true
+	})
+	OldTabList = UICleanup:CreateToggle({
+		Name = 'Old Player List',
+		Function = function(callback)
+			if UICleanup.Enabled then 
+				starterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, callback) 
+			end
+		end,
+		Default = true
+	})
+	UICleanup:CreateToggle({
+		Name = 'Fix Queue Card',
+		Function = function(callback)
+			modifyconstant(bedwars.QueueCard.render, 15, callback and 0.1 or nil)
+		end,
+		Default = true
+	})
+end)
+	
+run(function()
+	local Viewmodel
+	local Depth
+	local Horizontal
+	local Vertical
+	local NoBob
+	local Rots = {}
+	local old, oldc1
+	
+	Viewmodel = vape.Legit:CreateModule({
+		Name = 'Viewmodel',
+		Function = function(callback)
+			local viewmodel = gameCamera:FindFirstChild('Viewmodel')
+			if callback then
+				old = bedwars.ViewmodelController.playAnimation
+				oldc1 = viewmodel and viewmodel.RightHand.RightWrist.C1 or CFrame.identity
+				if NoBob.Enabled then
+					bedwars.ViewmodelController.playAnimation = function(self, animtype, ...)
+						if bedwars.AnimationType and animtype == bedwars.AnimationType.FP_WALK then return end
+						return old(self, animtype, ...)
+					end
+				end
+	
+				bedwars.InventoryViewmodelController:handleStore(bedwars.Store:getState())
+				if viewmodel then
+					gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldc1 * CFrame.Angles(math.rad(Rots[1].Value), math.rad(Rots[2].Value), math.rad(Rots[3].Value))
+				end
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -Depth.Value)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', Horizontal.Value)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', Vertical.Value)
+			else
+				bedwars.ViewmodelController.playAnimation = old
+				if viewmodel then
+					viewmodel.RightHand.RightWrist.C1 = oldc1
+				end
+	
+				bedwars.InventoryViewmodelController:handleStore(bedwars.Store:getState())
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', 0)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', 0)
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', 0)
+				old = nil
+			end
+		end,
+		Tooltip = 'Changes the viewmodel animations'
+	})
+	Depth = Viewmodel:CreateSlider({
+		Name = 'Depth',
+		Min = 0,
+		Max = 2,
+		Default = 0.8,
+		Decimal = 10,
+		Function = function(val)
+			if Viewmodel.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_DEPTH_OFFSET', -val)
+			end
+		end
+	})
+	Horizontal = Viewmodel:CreateSlider({
+		Name = 'Horizontal',
+		Min = 0,
+		Max = 2,
+		Default = 0.8,
+		Decimal = 10,
+		Function = function(val)
+			if Viewmodel.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_HORIZONTAL_OFFSET', val)
+			end
+		end
+	})
+	Vertical = Viewmodel:CreateSlider({
+		Name = 'Vertical',
+		Min = -0.2,
+		Max = 2,
+		Default = -0.2,
+		Decimal = 10,
+		Function = function(val)
+			if Viewmodel.Enabled then
+				lplr.PlayerScripts.TS.controllers.global.viewmodel['viewmodel-controller']:SetAttribute('ConstantManager_VERTICAL_OFFSET', val)
+			end
+		end
+	})
+	for _, name in {'Rotation X', 'Rotation Y', 'Rotation Z'} do
+		table.insert(Rots, Viewmodel:CreateSlider({
+			Name = name,
+			Min = 0,
+			Max = 360,
+			Function = function(val)
+				if Viewmodel.Enabled then
+					gameCamera.Viewmodel.RightHand.RightWrist.C1 = oldc1 * CFrame.Angles(math.rad(Rots[1].Value), math.rad(Rots[2].Value), math.rad(Rots[3].Value))
+				end
+			end
+		}))
+	end
+	NoBob = Viewmodel:CreateToggle({
+		Name = 'No Bobbing',
+		Default = true,
+		Function = function()
+			if Viewmodel.Enabled then
+				Viewmodel:Toggle()
+				Viewmodel:Toggle()
+			end
+		end
+	})
+end)
+																																																																																																																																																																																																																																																																																									vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
+vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
+vape:CreateNotification("Daddyware", "Join our discord server at https://discord.gg/6kyHUhUXVC", 15, "alert")
