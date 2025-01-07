@@ -7807,7 +7807,7 @@ run(function()
 end)
 
 run(function()
-    AntiBan = vape.Novaware:CreateModule({
+    AntiBan = vape.Categories.Novaware:CreateModule({
         Name = "AntiBan",
         Function = function()
 				repeat task.wait() until game:IsLoaded()
