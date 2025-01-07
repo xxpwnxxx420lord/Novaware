@@ -7840,14 +7840,7 @@ run(function()
 				vape:CreateNotification("Novaware","Loaded in " .. tick() - loadtime .. " seconds.",15)
 				return
 			end
-		end
-	})
-	LoadingTimeNotification = LoadingTime.CreateSlider({
-		Name = "Notification",
-		Min = 1,
-		Max = 20,
-		Function = function() end,
-		Default = 5
+		end	
 	})
 end)
 
