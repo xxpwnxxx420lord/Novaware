@@ -7860,9 +7860,9 @@ runFunction(function()
 	local lightingconnection
 	local lightingchanged = false
 	local FemboyMode = vape.Categories.Novaware:CreateModule({
-		["Name"] = "FemboyMode",
-		["HoverText"] = "Makes the world look more aesthetic",
-		["Function"] = function(callback)
+		Name = "FemboyMode",
+		HoverText = "Makes the world look more aesthetic",
+		Function = function(callback)
 			if callback then
 				lightingsettings["Brightness"] = lighting.Brightness
 				lightingsettings["ClockTime"] = lighting.ClockTime
