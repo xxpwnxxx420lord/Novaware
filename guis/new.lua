@@ -5730,7 +5730,7 @@ mainapi:CreateCategory({
 	Size = UDim2.fromOffset(19, 12)
 })
 mainapi:CreateCategory({
-	Name = 'Novaware only',
+	Name = 'Novaware',
 	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
 	Size = UDim2.fromOffset(19, 12)
 })
