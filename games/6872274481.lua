@@ -7831,9 +7831,9 @@ run(function()
 end)
 
 runFunction(function()
-	local Snowflakes = {Enabled = false}
-	local SnowflakesSpread = {Value = 35}
-	local SnowflakesRate = {Value = 28}
+	local Snowflakes = false
+	local SnowflakesSpread = 35
+	local SnowflakesRate = 28
 	Snowflakes = vape.Categories.Novaware:CreateModule({
 		Name = "Snowflakes",
         HoverText = "Makes it snow",
