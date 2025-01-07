@@ -5729,6 +5729,11 @@ mainapi:CreateCategory({
 	Icon = getcustomasset('newvape/assets/new/miniicon.png'),
 	Size = UDim2.fromOffset(19, 12)
 })
+mainapi:CreateCategory({
+	Name = 'Novaware only',
+	Icon = getcustomasset('newvape/assets/new/image-removebg-preview.png'),
+	Size = UDim2.fromOffset(19, 12)
+})
 mainapi.Categories.Main:CreateDivider('misc')
 
 --[[
