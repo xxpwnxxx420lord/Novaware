@@ -7833,17 +7833,162 @@ run(function()
 end)
 
 run(function()
-	LoadingTime = vape.Categories.Novaware:CreateModule({
-		Name = "LoadingTime",
-        HoverText = "Notifies you on how long the loading time took",
+	Febighead = vape.Categories.Novaware:CreateModule({
+		Name = "FE big head ",
+        HoverText = "(requires rthro head)",
 		Function = function(callback)
 			if callback then
-				vape:CreateNotification("Novaware","Loaded in " .. tick() - loadtime .. " seconds.",15)
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/sysGhost-aka-BiKode/Scripts2022/main/BigHeadV3_Unpatched", true))()
 				return
 			end
 		end	
 	})
 end)
+
+run(function()
+	Febighead = vape.Categories.Novaware:CreateModule({
+		Name = "FE big head ",
+        HoverText = "(requires rthro head)",
+		Function = function(callback)
+			if callback then
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/sysGhost-aka-BiKode/Scripts2022/main/BigHeadV3_Unpatched", true))()
+				return
+			end
+		end	
+	})
+end)
+
+
+
+runFunction(function()
+	local BigBigBigBigHead = COB("Render", {
+		Name = "BigHead (requires rthro head)",
+		Function = function(callback) 
+			if callback then
+			end
+		end,
+		Default = false,
+		HoverText = "FE BigHead"
+	})
+end)
+
+run(function()
+	LoadingTime = vape.Categories.Novaware:CreateModule({
+		Name = "glizzy ",
+        HoverText = "the rizzler has a glizzy ong ",
+		Function = function(callback)
+			if callback then
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				
+				--// importing the textures
+				local objs = game:GetObjects("rbxassetid://13804645310")
+				local import = objs[1]
+				
+				import.Parent = game:GetService("ReplicatedStorage")
+				
+				--// very epic index
+				index = {
+				
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(100),math.rad(-270)),
+						model = import:WaitForChild("Rageblade"),
+					},
+					
+					
+				}
+				
+				--// main viewmodel renderer
+				local func = Workspace:WaitForChild("Camera").Viewmodel.ChildAdded:Connect(function(tool)
+					
+					if(not tool:IsA("Accessory")) then return end
+					
+					for i,v in pairs(index) do
+					
+						if(v.name == tool.Name) then
+						
+							for i,v in pairs(tool:GetDescendants()) do
+					
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+								
+									v.Transparency = 1
+								
+								end
+							
+							end
+						
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-100),math.rad(0))
+							model.Parent = tool
+							
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							
+							for i,v in pairs(tool2:GetDescendants()) do
+					
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+								
+									v.Transparency = 1
+								
+								end
+							
+							end
+							
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-70),math.rad(0))
+							model2.CFrame *= CFrame.new(.6,0,-.5)
+							model2.Parent = tool2
+							
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end)
+				return
+			end
+		end	
+	})
+end)
+
 
 run(function()
 	local skyColor
@@ -7987,6 +8132,165 @@ run(function()
 		end,
 	})
 end)
+
+local activeTweens = {}
+local activeAnimationTrack = nil
+local activeModel = nil
+local emoteActive = false
+
+-- idk if already defined but wtv
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local players = game:GetService("Players")
+local tweenService = game:GetService("TweenService")
+local userInputService = game:GetService("UserInputService")
+
+local function spinParts(model)
+    for _, part in ipairs(model:GetDescendants()) do
+        if part:IsA("BasePart") and (part.Name == "Middle" or part.Name == "Outer") then
+            local tweenInfo, goal
+            if part.Name == "Middle" then
+                tweenInfo = TweenInfo.new(12.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, false, 0)
+                goal = { Orientation = part.Orientation + Vector3.new(0, -360, 0) }
+            elseif part.Name == "Outer" then
+                tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, false, 0)
+                goal = { Orientation = part.Orientation + Vector3.new(0, 360, 0) }
+            end
+ 
+            local tween = tweenService:Create(part, tweenInfo, goal)
+            tween:Play()
+            table.insert(activeTweens, tween)
+        end
+    end
+end
+ 
+local function placeModelUnderLeg()
+    local player = players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+ 
+    if humanoidRootPart then
+        local assetsFolder = replicatedStorage:FindFirstChild("Assets")
+        if assetsFolder then
+            local effectsFolder = assetsFolder:FindFirstChild("Effects")
+            if effectsFolder then
+                local modelTemplate = effectsFolder:FindFirstChild("NightmareEmote")
+                if modelTemplate and modelTemplate:IsA("Model") then
+                    local clonedModel = modelTemplate:Clone()
+                    clonedModel.Parent = workspace
+ 
+                    if clonedModel.PrimaryPart then
+                        clonedModel:SetPrimaryPartCFrame(humanoidRootPart.CFrame - Vector3.new(0, 3, 0))
+                    else
+                        warn("PrimaryPart not set for NightmareEmote model!")
+                        return
+                    end
+ 
+                    spinParts(clonedModel)
+                    activeModel = clonedModel
+                else
+                    warn("NightmareEmote model not found or is not a valid model!")
+                end
+            else
+                warn("Effects folder not found in Assets!")
+            end
+        else
+            warn("Assets folder not found in ReplicatedStorage!")
+        end
+    else
+        warn("HumanoidRootPart not found in character!")
+    end
+end
+ 
+local function playAnimation(animationId)
+    local player = players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChild("Humanoid")
+ 
+    if humanoid then
+        local animator = humanoid:FindFirstChild("Animator") or Instance.new("Animator", humanoid)
+        local animation = Instance.new("Animation")
+        animation.AnimationId = animationId
+        activeAnimationTrack = animator:LoadAnimation(animation)
+        activeAnimationTrack:Play()
+    else
+        warn("Humanoid not found in character!")
+    end
+end
+ 
+local function stopEffects()
+    for _, tween in ipairs(activeTweens) do
+        tween:Cancel()
+    end
+    activeTweens = {}
+ 
+    if activeAnimationTrack then
+        activeAnimationTrack:Stop()
+        activeAnimationTrack = nil
+    end
+ 
+    if activeModel then
+        activeModel:Destroy()
+        activeModel = nil
+    end
+ 
+    emoteActive = false
+end
+ 
+local function monitorWalking()
+    local player = players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChild("Humanoid")
+ 
+    if humanoid then
+        humanoid.Running:Connect(function(speed)
+            if speed > 0 and emoteActive then
+                stopEffects()
+            end
+        end)
+    else
+        warn("Humanoid not found in character!")
+    end
+end
+ 
+local function activateEmote()
+    if emoteActive then
+        return
+    end
+ 
+    emoteActive = true
+    local success, err = pcall(function()
+        monitorWalking()
+        placeModelUnderLeg()
+        playAnimation("rbxassetid://9191822700")
+    end)
+ 
+    if not success then
+        warn("Error occurred: " .. tostring(err))
+        emoteActive = false
+    end
+end
+
+run(function()
+	vape.Categories.Novaware:CreateModule({
+		Name = "Nightmare emote",
+		HoverText = "when you press M it enables nightmare emote. Visual only",
+		Function = function(callback)
+			-- erm
+			if callback then
+				userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+					if gameProcessedEvent then
+						return
+					end
+				 
+					if input.KeyCode == Enum.KeyCode.M and callback then
+						activateEmote()
+					end
+				end)
+			end
+		end
+	})
+end) -- praying this works 🙏 (argon fix yourself ong)
+ 
 
 																																																																																																																																																																																																																																																																																									vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
 vape:CreateNotification("Daddyware", "Novaware has loaded.", 15)
