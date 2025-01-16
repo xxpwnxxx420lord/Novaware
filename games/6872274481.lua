@@ -129,6 +129,8 @@ local function collection(tags, module, customadd, customremove)
 	return objs, cleanFunc
 end
 
+
+
 local function getBow()
 	local bestBow, bestBowSlot, bestBowDamage = nil, nil, 0
 	for slot, item in store.inventory.inventory.items do
@@ -665,8 +667,6 @@ run(function()
 		QueueMeta = require(replicatedStorage.TS.game['queue-meta']).QueueMeta,
 		Roact = require(replicatedStorage['rbxts_include']['node_modules']['@rbxts']['roact'].src),
 		RuntimeLib = require(replicatedStorage['rbxts_include'].RuntimeLib),
-		Shop = require(replicatedStorage.TS.games.bedwars.shop['bedwars-shop']).BedwarsShop,
-		ShopItems = debug.getupvalue(debug.getupvalue(require(replicatedStorage.TS.games.bedwars.shop['bedwars-shop']).BedwarsShop.getShopItem, 1), 2),
 		SoundList = require(replicatedStorage.TS.sound['game-sound']).GameSound,
 		SoundManager = require(replicatedStorage['rbxts_include']['node_modules']['@easy-games']['game-core'].out).SoundManager,
 		Store = require(lplr.PlayerScripts.TS.ui.store).ClientStore,
@@ -1111,6 +1111,8 @@ run(function()
 		if getthreadidentity and setthreadidentity then
 			local old = getthreadidentity()
 			setthreadidentity(2)
+			bedwars.Shop = require(replicatedStorage.TS.games.bedwars.shop['bedwars-shop']).BedwarsShop
+			bedwars.ShopItems = debug.getupvalue(debug.getupvalue(bedwars.Shop.getShopItem, 1), 2)
 			bedwars.Shop.getShopItem('iron_sword', lplr)
 			setthreadidentity(old)
 			store.shopLoaded = true
@@ -1119,6 +1121,8 @@ run(function()
 				repeat
 					task.wait(0.1)
 				until vape.Loaded == nil or bedwars.AppController:isAppOpen('BedwarsItemShopApp')
+				bedwars.Shop = require(replicatedStorage.TS.games.bedwars.shop['bedwars-shop']).BedwarsShop
+				bedwars.ShopItems = debug.getupvalue(debug.getupvalue(bedwars.Shop.getShopItem, 1), 2)
 				store.shopLoaded = true
 			end)
 		end
@@ -4650,25 +4654,28 @@ run(function()
 	Mouse = Scaffold:CreateToggle({Name = 'Require mouse down'})
 end)
 	
-run(function()
+run(function()		
 	local tiered, nexttier = {}, {}
-	
+	local ShopTierBypass
 	vape.Categories.Utility:CreateModule({
 		Name = 'ShopTierBypass',
 		Function = function(callback)
 			if callback then
-				for _, v in bedwars.Shop.ShopItems do
-					tiered[v] = v.tiered
-					nexttier[v] = v.nextTier
-					v.nextTier = nil
-					v.tiered = nil
+					repeat task.wait() until store.shopLoaded or not ShopTierBypass.Enabled
+				if ShopTierBypass.Enabled then
+					for _, v in bedwars.Shop.ShopItems do
+						tiered[v] = v.tiered
+						nexttier[v] = v.nextTier
+						v.nextTier = nil
+						v.tiered = nil
+					end
 				end
 			else
-				for i, v in tiered do 
-					i.tiered = v 
+				for i, v in tiered do
+					i.tiered = v
 				end
-				for i, v in nexttier do 
-					i.nextTier = v 
+				for i, v in nexttier do
+					i.nextTier = v
 				end
 				table.clear(nexttier)
 				table.clear(tiered)
@@ -5702,6 +5709,90 @@ run(function()
 	ShieldPotion = AutoConsume:CreateToggle({
 		Name = 'Shield Potions',
 		Default = true
+	})
+end)
+
+																																																																																								run(function()
+	local ArmorSwitch
+	local Mode
+	local Targets
+	local Range
+	
+	local function getBestArmor(slot)
+		local closest, mag = nil, 0
+	
+		for _, item in store.inventory.inventory.items do
+			local meta = item and bedwars.ItemMeta[item.itemType] or {}
+	
+			if meta.armor and meta.armor.slot == slot then
+				local newmag = (meta.armor.damageReductionMultiplier or 0)
+	
+				if newmag > mag then
+					closest, mag = item, newmag
+				end
+			end
+		end
+	
+		return closest
+	end
+	
+	ArmorSwitch = vape.Categories.Inventory:CreateModule({
+		Name = 'ArmorSwitch',
+		Function = function(callback)
+			if callback then
+				if Mode.Value == 'Toggle' then
+					repeat
+						local state = entitylib.EntityPosition({
+							Part = 'RootPart',
+							Range = Range.Value,
+							Players = Targets.Players.Enabled,
+							NPCs = Targets.NPCs.Enabled,
+							Wallcheck = Targets.Walls.Enabled
+						}) and true or false
+	
+						for i = 0, 2 do
+							if (store.inventory.inventory.armor[i + 1] ~= 'empty') ~= state and ArmorSwitch.Enabled then
+								bedwars.Store:dispatch({
+									type = 'InventorySetArmorItem',
+									item = store.inventory.inventory.armor[i + 1] == 'empty' and state and getBestArmor(i) or nil,
+									armorSlot = i
+								})
+								vapeEvents.InventoryChanged.Event:Wait()
+							end
+						end
+						task.wait(0.1)
+					until not ArmorSwitch.Enabled
+				else
+					ArmorSwitch:Toggle()
+					for i = 0, 2 do
+						bedwars.Store:dispatch({
+							type = 'InventorySetArmorItem',
+							item = store.inventory.inventory.armor[i + 1] == 'empty' and getBestArmor(i) or nil,
+							armorSlot = i
+						})
+						vapeEvents.InventoryChanged.Event:Wait()
+					end
+				end
+			end
+		end,
+		Tooltip = 'Puts on / takes off armor when toggled for baiting.'
+	})
+	Mode = ArmorSwitch:CreateDropdown({
+		Name = 'Mode',
+		List = {'Toggle', 'On Key'}
+	})
+	Targets = ArmorSwitch:CreateTargets({
+		Players = true,
+		NPCs = true
+	})
+	Range = ArmorSwitch:CreateSlider({
+		Name = 'Range',
+		Min = 1,
+		Max = 30,
+		Default = 30,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
 	})
 end)
 	
