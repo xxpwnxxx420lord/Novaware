@@ -7950,19 +7950,6 @@ run(function()
 end)
 
 
-
-runFunction(function()
-	local BigBigBigBigHead = COB("Render", {
-		Name = "BigHead (requires rthro head)",
-		Function = function(callback) 
-			if callback then
-			end
-		end,
-		Default = false,
-		HoverText = "FE BigHead"
-	})
-end)
-
 run(function()
 	LoadingTime = vape.Categories.Novaware:CreateModule({
 		Name = "glizzy ",
